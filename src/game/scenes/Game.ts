@@ -6,6 +6,7 @@ import { Microphone } from '../input/microphone';
 import { preloadKobe } from './CharacterView';
 import { HermesHud } from './HermesHud';
 import { DEPARTURE_GATEWAY_TEXTURE, HermesView } from './HermesView';
+import { preloadOutpostBackground } from './OutpostBackground';
 
 export class Game extends Scene {
     private simulation: HermesSimulation;
@@ -21,6 +22,7 @@ export class Game extends Scene {
 
     preload(): void {
         preloadKobe(this);
+        preloadOutpostBackground(this);
         this.load.image(
             DEPARTURE_GATEWAY_TEXTURE,
             `${import.meta.env.BASE_URL}assets/hermes/props/departure-gateway.png`,
@@ -61,10 +63,10 @@ export class Game extends Scene {
             this.hud.micButton.removeEventListener('click', toggleMicrophone);
             window.removeEventListener('pagehide', stopMicrophone);
         });
-        this.render();
+        this.render(0);
     }
 
-    update(_time: number, delta: number): void {
+    update(time: number, delta: number): void {
         const { horizontal, vertical } = this.keyboard.movement;
         this.elapsed += Math.min(delta, 100);
         while (this.elapsed >= STEP_MS) {
@@ -78,12 +80,12 @@ export class Game extends Scene {
         } else if (this.microphone.status !== 'off') {
             this.microphone.disable();
         }
-        this.render();
+        this.render(time);
     }
 
-    private render(): void {
+    private render(time: number): void {
         const state = this.simulation.state;
-        this.view.render(state);
+        this.view.render(state, time);
         this.hud.render(state, this.microphone.status, this.microphone.level);
     }
 }

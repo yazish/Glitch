@@ -5,13 +5,14 @@ import { HEIGHT, WIDTH } from '../viewport';
 import type { HermesLayout, Rect } from '../worlds/hermes/room';
 import type { HermesState } from '../worlds/hermes/simulation';
 import { CharacterView } from './CharacterView';
-import { IsometricRoom } from './IsometricRoom';
+import { RoomProjection } from './RoomProjection';
+import { OutpostBackground } from './OutpostBackground';
+import { drawOutpostTerrain } from './OutpostTerrain';
 
 export const DEPARTURE_GATEWAY_TEXTURE = 'hermes-departure-gateway';
 const GATEWAY_CUTOUT_TEXTURE = 'hermes-departure-gateway-cutout';
 const INK = 0x171624;
-const OUTPOST_STONE = { top: 0x8d6a57, left: 0x473744, right: 0x654a51 };
-const CHAMBER_STONE = { top: 0x615366, left: 0x352b43, right: 0x473952 };
+const CHAMBER_STONE = 0x615366;
 const WALL_STONE = { top: 0xa68b99, left: 0x59485f, right: 0x726075 };
 const GATE_METAL = { top: 0xbe7c72, left: 0x64414e, right: 0x955966 };
 const WALL = 0x4b3645;
@@ -48,8 +49,9 @@ function gatewayTexture(scene: Scene): string {
 }
 
 export class HermesView {
-    private readonly projection: IsometricRoom;
-    private readonly platforms: Record<'outpost' | 'chamber', GameObjects.Graphics>;
+    private readonly projection: RoomProjection;
+    private readonly outpostBackground: OutpostBackground;
+    private readonly floors: Record<'outpost' | 'chamber', GameObjects.Graphics>;
     private readonly art: GameObjects.Graphics;
     private readonly player: CharacterView;
     private readonly echo: CharacterView;
@@ -60,13 +62,14 @@ export class HermesView {
     private readonly completion: GameObjects.Text;
 
     constructor(scene: Scene, private readonly layout: HermesLayout) {
-        this.projection = new IsometricRoom(layout.floor);
+        this.projection = new RoomProjection(layout.floor);
         this.drawSky(scene.add.graphics().setDepth(-3));
-        this.platforms = {
+        this.outpostBackground = new OutpostBackground(scene);
+        this.floors = {
             outpost: scene.add.graphics().setDepth(-2),
             chamber: scene.add.graphics().setDepth(-2),
         };
-        this.drawPlatforms();
+        this.drawFloors();
         this.art = scene.add.graphics().setDepth(-1);
         const { outpost, chamber } = layout;
         const gateway = this.projection.center(chamber.gateway);
@@ -105,14 +108,14 @@ export class HermesView {
         };
         this.labels = {
             outpost: [
-                label(outpost.map, 'STAR MAP', 0, 23),
-                label(outpost.receiver, 'RECEIVER', -5, 38),
-                label(outpost.entrance, 'ANCHOR CHAMBER', 22, -53),
+                label(outpost.map, 'STAR MAP', 0, 21),
+                label(outpost.receiver, 'RECEIVER', 0, 46),
+                label(outpost.entrance, 'ANCHOR CHAMBER', -8, -29),
             ],
             chamber: [
-                label(chamber.plate, 'PRESSURE PLATE', -25, -51),
-                label(chamber.anchor, 'ANCHOR', -18, 22),
-                label(chamber.gateway, 'GATEWAY', 63, -9),
+                label(chamber.plate, 'PRESSURE PLATE', 0, -43),
+                label(chamber.anchor, 'ANCHOR', 0, 34),
+                label(chamber.gateway, 'GATEWAY', 0, 34),
             ],
         };
         this.completion = scene.add.text(WIDTH / 2, HEIGHT / 2,
@@ -124,14 +127,15 @@ export class HermesView {
             }).setOrigin(0.5).setDepth(HEIGHT);
     }
 
-    render(state: HermesState): void {
+    render(state: HermesState, time: number): void {
         const outpost = state.screen === 'outpost';
         const chamber = state.screen === 'chamber';
         const playing = outpost || chamber;
 
         this.art.clear();
-        this.platforms.outpost.setVisible(outpost);
-        this.platforms.chamber.setVisible(chamber);
+        this.outpostBackground.render(outpost, time);
+        this.floors.outpost.setVisible(outpost);
+        this.floors.chamber.setVisible(chamber);
         this.walls.forEach((wall) => wall.setVisible(chamber));
         this.gate.setVisible(chamber && !state.gateOpen);
         this.gateway.setVisible(chamber && this.gateway.texture.key !== '__MISSING');
@@ -163,17 +167,12 @@ export class HermesView {
         art.fillStyle(0xab85a6, 0.62).fillEllipse(531, 74, 65, 4);
     }
 
-    private drawPlatforms(): void {
+    private drawFloors(): void {
         const { floor, outpost } = this.layout;
         const { bridge } = outpost;
         const rightX = bridge.x + bridge.width;
-        this.projection.platform(this.platforms.outpost, {
-            ...floor, width: bridge.x - floor.x,
-        }, OUTPOST_STONE);
-        this.projection.platform(this.platforms.outpost, {
-            ...floor, x: rightX, width: floor.x + floor.width - rightX,
-        }, OUTPOST_STONE);
-        this.projection.platform(this.platforms.chamber, floor, CHAMBER_STONE);
+        drawOutpostTerrain(this.floors.outpost, this.projection, floor, bridge.x, rightX);
+        this.projection.ground(this.floors.chamber, floor, CHAMBER_STONE);
     }
 
     private outpost(state: HermesState): void {

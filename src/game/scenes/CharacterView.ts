@@ -1,19 +1,18 @@
 import type { GameObjects, Scene } from 'phaser';
 import type { Facing, Pose } from '../worlds/hermes/room';
 
-// Facing follows the room axes. The projection turns those axes diagonally on screen.
 const KOBE_POSES = {
-    up: 'rear-right',
-    down: 'front-left',
-    left: 'rear-left',
-    right: 'front-right',
+    up: 'up',
+    down: 'down',
+    left: 'left',
+    right: 'right',
 } satisfies Record<Facing, string>;
 
 const FACING_OFFSET = {
-    up: { x: 4, y: -2 },
-    down: { x: -4, y: 2 },
-    left: { x: -4, y: -2 },
-    right: { x: 4, y: 2 },
+    up: { x: 0, y: -2 },
+    down: { x: 0, y: 2 },
+    left: { x: -4, y: 0 },
+    right: { x: 4, y: 0 },
 } satisfies Record<Facing, { x: number; y: number }>;
 
 export function preloadKobe(scene: Scene): void {

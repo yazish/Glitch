@@ -1,18 +1,20 @@
 import type { GameObjects } from 'phaser';
 import { Math as PhaserMath } from 'phaser';
-import { WIDTH } from '../viewport';
+import { HEIGHT, WIDTH } from '../viewport';
 import { TILE_SIZE } from '../worlds/hermes/room';
 import type { Point, Rect } from '../worlds/hermes/room';
 
 type Color = Readonly<{ top: number; left: number; right: number }>;
 
-export class IsometricRoom {
+export class RoomProjection {
     constructor(private readonly floor: Rect) {}
 
     project(point: Point, height = 0): PhaserMath.Vector2 {
         const x = point.x - this.floor.x - this.floor.width / 2;
-        const y = point.y - this.floor.y - this.floor.height / 2;
-        return new PhaserMath.Vector2(WIDTH / 2 + (x - y) * 0.64, 192 + (x + y) * 0.32 - height);
+        const distance = (point.y - this.floor.y) / this.floor.height;
+        const scale = 1 + distance * (WIDTH / this.floor.width - 1);
+        const horizon = 142;
+        return new PhaserMath.Vector2(WIDTH / 2 + x * scale, horizon + distance * (HEIGHT - horizon) - height);
     }
 
     center(rect: Rect, height = 0): Point {
@@ -35,8 +37,8 @@ export class IsometricRoom {
         art.fillStyle(color.top).fillPoints(top, true);
     }
 
-    platform(art: GameObjects.Graphics, rect: Rect, color: Color): void {
-        this.block(art, rect, 18, color, -18);
+    ground(art: GameObjects.Graphics, rect: Rect, color: number): void {
+        this.surface(art, rect, color);
         const endX = rect.x + rect.width;
         const endY = rect.y + rect.height;
         for (let x = rect.x; x < endX; x += TILE_SIZE) {
@@ -45,11 +47,11 @@ export class IsometricRoom {
                     x, y, width: Math.min(TILE_SIZE, endX - x), height: Math.min(TILE_SIZE, endY - y),
                 };
                 const variation = (x * 13 + y * 7 + (x / TILE_SIZE) * (y / TILE_SIZE)) % 17;
-                this.surface(art, tile, variation < 7 ? 0xffe3b0 : 0x191322, 0.04 + variation * 0.004);
-                this.outline(art, tile, 0x2d2030, 0.32);
+                this.surface(art, tile, variation < 7 ? 0xffe3b0 : 0x191322, 0.025 + variation * 0.003);
+                this.outline(art, tile, 0x2d2030, 0.19);
             }
         }
-        this.outline(art, rect, 0xc8a87e, 0.6);
+        this.outline(art, rect, 0xc8a87e, 0.32);
     }
 
     private corners(rect: Rect, height: number): PhaserMath.Vector2[] {

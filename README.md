@@ -24,6 +24,8 @@ Esc restarts the current room and clears its Echo. The star map and collected Wa
 - `src/game/scenes/` connects inputs and the simulation to the Phaser room view and the HTML interface.
 - `public/assets/` is for exported game art and sound. The current view draws placeholders. The game view is 640 × 360 with a 32 px grid. Start with 48 × 48 px Kobe frames and a consistent foot position, plus a floor tile and matching open/closed gate sprites.
 
+Hermes outpost background uses [Parallax Terrestrial Planet](https://kayillustrations.itch.io/parallax-terrestrial-planet) by **kayillustrations**, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Glitch uses four layers, scaled 2× and darkened in-game.
+
 ## Verify and build
 
 ```sh

@@ -1,0 +1,7 @@
+Parallax Terrestrial Planet by kayillustrations
+Source: https://kayillustrations.itch.io/parallax-terrestrial-planet
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Glitch uses four of the original layers. The PNGs are renamed. In-game
+presentation uses 2x scaling and a dark overlay. The PNG pixels are unchanged.
