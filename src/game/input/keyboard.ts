@@ -1,0 +1,54 @@
+import type { GameCommand } from '../hermes/simulation';
+
+const commands: Partial<Record<string, GameCommand>> = {
+    Space: 'activateBridge',
+    KeyR: 'rewind',
+    Escape: 'restart',
+};
+const movementKeys = new Set([
+    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyW', 'KeyA', 'KeyS', 'KeyD',
+]);
+
+export class KeyboardControls {
+    private readonly held = new Set<string>();
+
+    constructor(private readonly gameElement: HTMLElement, private readonly issue: (command: GameCommand) => void) {
+        window.addEventListener('keydown', this.keyDown);
+        window.addEventListener('keyup', this.keyUp);
+        window.addEventListener('blur', this.clear);
+    }
+
+    get movement() {
+        const pressed = (arrow: string, letter: string) => Number(this.held.has(arrow) || this.held.has(letter));
+        return {
+            horizontal: pressed('ArrowRight', 'KeyD') - pressed('ArrowLeft', 'KeyA'),
+            vertical: pressed('ArrowDown', 'KeyS') - pressed('ArrowUp', 'KeyW'),
+        };
+    }
+
+    destroy(): void {
+        window.removeEventListener('keydown', this.keyDown);
+        window.removeEventListener('keyup', this.keyUp);
+        window.removeEventListener('blur', this.clear);
+        this.clear();
+    }
+
+    private readonly keyDown = (event: KeyboardEvent): void => {
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
+        if (movementKeys.has(event.code)) {
+            event.preventDefault();
+            if (event.target instanceof HTMLButtonElement) this.gameElement.focus({ preventScroll: true });
+            this.held.add(event.code);
+        }
+        const command = commands[event.code];
+        if (!command || (event.code === 'Space' && event.target instanceof HTMLButtonElement)) return;
+        event.preventDefault();
+        if (!event.repeat) this.issue(command);
+    };
+
+    private readonly keyUp = (event: KeyboardEvent): void => {
+        this.held.delete(event.code);
+    };
+
+    private readonly clear = (): void => this.held.clear();
+}

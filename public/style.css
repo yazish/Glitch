@@ -1,0 +1,57 @@
+:root {
+    color-scheme: dark;
+    font-family: "Geist", system-ui, sans-serif;
+    color: #fff1e1;
+    background: #15131d;
+}
+
+body { margin: 0; }
+
+#app {
+    width: min(960px, calc(100% - 32px));
+    margin: 24px auto;
+}
+
+h1 { font-size: clamp(2rem, 6vw, 3rem); margin: 0; }
+h2 { margin: 0; font-size: 0.95rem; }
+p { margin: 0; }
+.location { color: #c9b7cb; margin-bottom: 16px; }
+
+#game-container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #171624;
+    outline: 1px solid #5b475e;
+}
+
+#objective { margin: 14px 0 8px; color: #ffdbac; }
+.controls { line-height: 2; color: #d4c5d5; }
+kbd, button {
+    border: 1px solid #69556c;
+    border-radius: 4px;
+    color: #fff1e1;
+    background: #2c2538;
+}
+kbd { padding: 2px 5px; margin-left: 5px; }
+kbd:first-child { margin-left: 0; }
+button { padding: 7px 10px; font: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid #87e0d0; outline-offset: 2px; }
+
+section {
+    margin-top: 14px;
+    padding: 10px 0;
+    border-top: 1px solid #46384b;
+}
+
+#waymarks { display: flex; gap: 6px; padding: 0; margin: 8px 0; list-style: none; }
+#waymarks li {
+    width: 30px;
+    line-height: 30px;
+    text-align: center;
+    border: 1px solid #69556c;
+    border-radius: 4px;
+}
+#waymarks .filled { color: #171624; background: #87e0d0; }
+#route, #mic-status { font-size: 0.85rem; color: #c9b7cb; }
+#mic-status { margin-top: 6px; }
+meter { width: 96px; margin-left: 8px; }
