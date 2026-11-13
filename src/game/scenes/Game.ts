@@ -3,8 +3,9 @@ import { hermes, STEP_MS } from '../worlds/hermes/room';
 import { HermesSimulation } from '../worlds/hermes/simulation';
 import { KeyboardControls } from '../input/keyboard';
 import { Microphone } from '../input/microphone';
+import { preloadKobe } from './CharacterView';
 import { HermesHud } from './HermesHud';
-import { HermesView } from './HermesView';
+import { DEPARTURE_GATEWAY_TEXTURE, HermesView } from './HermesView';
 
 export class Game extends Scene {
     private simulation: HermesSimulation;
@@ -16,6 +17,14 @@ export class Game extends Scene {
 
     constructor() {
         super('Game');
+    }
+
+    preload(): void {
+        preloadKobe(this);
+        this.load.image(
+            DEPARTURE_GATEWAY_TEXTURE,
+            `${import.meta.env.BASE_URL}assets/hermes/props/departure-gateway.png`,
+        );
     }
 
     create(): void {
