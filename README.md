@@ -13,7 +13,7 @@ npm run dev-nolog
 
 Open the URL printed by Vite. Move with WASD or the arrow keys. Find the star map and press Space near the receiver to extend the bridge. You can also enable the microphone, stay quiet during calibration, then hum at the receiver. In the anchor chamber, stand on the pressure plate and press R. Let your Shadow Echo hold the plate while you pass through the gate. Touch the anchor to recover the Waymark, then enter the departure gateway.
 
-Esc restarts the current room and clears its Echo. The star map and collected Waymark are kept until you reload the page.
+Hermes scrolls horizontally from the outpost to the anchor chamber. The first bridge crossing secures it for the return trip. Walking out of the chamber clears its Echo. Esc restarts the current area and clears its Echo. The star map, secured bridge, and collected Waymark are kept until you reload the page.
 
 ## Code and art
 

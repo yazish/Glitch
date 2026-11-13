@@ -42,8 +42,13 @@ export class Game extends Scene {
         gameElement.setAttribute('aria-label', 'Hermes game room');
         gameElement.focus({ preventScroll: true });
         this.keyboard = new KeyboardControls(gameElement, (command) => {
+            const previous = this.simulation.state.player;
             this.simulation.command(command);
-            if (command !== 'activateBridge') this.elapsed = 0;
+            if (command !== 'activateBridge') {
+                this.elapsed = 0;
+                const player = this.simulation.state.player;
+                if (player.x !== previous.x || player.y !== previous.y) this.render(0, true);
+            }
         });
 
         const toggleMicrophone = (event: MouseEvent) => {
@@ -63,10 +68,10 @@ export class Game extends Scene {
             this.hud.micButton.removeEventListener('click', toggleMicrophone);
             window.removeEventListener('pagehide', stopMicrophone);
         });
-        this.render(0);
+        this.render(0, true);
     }
 
-    update(time: number, delta: number): void {
+    update(_time: number, delta: number): void {
         const { horizontal, vertical } = this.keyboard.movement;
         this.elapsed += Math.min(delta, 100);
         while (this.elapsed >= STEP_MS) {
@@ -75,17 +80,17 @@ export class Game extends Scene {
         }
 
         const state = this.simulation.state;
-        if (state.screen === 'outpost') {
+        if (state.screen === 'outpost' && !state.bridgePermanent) {
             if (this.microphone.poll(delta, state.canActivateBridge)) this.simulation.command('activateBridge');
         } else if (this.microphone.status !== 'off') {
             this.microphone.disable();
         }
-        this.render(time);
+        this.render(delta);
     }
 
-    private render(time: number): void {
+    private render(delta: number, snap = false): void {
         const state = this.simulation.state;
-        this.view.render(state, time);
+        this.view.render(state, delta, snap);
         this.hud.render(state, this.microphone.status, this.microphone.level);
     }
 }

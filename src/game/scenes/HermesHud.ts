@@ -14,6 +14,7 @@ function objective(state: HermesState): string {
     if (state.screen === 'complete') return 'Hermes complete. Next destination: Demeter.';
     if (state.screen === 'outpost') {
         if (!state.hasMap) return 'Find the star map on the transit platform.';
+        if (state.bridgePermanent) return 'Bridge secured. Head right to the anchor chamber.';
         if (state.bridgeOpen) return 'Bridge extended. Cross to the anchor chamber.';
         if (state.canActivateBridge) return 'Hum or press Space to extend the bridge.';
         return 'Home signal detected. Six Waymarks needed. Find the bridge receiver.';
@@ -44,7 +45,7 @@ export class HermesHud {
         if (this.route.textContent !== route) this.route.textContent = route;
         this.slots.forEach((slot, i) => slot.classList.toggle('filled', i < state.waymarks));
 
-        this.micPanel.hidden = state.screen !== 'outpost';
+        this.micPanel.hidden = state.screen !== 'outpost' || state.bridgePermanent;
         const micMessage = micMessages[status];
         if (this.micText.textContent !== micMessage) this.micText.textContent = micMessage;
         const enabled = status === 'ready' || status === 'calibrating' || status === 'requesting';

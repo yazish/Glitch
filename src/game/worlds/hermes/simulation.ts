@@ -1,7 +1,7 @@
 import { Journey } from './journey.ts';
 import { EchoReplay } from './replay.ts';
 import { contains, STEP_MS } from './room.ts';
-import type { HermesLayout, Point, Pose, Rect } from './room.ts';
+import type { HermesLayout, Point, Pose } from './room.ts';
 
 export type GameCommand = 'activateBridge' | 'rewind' | 'restart';
 export type Screen = 'outpost' | 'chamber' | 'complete';
@@ -18,7 +18,9 @@ export class HermesSimulation {
     private player: Pose;
     private bridgeTicks = 0;
     private bridgeOccupied = false;
+    private bridgePermanent = false;
     private gateOccupied = false;
+    private chamberCheckpoint?: Pose;
 
     constructor(layout: HermesLayout) {
         this.layout = layout;
@@ -31,7 +33,7 @@ export class HermesSimulation {
     }
 
     private get bridgeOpen(): boolean {
-        return this.bridgeTicks > 0 || this.bridgeOccupied;
+        return this.bridgePermanent || this.bridgeTicks > 0 || this.bridgeOccupied;
     }
 
     private get plateHeld(): boolean {
@@ -50,8 +52,9 @@ export class HermesSimulation {
             player: this.player,
             echo: this.currentScreen === 'chamber' ? this.replay.pose : undefined,
             plateHeld: this.currentScreen === 'chamber' && this.plateHeld,
-            gateOpen: this.currentScreen !== 'outpost' && this.gateOpen,
+            gateOpen: this.gateOpen,
             bridgeOpen: this.bridgeOpen,
+            bridgePermanent: this.bridgePermanent,
             canActivateBridge: this.canActivateBridge,
             hasMap: this.journey.hasMap,
             waymarks: Number(this.journey.hasWaymark),
@@ -82,47 +85,49 @@ export class HermesSimulation {
     step(horizontal: number, vertical: number): void {
         if (this.currentScreen === 'complete') return;
 
-        if (this.currentScreen === 'outpost') {
-            this.stepOutpost(horizontal, vertical);
-        } else {
-            this.stepChamber(horizontal, vertical);
-        }
-    }
-
-    private stepOutpost(horizontal: number, vertical: number): void {
-        const { bridge, walls, map, entrance } = this.layout.outpost;
+        const { outpost, chamber } = this.layout;
+        const wasInChamber = this.currentScreen === 'chamber';
         const bridgeWasOpen = this.bridgeOpen;
-        this.move(horizontal, vertical, walls, bridgeWasOpen ? undefined : bridge);
-        this.bridgeTicks = Math.max(0, this.bridgeTicks - 1);
-        this.bridgeOccupied = bridgeWasOpen && contains(this.player, bridge, BODY);
-
-        if (contains(this.player, map)) this.journey.findMap();
-        if (contains(this.player, entrance) && this.journey.hasMap) {
-            this.currentScreen = 'chamber';
-            this.resetRoom();
-        }
-    }
-
-    private stepChamber(horizontal: number, vertical: number): void {
-        const { gate, walls, anchor, gateway } = this.layout.chamber;
         const gateWasOpen = this.gateOpen;
-        this.move(horizontal, vertical, walls, gateWasOpen ? undefined : gate);
-        this.gateOccupied = gateWasOpen && contains(this.player, gate, BODY);
-        this.replay.record(this.player);
+        this.move(horizontal, vertical, bridgeWasOpen, gateWasOpen);
 
-        if (contains(this.player, anchor)) this.journey.restoreHermes();
-        if (contains(this.player, gateway) && this.journey.canDepart) this.currentScreen = 'complete';
+        this.bridgeTicks = Math.max(0, this.bridgeTicks - 1);
+        this.bridgeOccupied = bridgeWasOpen && contains(this.player, outpost.bridge, BODY);
+        if (bridgeWasOpen && this.player.x >= outpost.bridge.x + outpost.bridge.width + BODY) {
+            this.bridgePermanent = true;
+        }
+        this.gateOccupied = gateWasOpen && contains(this.player, chamber.gate, BODY);
+        if (contains(this.player, outpost.map)) this.journey.findMap();
+
+        const inChamber = this.player.x >= chamber.startX;
+        this.currentScreen = inChamber ? 'chamber' : 'outpost';
+        if (inChamber && !wasInChamber) {
+            this.chamberCheckpoint = this.player;
+            this.replay.begin(this.player);
+        } else if (inChamber) {
+            this.replay.record(this.player);
+        } else if (wasInChamber) {
+            this.chamberCheckpoint = undefined;
+            this.replay.clear();
+            this.replay.begin(this.player);
+        }
+
+        if (contains(this.player, chamber.anchor)) this.journey.restoreHermes();
+        if (contains(this.player, chamber.gateway) && this.journey.canDepart) this.currentScreen = 'complete';
     }
 
-    private move(horizontal: number, vertical: number, walls: readonly Rect[], blocker?: Rect): void {
+    private move(horizontal: number, vertical: number, bridgeOpen: boolean, gateOpen: boolean): void {
         if (!horizontal && !vertical) return;
         const stride = STEP_DISTANCE / Math.hypot(horizontal, vertical);
         const facing = Math.abs(horizontal) >= Math.abs(vertical)
             ? (horizontal < 0 ? 'left' : 'right')
             : (vertical < 0 ? 'up' : 'down');
-        const canMove = (point: Point) => contains(point, this.layout.floor, -BODY)
-            && !walls.some((wall) => contains(point, wall, BODY))
-            && (!blocker || !contains(point, blocker, BODY));
+        const { floor, outpost, chamber } = this.layout;
+        const canMove = (point: Point) => contains(point, floor, -BODY)
+            && !outpost.walls.some((wall) => contains(point, wall, BODY))
+            && !chamber.walls.some((wall) => contains(point, wall, BODY))
+            && (bridgeOpen || !contains(point, outpost.bridge, BODY))
+            && (gateOpen || !contains(point, chamber.gate, BODY));
         const xStep = { x: this.player.x + horizontal * stride, y: this.player.y };
         const x = canMove(xStep) ? xStep.x : this.player.x;
         const yStep = { x, y: this.player.y + vertical * stride };
@@ -133,7 +138,7 @@ export class HermesSimulation {
         this.bridgeTicks = 0;
         this.bridgeOccupied = false;
         this.gateOccupied = false;
-        this.player = this.currentScreen === 'outpost' ? this.layout.outpost.spawn : this.layout.chamber.spawn;
+        this.player = this.chamberCheckpoint ?? this.layout.outpost.spawn;
         this.replay.begin(this.player);
     }
 }

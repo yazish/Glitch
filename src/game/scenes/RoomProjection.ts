@@ -1,6 +1,6 @@
 import type { GameObjects } from 'phaser';
 import { Math as PhaserMath } from 'phaser';
-import { HEIGHT, WIDTH } from '../viewport';
+import { HEIGHT } from '../viewport';
 import { TILE_SIZE } from '../worlds/hermes/room';
 import type { Point, Rect } from '../worlds/hermes/room';
 
@@ -10,11 +10,9 @@ export class RoomProjection {
     constructor(private readonly floor: Rect) {}
 
     project(point: Point, height = 0): PhaserMath.Vector2 {
-        const x = point.x - this.floor.x - this.floor.width / 2;
         const distance = (point.y - this.floor.y) / this.floor.height;
-        const scale = 1 + distance * (WIDTH / this.floor.width - 1);
         const horizon = 142;
-        return new PhaserMath.Vector2(WIDTH / 2 + x * scale, horizon + distance * (HEIGHT - horizon) - height);
+        return new PhaserMath.Vector2(point.x, horizon + distance * (HEIGHT - horizon) - height);
     }
 
     center(rect: Rect, height = 0): Point {
