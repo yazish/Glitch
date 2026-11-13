@@ -26,6 +26,10 @@ export class Game extends Scene {
         this.elapsed = 0;
 
         const gameElement = document.querySelector<HTMLElement>('#game-container')!;
+        document.querySelector<HTMLElement>('#game-hud')!.hidden = false;
+        document.querySelector<HTMLElement>('#location')!.hidden = false;
+        gameElement.setAttribute('aria-label', 'Hermes game room');
+        gameElement.focus({ preventScroll: true });
         this.keyboard = new KeyboardControls(gameElement, (command) => {
             this.simulation.command(command);
             if (command !== 'activateBridge') this.elapsed = 0;

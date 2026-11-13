@@ -1,5 +1,6 @@
 import type { GameObjects, Scene } from 'phaser';
-import { HEIGHT, TILE_SIZE, WIDTH } from '../worlds/hermes/room';
+import { TILE_SIZE } from '../worlds/hermes/room';
+import { HEIGHT, WIDTH } from '../viewport';
 import type { HermesLayout, Pose, Rect } from '../worlds/hermes/room';
 import type { HermesState } from '../worlds/hermes/simulation';
 

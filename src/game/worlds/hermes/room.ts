@@ -3,8 +3,6 @@ export type Rect = Readonly<Point & { width: number; height: number }>;
 export type Facing = 'up' | 'down' | 'left' | 'right';
 export type Pose = Readonly<Point & { facing: Facing }>;
 
-export const WIDTH = 640;
-export const HEIGHT = 360;
 export const TILE_SIZE = 32;
 export const STEP_MS = 1000 / 60;
 

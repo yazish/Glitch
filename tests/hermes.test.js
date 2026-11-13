@@ -90,7 +90,7 @@ test('a second rewind replaces the original Echo and restart clears it', () => {
     assert.equal(game.state.hasMap, true);
 });
 
-test('the gate stays open until Kael clears it when an Echo leaves the plate', () => {
+test('the gate stays open until Kobe clears it when an Echo leaves the plate', () => {
     const game = inChamber();
     move(game, 28, 1);
     move(game, 41, 0, -1);
