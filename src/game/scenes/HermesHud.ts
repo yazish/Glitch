@@ -1,4 +1,4 @@
-import type { HermesState } from '../hermes/simulation';
+import type { HermesState } from '../worlds/hermes/simulation';
 import type { MicrophoneStatus } from '../input/microphone';
 
 const micMessages: Record<MicrophoneStatus, string> = {

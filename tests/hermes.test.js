@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { hermes } from '../src/game/hermes/room.ts';
-import { HermesSimulation } from '../src/game/hermes/simulation.ts';
+import { hermes } from '../src/game/worlds/hermes/room.ts';
+import { HermesSimulation } from '../src/game/worlds/hermes/simulation.ts';
 import { HumDetector } from '../src/game/input/hum-detector.ts';
 
 function move(game, ticks, horizontal = 0, vertical = 0) {

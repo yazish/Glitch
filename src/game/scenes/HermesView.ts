@@ -1,7 +1,7 @@
 import type { GameObjects, Scene } from 'phaser';
-import { HEIGHT, TILE_SIZE, WIDTH } from '../hermes/room';
-import type { HermesLayout, Pose, Rect } from '../hermes/room';
-import type { HermesState } from '../hermes/simulation';
+import { HEIGHT, TILE_SIZE, WIDTH } from '../worlds/hermes/room';
+import type { HermesLayout, Pose, Rect } from '../worlds/hermes/room';
+import type { HermesState } from '../worlds/hermes/simulation';
 
 const INK = 0x171624;
 const SAND = 0x87614d;

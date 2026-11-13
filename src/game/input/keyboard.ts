@@ -1,4 +1,4 @@
-import type { GameCommand } from '../hermes/simulation';
+import type { GameCommand } from '../worlds/hermes/simulation';
 
 const commands: Partial<Record<string, GameCommand>> = {
     Space: 'activateBridge',

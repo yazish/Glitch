@@ -1,6 +1,6 @@
 import { Scene } from 'phaser';
-import { hermes, STEP_MS } from '../hermes/room';
-import { HermesSimulation } from '../hermes/simulation';
+import { hermes, STEP_MS } from '../worlds/hermes/room';
+import { HermesSimulation } from '../worlds/hermes/simulation';
 import { KeyboardControls } from '../input/keyboard';
 import { Microphone } from '../input/microphone';
 import { HermesHud } from './HermesHud';
