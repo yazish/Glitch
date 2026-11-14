@@ -1,0 +1,83 @@
+#vesper-combat:not([hidden]) {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: min(265px, 41%);
+    gap: 5px 12px;
+    padding: 7px 9px;
+    background: rgb(18 21 46 / 94%);
+    border: 1px solid #776fb5;
+    color: #c9f0ec;
+    font-size: 0.8rem;
+    pointer-events: none;
+}
+#vesper-encounter { flex-basis: 100%; }
+.vesper-stat { display: flex; align-items: center; gap: 6px; }
+.vesper-bar {
+    display: inline-block;
+    width: 96px;
+    height: 16px;
+    background: url('/assets/vesper/hud/bar-track.png') center / 100% 100% no-repeat;
+    image-rendering: pixelated;
+}
+.vesper-bar i {
+    display: block;
+    height: 100%;
+    background: url('/assets/vesper/hud/bar-fill.png') left center / 96px 16px no-repeat;
+}
+.vesper-bar.health i { filter: sepia(1) saturate(5) hue-rotate(215deg); }
+.vesper-bar.shield i { filter: sepia(1) saturate(4) hue-rotate(135deg); }
+#vesper-tutorial:not([hidden]) {
+    position: absolute;
+    z-index: 5;
+    left: 50%;
+    bottom: 8px;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 76%;
+    margin: 0;
+    padding: 5px 12px;
+    background: rgb(18 15 30 / 86%);
+    border-left: 2px solid #81f9ee;
+    color: #f1f4ff;
+    font-size: clamp(.7rem, 1.2vw, .86rem);
+    pointer-events: none;
+}
+#vesper-boss-health { width: min(144px, 100%); accent-color: #d79af4; }
+#vesper-feedback { color: #f1c7f0; font-size: .88rem; }
+.vesper-art-toggle { display: block; margin-top: 6px; color: #d6cbee; font-size: .85rem; }
+.vesper-story {
+    position: absolute;
+    z-index: 6;
+    inset: auto 5% 5%;
+    padding: 12px;
+    background: #21182f;
+    border: 1px solid #9f79b0;
+    font-size: .86rem;
+}
+.vesper-story p { margin-top: 4px; }
+.vesper-story blockquote { margin: 8px 0; color: #ecd4ff; }
+#vesper-transmission {
+    inset: 3% 8% auto;
+    padding: 8px 18px 14px;
+    background: linear-gradient(180deg, rgb(15 10 30 / 92%), rgb(15 10 30 / 65%) 72%, transparent);
+    border: 0;
+    text-align: center;
+    text-shadow: 0 2px 5px #090412;
+    pointer-events: none;
+}
+#vesper-transmission h2 { margin: 0 0 3px; font-size: 1rem; }
+#vesper-transmission p { margin: 2px 0; }
+#vesper-transmission blockquote { margin: 4px auto; max-width: 52ch; }
+@media (max-width: 620px) {
+    .vesper-stage #objective-guide, .vesper-story, #vesper-combat:not([hidden]) {
+        box-sizing: border-box;
+        position: static;
+        width: 100%;
+        margin-top: 5px;
+    }
+}

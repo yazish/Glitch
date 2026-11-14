@@ -1,0 +1,21 @@
+EMBER — PIXEL FIRE DRAGON ASSET PACK — LICENSE
+
+Copyright (c) 2026 galaxy-apps. All rights reserved.
+
+YOU MAY:
+- Use these assets in your games, apps, videos and other creative projects,
+  commercial or non-commercial, with no royalty and no credit required
+  (credit is appreciated, not required).
+- Modify the frames, recolour them, and combine them with your own work.
+
+YOU MAY NOT:
+- Resell, redistribute, share or give away the raw asset files (frames,
+  sheets, atlases, audio) as-is, for free or for money, on any store or site.
+- Claim you created the assets yourself, or use them to train AI models.
+
+AI DISCLOSURE:
+The base animations and sound effects were created with generative AI
+tools on a paid commercial plan, then edited by hand into game-ready
+assets. Every animation was checked by eye before release.
+No exclusivity is claimed: the AI tools may produce similar content for
+others.
