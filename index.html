@@ -8,6 +8,21 @@
 </head>
 <body>
     <main id="app" class="game-shell" aria-label="Glitch">
+        <section id="main-menu" aria-labelledby="game-title">
+            <div class="menu-content">
+                <h1 id="game-title">Glitch</h1>
+                <p>Guide Kobi across four worlds, solve puzzles with sound and echoes, and recover the Waymarks that will bring him home.</p>
+                <button id="play-game" type="button" disabled>Play Game</button>
+            </div>
+            <aside class="menu-credits" aria-labelledby="contributors-title">
+                <h2 id="contributors-title">Contributors</h2>
+                <ul>
+                    <li>Trrishman Singh Basoor</li>
+                    <li>Progga</li>
+                    <li>Yazish Kavina</li>
+                </ul>
+            </aside>
+        </section>
         <p id="location" class="sr-only" hidden>Hermes · The Forgotten Outpost</p>
         <div id="game-stage">
             <div id="game-container" tabindex="-1" aria-label="Prologue illustration"></div>
@@ -53,17 +68,11 @@
             </div>
         </section>
         <div id="game-hud" hidden>
-            <details id="hermes-help" class="controls-help parchment" hidden>
+            <details id="controls-help" class="controls-help parchment">
                 <summary>Controls</summary>
-                <p class="controls"><kbd>WASD</kbd> / <kbd>Arrows</kbd> Move <kbd>R</kbd> Record / rewind <kbd>Esc</kbd> Restart room</p>
-                <p id="how-to-play">In the chamber, your movement is recorded automatically. Press R once to rewind and leave an Echo that repeats your route; press R again to rewind again. Enable the microphone and hum steadily near the receiver to extend the bridge.</p>
+                <dl class="controls-list"></dl>
             </details>
             <div id="vesper-hud" hidden>
-                <details class="controls-help parchment">
-                    <summary>Controls</summary>
-                    <p class="controls"><kbd>WASD</kbd> / <kbd>Arrows</kbd> Move and face · <kbd>K</kbd> Shotgun
-                        · <kbd>L</kbd> Melee · <kbd>F</kbd> / Right-click Shield · <kbd>E</kbd> Interact · <kbd>Esc</kbd> Retry encounter</p>
-                </details>
                 <p id="vesper-feedback" class="parchment" role="status" hidden></p>
             </div>
             <section id="star-map" class="parchment" aria-labelledby="map-title" hidden>

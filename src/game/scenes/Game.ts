@@ -24,6 +24,7 @@ import { preloadCircularMachine } from './CircularMachineView';
 import { preloadViridiaProps } from './ViridiaProps';
 import { preloadViridiaMagic } from './ViridiaMagic';
 import type { CutsceneId } from '../cutscenes/sequences';
+import { showControls } from './ControlsHud';
 
 export class Game extends Scene {
     private adventure: Adventure;
@@ -76,7 +77,7 @@ export class Game extends Scene {
         this.hud = new HermesHud();
         this.view = new HermesView(this, hermes);
         this.elapsed = 0;
-        this.showWorldBackdrop('hermes');
+        this.showWorld('hermes');
 
         const gameElement = document.querySelector<HTMLElement>('#game-container')!;
         document.querySelector<HTMLElement>('#game-hud')!.hidden = false;
@@ -89,9 +90,6 @@ export class Game extends Scene {
         document.querySelector<HTMLElement>('#location')!.hidden = false;
         gameElement.setAttribute('aria-label', 'Hermes game room');
         gameElement.focus({ preventScroll: true });
-        const help = document.querySelector<HTMLDetailsElement>('#hermes-help')!;
-        help.hidden = false;
-        help.open = false;
         document.querySelector<HTMLElement>('#location')!.textContent = 'Hermes · The Forgotten Outpost';
         this.keyboard = new KeyboardControls(gameElement, (command) => {
             const previous = this.adventure.player;
@@ -192,7 +190,7 @@ export class Game extends Scene {
         if (world !== this.renderedWorld) {
             for (const object of this.children.getChildren().slice()) object.destroy();
             this.renderedWorld = world;
-            this.showWorldBackdrop(world);
+            this.showWorld(world);
             snap = true;
         }
         if (world === 'borealis') {
@@ -209,9 +207,10 @@ export class Game extends Scene {
         this.hud.render(hermes, this.microphone.status, this.microphone.level);
     }
 
-    private showWorldBackdrop(world: WorldId): void {
+    private showWorld(world: WorldId): void {
         const shell = document.querySelector<HTMLElement>('.game-shell');
         if (shell) shell.dataset.world = world;
+        showControls(world);
     }
 
     private renderViridia(delta: number, snap: boolean): void {

@@ -5,6 +5,7 @@ import type { VesperState } from '../worlds/vesper/simulation';
 
 import { vesperGuidance } from '../worlds/vesper/guidance';
 import { vesperTutorial } from './VesperTutorial';
+import { showControls } from './ControlsHud';
 
 export class VesperHud {
     private readonly panel = document.querySelector<HTMLElement>('#vesper-hud')!;
@@ -33,11 +34,12 @@ export class VesperHud {
         for (const selector of ['#location', '#objective-guide', '#game-hud', '#star-map', '#vesper-hud']) {
             document.querySelector<HTMLElement>(selector)!.hidden = false;
         }
-        for (const selector of ['#viridia-compass', '#objective-completed', '#hermes-help']) {
+        for (const selector of ['#viridia-compass', '#objective-completed']) {
             const element = document.querySelector<HTMLElement>(selector);
             if (element) element.hidden = true;
         }
         document.querySelector('#game-stage')!.classList.add('vesper-stage');
+        showControls('vesper');
     }
 
     render(state: VesperState, microphone: VesperMicrophone): void {
@@ -88,7 +90,6 @@ export class VesperHud {
 
     destroy(): void {
         this.panel.hidden = true;
-        this.panel.querySelector<HTMLDetailsElement>('details')!.open = false;
         this.combat.hidden = true;
         this.transmission.hidden = true;
         this.arrival.hidden = true;
