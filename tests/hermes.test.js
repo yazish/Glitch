@@ -35,15 +35,56 @@ function reachPlate(game) {
     move(game, Math.round((game.state.player.y - targetY) / 2.25), 0, -1);
 }
 
-test('the bridge requires proximity, closes after six seconds, and holds while occupied', () => {
+function solveCircularMachine(game) {
+    move(game, 194, 1);
+    assert.equal(game.state.controlHeld, true);
+    assert.equal(game.state.echo, undefined);
+
+    game.command('rewind');
+    assert.equal(game.state.alignedSymbols, 0);
+
+    move(game, 39, 0, -1);
+    move(game, 60, 1, 0);
+    while (game.state.alignedSymbols < 1) move(game, 1);
+    assert.equal(game.state.constellations, 1);
+
+    move(game, 28, 1, 0);
+    move(game, 32, 0, 1);
+    while (game.state.alignedSymbols < 2) move(game, 1);
+    assert.equal(game.state.constellations, 2);
+
+    move(game, 30, 0, 1);
+    move(game, 28, -1, 0);
+    while (game.state.alignedSymbols < 3) move(game, 1);
+    assert.equal(game.state.constellations, 3);
+    assert.equal(game.state.waymarks, 1);
+    assert.equal(game.state.canDepart, true);
+}
+
+test('the bridge requires proximity, enlarges the safe crossing box, and drops players who cross outside it', () => {
     const game = new HermesSimulation(hermes);
     game.command('activateBridge');
     assert.equal(game.state.bridgeOpen, false);
     move(game, 68, 1);
     assert.equal(game.state.hasMap, true);
 
-    move(game, 55, 1);
-    assert.ok(game.state.player.x <= 281, 'the gap blocks movement');
+    // Attempting to cross the rift without the bridge drops the player back to spawn.
+    move(game, 25, 1);
+    assert.equal(game.state.fellInRift, true);
+    assert.equal(game.state.fallCount, 1);
+    assert.deepEqual(game.state.player, hermes.outpost.spawn);
+
+    // Attempting to cross outside the enlarged bridge bounds (y: 168..280) also drops the player.
+    move(game, 68, 1);
+    game.command('activateBridge');
+    move(game, 43, 0, -1);
+    move(game, 25, 1);
+    assert.equal(game.state.fellInRift, true);
+    assert.equal(game.state.fallCount, 2);
+    assert.deepEqual(game.state.player, hermes.outpost.spawn);
+
+    // Crossing inside the enlarged bridge box holds while occupied and secures the bridge.
+    move(game, 68, 1);
     game.command('activateBridge');
     move(game, 359);
     assert.equal(game.state.bridgeOpen, true);
@@ -61,7 +102,7 @@ test('the bridge requires proximity, closes after six seconds, and holds while o
     assert.ok(game.state.player.x > 352);
 });
 
-test('rewind resets the chamber and an Echo holds the gate for the Waymark route', () => {
+test('rewind resets the chamber, an Echo holds the gate and pillar control, and aligning 3 symbols projects constellations', () => {
     const game = inChamber();
     const checkpoint = game.state.player;
     move(game, 170, 1);
@@ -73,31 +114,55 @@ test('rewind resets the chamber and an Echo holds the gate for the Waymark route
     game.command('rewind');
     assert.deepEqual(game.state.player, checkpoint);
     assert.equal(game.state.gateOpen, false);
-    move(game, 194, 1);
-    assert.equal(game.state.echo?.facing, 'up');
-    assert.equal(game.state.plateHeld, true);
-    assert.equal(game.state.waymarks, 1);
+
+    solveCircularMachine(game);
+
     game.command('restart');
     assert.equal(game.state.echo, undefined);
     assert.equal(game.state.waymarks, 1);
     assert.equal(game.state.gateOpen, true);
-    move(game, 220, 1);
+    move(game, 300, 1);
     assert.equal(game.state.screen, 'complete');
     assert.equal(game.state.waymarks, 1);
 });
 
-test('a second rewind replaces the original Echo and restart clears it', () => {
+test('illuminating a symbol out of order resets the circular machine alignment progress', () => {
+    const game = inChamber();
+    reachPlate(game);
+    game.command('rewind');
+    move(game, 194, 1);
+    game.command('rewind');
+
+    move(game, 39, 0, -1);
+    move(game, 60, 1, 0);
+    while (game.state.alignedSymbols < 1) move(game, 1);
+    assert.equal(game.state.alignedSymbols, 1);
+
+    move(game, 62, 0, 1);
+    while (game.state.shadowSymbol !== 2) move(game, 1);
+    move(game, 1);
+    assert.equal(game.state.alignedSymbols, 0);
+    assert.equal(game.state.constellations, 0);
+});
+
+test('a second rewind replaces the single Echo, zero-tick R spam is ignored, and restart clears it', () => {
     const game = inChamber();
     const checkpoint = game.state.player;
     reachPlate(game);
     game.command('rewind');
+
+    // Immediate R spam on tick 0 is ignored and preserves the active Echo.
+    game.command('rewind');
+    game.command('rewind');
     move(game, 90);
     assert.equal(game.state.plateHeld, true);
 
+    // Rewinding after moving replaces the single Echo with the new stationary run.
     game.command('rewind');
     move(game, 90);
     assert.deepEqual(game.state.echo, checkpoint);
     assert.equal(game.state.gateOpen, false);
+
     game.command('restart');
     assert.equal(game.state.echo, undefined);
     assert.equal(game.state.hasMap, true);

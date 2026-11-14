@@ -5,6 +5,7 @@ import { HEIGHT, WIDTH } from '../viewport';
 import type { HermesLayout, Rect } from '../worlds/hermes/room';
 import type { HermesState } from '../worlds/hermes/simulation';
 import { CharacterView } from './CharacterView';
+import { CircularMachineView } from './CircularMachineView';
 import { RoomProjection } from './RoomProjection';
 import { OutpostBackground } from './OutpostBackground';
 import { drawOutpostTerrain } from './OutpostTerrain';
@@ -36,7 +37,6 @@ function gatewayTexture(scene: Scene): string {
     context.drawImage(source, 0, 0);
     const pixels = context.getImageData(0, 0, source.width, source.height);
     const rgba = pixels.data;
-    // The supplied sprite is on a white matte. Preserve any alpha in a replacement PNG.
     if (rgba.some((value, index) => index % 4 === 3 && value < 255)) {
         textures.remove(GATEWAY_CUTOUT_TEXTURE);
         return DEPARTURE_GATEWAY_TEXTURE;
@@ -54,6 +54,7 @@ export class HermesView {
     private readonly projection: RoomProjection;
     private readonly camera: Scene['cameras']['main'];
     private readonly outpostBackground: OutpostBackground;
+    private readonly machineView: CircularMachineView;
     private readonly floor: GameObjects.Graphics;
     private readonly art: GameObjects.Graphics;
     private readonly player: CharacterView;
@@ -71,6 +72,7 @@ export class HermesView {
         this.camera.setBounds(0, 0, layout.floor.x * 2 + layout.floor.width, HEIGHT);
         this.drawSky(scene.add.graphics().setDepth(-3).setScrollFactor(0));
         this.outpostBackground = new OutpostBackground(scene);
+        this.machineView = new CircularMachineView(scene, this.projection, layout.chamber.machine);
         this.floor = scene.add.graphics().setDepth(-2);
         this.drawFloor();
         this.art = scene.add.graphics().setDepth(-1);
@@ -79,7 +81,6 @@ export class HermesView {
         this.gateway = scene.add.image(gateway.x, gateway.y, gatewayTexture(scene))
             .setOrigin(0.5, 1).setDisplaySize(52, 52).setDepth(gateway.y);
 
-        // Split the wall into short sections so characters can pass behind its far end.
         for (const wall of chamber.walls) {
             const end = wall.y + wall.height;
             for (let y = wall.y; y < end; y += TILE_SIZE) {
@@ -111,15 +112,19 @@ export class HermesView {
             label(outpost.receiver, 'RECEIVER', 0, 46),
             label({ x: chamber.startX, y: layout.floor.y, width: 0, height: 0 }, 'ANCHOR CHAMBER', 0, -25),
             label(chamber.plate, 'PRESSURE PLATE', 0, -43),
-            label(chamber.anchor, 'ANCHOR', 0, 34),
+            label(chamber.machine.control, 'PILLAR CONTROL', 0, -34),
+            label(chamber.machine.pillar, 'SUNDIAL PILLAR', 0, -38),
+            label(chamber.machine.symbols[0], 'SYMBOL I', 0, -22),
+            label(chamber.machine.symbols[1], 'SYMBOL II', 38, 0),
+            label(chamber.machine.symbols[2], 'SYMBOL III', 0, 22),
             label(chamber.gateway, 'GATEWAY', 0, 34),
         ];
         this.completionBackdrop = scene.add.rectangle(0, 0, WIDTH, HEIGHT, INK, 0.86)
             .setOrigin(0).setScrollFactor(0).setDepth(HEIGHT + 1);
         this.completion = scene.add.text(WIDTH / 2, HEIGHT / 2,
-            'Hermes complete\n\nWaymark 1 of 6 recovered\nNext destination: Demeter', {
+            'Hermes complete\n\nConstellation route aligned · Waymark 1 of 6 recovered\nNext destination: Demeter', {
                 fontFamily: 'monospace',
-                fontSize: '20px',
+                fontSize: '18px',
                 color: '#fff2dc',
                 align: 'center',
             }).setOrigin(0.5).setScrollFactor(0).setDepth(HEIGHT + 2);
@@ -142,7 +147,7 @@ export class HermesView {
         this.completion.setVisible(!playing);
 
         const playerOnScreen = { ...this.projection.project(player), facing: player.facing };
-        const echoOnScreen = echo && { ...this.projection.project(echo), facing: echo.facing };
+        const echoOnScreen = playing && echo ? { ...this.projection.project(echo), facing: echo.facing } : undefined;
         this.player.render(playing ? playerOnScreen : undefined, playerOnScreen.y + 0.01);
         this.echo.render(echoOnScreen, echoOnScreen?.y ?? 0);
 
@@ -165,11 +170,10 @@ export class HermesView {
 
     private drawFloor(): void {
         const { floor, outpost, chamber } = this.layout;
-        const { bridge } = outpost;
-        const rightX = bridge.x + bridge.width;
-        // A small apron reaches the camera bounds at both ends of the map.
+        const { rift } = outpost;
+        const rightX = rift.x + rift.width;
         const ground = { ...floor, x: 0, width: floor.width + floor.x * 2 };
-        drawOutpostTerrain(this.floor, this.projection, ground, bridge.x, rightX);
+        drawOutpostTerrain(this.floor, this.projection, ground, rift.x, rightX);
         for (let band = 0; band < 4; band++) {
             const x = chamber.startX + band * TILE_SIZE;
             const width = band === 3 ? ground.width - x : TILE_SIZE;
@@ -199,14 +203,16 @@ export class HermesView {
     }
 
     private chamber(state: HermesState): void {
-        const { plate, gate, anchor, gateway } = this.layout.chamber;
+        const { plate, gate, gateway } = this.layout.chamber;
         const plateColor = state.plateHeld ? TEAL : 0xc29ab6;
         this.projection.block(this.art, plate, state.plateHeld ? 1 : 4, {
             top: state.plateHeld ? 0x4d8d89 : 0x7c637c, left: 0x473953, right: 0x5b4762,
         });
         this.projection.outline(this.art, plate, plateColor, 0.9, state.plateHeld ? 1 : 4);
         if (state.gateOpen) this.projection.surface(this.art, gate, TEAL, 0.24);
-        this.marker(anchor, state.canDepart ? TEAL : GOLD);
+
+        this.machineView.render(this.art, state);
+
         this.projection.surface(this.art, gateway, state.canDepart ? VIOLET : WALL, 0.28);
         if (!this.gateway.visible) {
             this.marker(gateway, state.canDepart ? VIOLET : WALL);
