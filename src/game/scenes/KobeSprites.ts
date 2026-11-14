@@ -11,7 +11,8 @@ const DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
 export function preloadKobe(scene: Scene): void {
     const base = `${import.meta.env.BASE_URL}assets/characters/kobe/`;
     for (const direction of DIRECTIONS) {
-        scene.load.image(`kobe-idle-${direction}`, `${base}idle-${direction}.png`);
+        const key = `kobe-idle-${direction}`;
+        if (!scene.textures.exists(key)) scene.load.image(key, `${base}idle-${direction}.png`);
     }
 }
 

@@ -12,8 +12,12 @@ body { margin: 0; }
     margin: 24px auto;
 }
 
-#app:has(#prologue:not([hidden])) {
+#app:has(#cutscene:not([hidden])) {
     max-width: 800px;
+}
+
+#app:has(#cutscene:not([hidden])) :is(#location, #game-hud, #game-stage > :not(#game-container)) {
+    display: none;
 }
 
 h1 { font-size: clamp(2rem, 6vw, 3rem); margin: 0; }
@@ -121,17 +125,26 @@ section {
 #mic-status { margin-top: 6px; }
 meter { width: 96px; margin-left: 8px; }
 
-#prologue-progress {
-    font-size: 0.85rem;
-    color: #c9b7cb;
+#cutscene {
+    border-top: 0;
+    margin-top: 0;
+    padding: 18px 20px;
+    border: 1px solid #493951;
+    border-top: 2px solid #73567d;
+    background: #1c1928;
 }
-#prologue-caption {
+#cutscene-title {
+    color: #87e0d0;
+    font: 600 .85rem/1.4 monospace;
+    letter-spacing: .08em;
+}
+#cutscene-caption {
     margin-top: 8px;
     font-size: clamp(1rem, 3vw, 1.25rem);
     line-height: 1.5;
 }
-.prologue-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-#prologue-next { min-width: 5rem; background: #87e0d0; color: #171624; }
+.cutscene-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+#cutscene-next { min-width: 5rem; background: #87e0d0; color: #171624; }
 .sr-only {
     position: absolute;
     width: 1px;

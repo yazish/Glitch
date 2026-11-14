@@ -34,6 +34,10 @@ export class VesperHud {
         for (const selector of ['#location', '#objective-guide', '#game-hud', '#star-map', '#vesper-hud']) {
             document.querySelector<HTMLElement>(selector)!.hidden = false;
         }
+        for (const selector of ['#viridia-compass', '#objective-completed', '#game-hud > .controls', '#how-to-play']) {
+            const element = document.querySelector<HTMLElement>(selector);
+            if (element) element.hidden = true;
+        }
         document.querySelector('#game-stage')!.classList.add('vesper-stage');
     }
 

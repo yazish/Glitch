@@ -13,6 +13,7 @@ const movementKeys = new Set([
 
 export class KeyboardControls {
     private readonly held = new Set<string>();
+    private enabled = true;
 
     constructor(private readonly gameElement: HTMLElement, private readonly issue: (command: GameCommand) => void) {
         window.addEventListener('keydown', this.keyDown);
@@ -39,8 +40,13 @@ export class KeyboardControls {
         this.clear();
     }
 
+    setEnabled(enabled: boolean): void {
+        this.enabled = enabled;
+        this.clear();
+    }
+
     private readonly keyDown = (event: KeyboardEvent): void => {
-        if (event.metaKey || event.ctrlKey || event.altKey) return;
+        if (!this.enabled || event.metaKey || event.ctrlKey || event.altKey) return;
         if (movementKeys.has(event.code)) {
             event.preventDefault();
             if (event.target instanceof HTMLButtonElement) this.gameElement.focus({ preventScroll: true });

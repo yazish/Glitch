@@ -1,11 +1,11 @@
 import { AUTO, Game, Scale } from 'phaser';
 import { HEIGHT, WIDTH } from './viewport';
-import { prologuePanels } from './prologue/panels';
-import { Prologue } from './scenes/Prologue';
-import { Game as HermesScene } from './scenes/Game';
+import { Cutscene } from './scenes/Cutscene';
+import { Game as AdventureScene } from './scenes/Game';
+import { Vesper } from './scenes/Vesper';
+import '../vesper.css';
 
 export default function startGame(parent: string): Game {
-    const prologue = new Prologue(prologuePanels, () => prologue.scene.start('Game'));
     return new Game({
         type: AUTO,
         width: WIDTH,
@@ -13,6 +13,6 @@ export default function startGame(parent: string): Game {
         parent,
         pixelArt: true,
         scale: { mode: Scale.FIT, autoCenter: Scale.CENTER_BOTH },
-        scene: [prologue, HermesScene],
+        scene: [Cutscene, AdventureScene, Vesper],
     });
 }

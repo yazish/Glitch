@@ -11,10 +11,10 @@ const SCROLL_FACTORS = [0.09, 0.06, 0.22, 0.38];
 
 export function preloadOutpostBackground(scene: Scene): void {
     for (const layer of LAYERS) {
-        scene.load.image(
-            `hermes-background-${layer}`,
-            `${import.meta.env.BASE_URL}assets/hermes/background/${layer}.png`,
-        );
+        const key = `hermes-background-${layer}`;
+        if (!scene.textures.exists(key)) {
+            scene.load.image(key, `${import.meta.env.BASE_URL}assets/hermes/background/${layer}.png`);
+        }
     }
 }
 

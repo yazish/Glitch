@@ -66,7 +66,7 @@ export class ViridiaHud {
             : next?.text ?? 'Viridia complete. Two Waymarks recovered.';
         this.setText(this.objective, this.checkTime > 0 && !state.finished ? '' : prompt);
         this.setText(this.location, 'Viridia · ' + state.areaName);
-        this.setText(this.route, `${state.waymarks} of 6 · Current world: Viridia`);
+        this.setText(this.route, `${state.waymarks} of 5 · Current world: Viridia`);
         if (this.stoneIndex !== state.stoneIndex) {
             this.stoneIndex = state.stoneIndex;
             this.compassSteps.forEach((step, index) => {

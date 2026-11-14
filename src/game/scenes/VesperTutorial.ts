@@ -1,12 +1,11 @@
 import type { VesperState } from '../worlds/vesper/simulation';
 
-// Edit these lines to change Kael's contextual tutorial dialogue.
 const LINES = {
-    gear: 'Kael: I can pick these up with E.',
-    shoot: 'Kael: Hold K to fire the shotgun.',
-    melee: 'Kael: L will strike enemies up close.',
-    shield: 'Kael: Hold F to raise my shield.',
-    cannon: 'Kael: B fires the resonance cannon.',
+    gear: 'Press E to pick up the weapons.',
+    shoot: 'Hold K to fire the shotgun.',
+    melee: 'Press L to strike enemies up close.',
+    shield: 'Hold F to raise your shield.',
+    cannon: 'Press B to fire the resonance cannon.',
 } as const;
 
 export function vesperTutorial(state: VesperState): { id: string; text: string } | undefined {
