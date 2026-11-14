@@ -4,6 +4,8 @@ import { Adventure } from '../worlds/adventure';
 import { borealis as borealisLayout } from '../worlds/borealis/layout';
 import { BorealisHud } from './BorealisHud';
 import { BorealisView } from './BorealisView';
+import { preloadBorealisScenery } from './BorealisScenery';
+import { preloadBorealisProps } from './BorealisProps';
 import { viridia as viridiaLayout } from '../worlds/viridia/layout';
 import type { SoundInput } from '../input/commands';
 import { FollowCamera } from './FollowCamera';
@@ -41,6 +43,8 @@ export class Game extends Scene {
 
     preload(): void {
         preloadKobe(this);
+        preloadBorealisScenery(this);
+        preloadBorealisProps(this);
         preloadViridiaScenery(this, viridiaLayout);
         preloadViridiaProps(this);
         preloadViridiaMagic(this);

@@ -10,6 +10,7 @@ import { RoomProjection } from './RoomProjection';
 import { OutpostBackground } from './OutpostBackground';
 import { drawOutpostTerrain } from './OutpostTerrain';
 import { drawHermesTerrainAssets } from './HermesTerrainAssets';
+import { addHorizonFade } from './HorizonFade';
 
 export const DEPARTURE_GATEWAY_TEXTURE = 'hermes-departure-gateway';
 export const WAYMARK_SCROLL_TEXTURE = 'hermes-waymark-scroll';
@@ -84,6 +85,13 @@ export class HermesView {
         this.machineView = new CircularMachineView(scene, this.projection, layout.chamber.machine);
         this.floor = scene.add.graphics().setDepth(-2);
         this.drawFloor(drawHermesTerrainAssets(scene, this.projection, layout));
+        const horizon = this.projection.project(layout.floor).y;
+        const { rift } = layout.outpost;
+        const edge = layout.floor.width + layout.floor.x * 2;
+        addHorizonFade(scene, 0, rift.x, horizon, 0x79564f, -1.99);
+        addHorizonFade(scene, rift.x + rift.width, layout.chamber.startX - rift.x - rift.width,
+            horizon, 0x79564f, -1.99);
+        addHorizonFade(scene, layout.chamber.startX, edge - layout.chamber.startX, horizon, 0x665468, -1.99);
         this.art = scene.add.graphics().setDepth(-1);
         const { outpost, chamber } = layout;
         if (scene.textures.exists(STAR_COMPASS_TEXTURE)) {

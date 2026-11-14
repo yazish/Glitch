@@ -3,6 +3,7 @@ import type { AreaId, ViridiaLayout } from '../worlds/viridia/layout';
 import type { RoomProjection } from './RoomProjection';
 import { HEIGHT } from '../viewport';
 import { alienTexture } from './ViridiaPalette';
+import { addHorizonFade } from './HorizonFade';
 
 const palette: Record<AreaId, { sky: number; canopy: number; floor: number; path: number }> = {
     arrival: { sky: 0x92b9a3, canopy: 0x315f49, floor: 0x537b4b, path: 0xa98960 },
@@ -180,5 +181,8 @@ export function drawViridiaScenery(scene: Scene, layout: ViridiaLayout, projecti
             scene.add.image(point.x, point.y, scenery.tree).setOrigin(0.5, 1)
                 .setScale(scale).setDepth(point.y);
         }
+    }
+    for (const area of layout.areas) {
+        addHorizonFade(scene, area.startX, area.endX - area.startX, horizon, 0x463656, -2.12);
     }
 }
