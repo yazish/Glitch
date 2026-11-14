@@ -17,9 +17,8 @@ export class ViridiaSimulation {
     private readonly replay = new EchoReplay();
     private readonly layout: ViridiaLayout;
     private readonly journey: Journey;
-    private readonly entry: Pose;
     private player: Pose;
-    private walkTicks: number;
+    private walkTicks = 0;
     private logDistance = 0;
     private braced = false;
     private flowersOpen = false;
@@ -45,11 +44,10 @@ export class ViridiaSimulation {
     private feedbackTicks = 0;
     private finished = false;
 
-    constructor(layout: ViridiaLayout, journey: Journey, entry: Pose, walkTicks = 0) {
+    constructor(layout: ViridiaLayout, journey: Journey) {
         this.layout = layout;
         this.journey = journey;
-        this.entry = this.player = entry;
-        this.walkTicks = walkTicks;
+        this.player = layout.entry;
     }
 
     get needsMicrophone(): boolean { return !this.treeAwake; }
@@ -105,7 +103,7 @@ export class ViridiaSimulation {
 
     restart(): void {
         this.replay.clear();
-        this.resetAttempt(this.checkpoint ?? this.entry);
+        this.resetAttempt(this.checkpoint ?? this.layout.entry);
     }
 
     step(horizontal: number, vertical: number, sound: SoundInput): void {
@@ -258,7 +256,7 @@ export class ViridiaSimulation {
         if (!this.flowersOpen) barriers.push(flowerBarrier);
         if (!this.rootsBroken) barriers.push(roots);
         if (!this.vinesOpen) barriers.push(vines);
-        const canMove = (point: Point) => point.x >= this.entry.x && contains(point, floor, -BODY)
+        const canMove = (point: Point) => contains(point, floor, -BODY)
             && !barriers.some((rect) => contains(point, rect, BODY));
         const { x, y } = this.player;
         const stride = STEP_DISTANCE / Math.hypot(horizontal, vertical);

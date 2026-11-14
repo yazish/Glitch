@@ -69,7 +69,7 @@ export function drawViridiaScenery(scene: Scene, layout: ViridiaLayout, projecti
                 redraw();
                 if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     scene.events.on('update', redraw);
-                    scene.events.once('shutdown', () => scene.events.off('update', redraw));
+                    art.once('destroy', () => scene.events.off('update', redraw));
                 }
                 starTexture = 'viridia-animated-star';
             }

@@ -46,7 +46,7 @@ export class Adventure {
                 this.hermes.step(horizontal, vertical);
                 const state = this.hermes.state;
                 if (state.screen === 'complete') {
-                    this.viridia = new ViridiaSimulation(viridia, this.journey, state.player, state.playerWalkTicks);
+                    this.viridia = new ViridiaSimulation(viridia, this.journey);
                     this.world = 'viridia';
                 }
                 break;

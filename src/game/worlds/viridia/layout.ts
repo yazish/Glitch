@@ -13,6 +13,7 @@ export interface SoundProp {
 
 export interface ViridiaLayout {
     readonly floor: Rect;
+    readonly entry: Pose;
     readonly areas: readonly { id: AreaId; name: string; startX: number; endX: number }[];
     readonly log: Rect;
     readonly logBrace: Rect;
@@ -35,7 +36,8 @@ export interface ViridiaLayout {
 }
 
 export const viridia: ViridiaLayout = {
-    floor: { x: 1224, y: 96, width: 1976, height: 224 },
+    floor: { x: 1344, y: 96, width: 1856, height: 224 },
+    entry: { x: 1400, y: 224, facing: 'right' },
     areas: [
         { id: 'arrival', name: 'Arrival Clearing', startX: 1344, endX: 1936 },
         { id: 'trail', name: 'Rootbound Trail', startX: 1936, endX: 2496 },

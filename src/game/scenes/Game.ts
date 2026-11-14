@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { hermes, STEP_MS } from '../worlds/hermes/room';
 import { Adventure } from '../worlds/adventure';
+import type { WorldId } from '../worlds/journey';
 import { borealis as borealisLayout } from '../worlds/borealis/layout';
 import { BorealisHud } from './BorealisHud';
 import { BorealisView } from './BorealisView';
@@ -26,7 +27,8 @@ import { preloadViridiaMagic } from './ViridiaMagic';
 export class Game extends Scene {
     private adventure: Adventure;
     private followCamera: FollowCamera;
-    private viridiaView: ViridiaView;
+    private renderedWorld: WorldId;
+    private viridiaView?: ViridiaView;
     private viridiaHud?: ViridiaHud;
     private borealisView?: BorealisView;
     private borealisHud?: BorealisHud;
@@ -62,12 +64,13 @@ export class Game extends Scene {
     create(): void {
         prepareKobeWalkFrames(this);
         this.adventure = new Adventure();
+        this.renderedWorld = 'hermes';
+        this.viridiaView = undefined;
         this.viridiaHud = undefined;
         this.borealisView = undefined;
         this.borealisHud = undefined;
         this.voice = { sustained: false };
-        this.followCamera = new FollowCamera(this.cameras.main, viridiaLayout.floor.x + viridiaLayout.floor.width);
-        this.viridiaView = new ViridiaView(this, viridiaLayout);
+        this.followCamera = new FollowCamera(this.cameras.main, hermes.floor.width + 2 * hermes.floor.x);
         this.microphone = new Microphone();
         this.hud = new HermesHud();
         this.view = new HermesView(this, hermes);
@@ -121,7 +124,13 @@ export class Game extends Scene {
 
         this.elapsed += Math.min(delta, 100);
         while (this.elapsed >= STEP_MS) {
+            const world = this.adventure.activeWorld;
             this.adventure.step(horizontal, vertical, this.voice, this.keyboard.soundHeld);
+            if (this.adventure.activeWorld !== world) {
+                this.elapsed = 0;
+                this.voice = { sustained: false };
+                break;
+            }
             this.voice = { sustained: this.voice.sustained };
             this.elapsed -= STEP_MS;
         }
@@ -145,30 +154,44 @@ export class Game extends Scene {
     }
 
     private render(delta: number, snap = false): void {
-        if (this.adventure.activeWorld === 'borealis') {
+        const world = this.adventure.activeWorld;
+        if (world !== this.renderedWorld) {
+            for (const object of this.children.getChildren().slice()) object.destroy();
+            this.renderedWorld = world;
+            snap = true;
+        }
+        if (world === 'borealis') {
             this.renderBorealis(delta, snap);
             return;
         }
+        if (world === 'viridia') {
+            this.renderViridia(delta, snap);
+            return;
+        }
         const hermes = this.adventure.hermes.state;
-        const viridia = this.adventure.viridia?.state;
-        const playerX = viridia?.player.x ?? hermes.player.x;
+        this.followCamera.follow(hermes.player.x, delta, snap);
+        this.view.render(hermes, delta, snap);
+        this.hud.render(hermes, this.microphone.status, this.microphone.level);
+    }
+
+    private renderViridia(delta: number, snap: boolean): void {
+        const state = this.adventure.viridia!.state;
+        if (!this.viridiaView || !this.viridiaHud) {
+            this.viridiaView = new ViridiaView(this, viridiaLayout);
+            this.viridiaHud = new ViridiaHud();
+            const { x, width } = viridiaLayout.floor;
+            this.followCamera.setBounds(x, x + width);
+            document.querySelector('#game-container')?.setAttribute('aria-label', 'Viridia game world');
+        }
+        const playerX = state.player.x;
         const { pedestal, plate } = viridiaLayout;
-        const sealFrame = viridia?.treeAwake && !viridia.collected
+        const sealFrame = state.treeAwake && !state.collected
             && playerX >= pedestal.x - 24 && playerX <= plate.x + plate.width
             ? { left: pedestal.x - 24, right: plate.x + plate.width + 24 }
             : undefined;
         this.followCamera.follow(playerX, delta, snap, sealFrame);
-        this.view.render(hermes, delta, snap);
-        if (viridia) {
-            if (!this.viridiaHud) {
-                this.viridiaHud = new ViridiaHud();
-                document.querySelector('#game-container')?.setAttribute('aria-label', 'Viridia game world');
-            }
-            this.viridiaView.render(viridia, snap ? 0 : delta);
-            this.viridiaHud.render(viridia, this.microphone.status, this.microphone.level, delta);
-        } else {
-            this.hud.render(hermes, this.microphone.status, this.microphone.level);
-        }
+        this.viridiaView.render(state, snap ? 0 : delta);
+        this.viridiaHud.render(state, this.microphone.status, this.microphone.level, delta);
     }
 
     private renderBorealis(delta: number, snap: boolean): void {
@@ -179,7 +202,6 @@ export class Game extends Scene {
             const { x, width } = borealisLayout.floor;
             this.followCamera.setBounds(x, x + width);
             document.querySelector('#game-container')?.setAttribute('aria-label', 'Borealis game world');
-            snap = true;
         }
         this.followCamera.follow(state.player.x, delta, snap);
         this.borealisView.render(state, snap ? 0 : delta);

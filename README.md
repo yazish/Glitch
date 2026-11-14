@@ -11,7 +11,7 @@ npm ci
 npm run dev-nolog
 ```
 
-Open the URL printed by Vite. Move with WASD or the arrow keys. Find the star compass and press Space near the SING!!! cue to extend the bridge. You can also enable the microphone, stay quiet during calibration, then hum near the cue. In the anchor chamber, stand on the pressure plate and press R. Let your Shadow Echo hold the plate while you pass through the gate. Use the Echo again at the sundial and align its three symbols to recover the first Waymark. Walk through the departure gateway to reach Viridia.
+Open the URL printed by Vite. Move with WASD or the arrow keys. Find the star compass and press Space near the SING!!! cue to extend the bridge. You can also enable the microphone, stay quiet during calibration, then hum near the cue. In the anchor chamber, stand on the pressure plate and press R. Let your Shadow Echo hold the plate while you pass through the gate. Use the Echo again at the sundial and align its three symbols to recover the first Waymark. Walk into the departure gateway to teleport to Viridia's Arrival Clearing. Gateways between worlds are one-way.
 
 Hermes scrolls horizontally from the outpost to the anchor chamber. The first bridge crossing secures it for the return trip. Walking out of the chamber clears its Echo. Esc restarts the current area and clears its Echo. The star compass, secured bridge, and collected Waymark are kept until you reload the page.
 

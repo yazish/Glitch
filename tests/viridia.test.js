@@ -25,7 +25,7 @@ function walkthrough(game) {
     return { step, go, hold, pulse };
 }
 
-test('Adventure carries Waymarks through the Hermes and Viridia portals into Borealis', () => {
+test('Adventure teleports forward through the Hermes and Viridia portals and keeps Waymarks', () => {
     const adventure = new Adventure();
     const move = (count, x = 0, y = 0) => {
         for (let i = 0; i < count; i++) adventure.step(x, y, silent, false);
@@ -53,25 +53,37 @@ test('Adventure carries Waymarks through the Hermes and Viridia portals into Bor
     assert.equal(hermes.state.waymarks, 1);
     move(27, 0, -1);
     for (let i = 0; i < 100 && !adventure.viridia; i++) move(1, 1);
-    assert.ok(adventure.viridia);
+    assert.equal(adventure.activeWorld, 'viridia');
+    const hermesExit = hermes.state.player;
     const arrival = adventure.viridia.state;
-    assert.deepEqual(arrival.player, hermes.state.player);
+    assert.deepEqual(arrival.player, viridia.entry);
+    assert.equal(arrival.walkTicks, 0);
     assert.equal(arrival.waymarks, 1);
-    move(1, 1);
-    assert.ok(adventure.viridia.state.player.x > arrival.player.x);
-    move(20, -1);
-    assert.equal(adventure.viridia.state.player.x, arrival.player.x);
+    move(100, -1);
+    adventure.command('interact');
+    move(1, -1);
+    assert.equal(adventure.activeWorld, 'viridia');
+    assert.ok(adventure.player.x >= viridia.floor.x);
+    assert.deepEqual(hermes.state.player, hermesExit);
+    adventure.command('restart');
+    assert.deepEqual(adventure.player, viridia.entry);
+
+    const controls = {
+        get state() { return adventure.viridia.state; },
+        step(x = 0, y = 0, sound = silent) { adventure.step(x, y, sound, sound.sustained); },
+    };
+    const { go, hold, pulse } = walkthrough(controls);
 
     // Walk the input coordinator through the first two sound props.
-    move(135, 1);
+    go('x', 1530);
     adventure.command('interact');
     move(37, 0, 1);
-    move(26, 0, -1);
-    move(106, 1);
+    go('y', 224);
+    go('x', 1760);
     adventure.command('activateBridge');
     adventure.step(0, 0, { pulse: 'soft', sustained: false }, false);
     assert.equal(adventure.viridia.state.flowersOpen, true);
-    move(171, 1);
+    go('x', 2125);
     adventure.command('interact');
     assert.equal(adventure.viridia.state.aligned, true);
     adventure.command('activateBridge');
@@ -80,11 +92,6 @@ test('Adventure carries Waymarks through the Hermes and Viridia portals into Bor
     for (let i = 0; i < 20; i++) adventure.step(0, 0, silent, true);
     assert.equal(adventure.viridia.state.rootHits, 1);
 
-    const controls = {
-        get state() { return adventure.viridia.state; },
-        step(x = 0, y = 0, sound = silent) { adventure.step(x, y, sound, sound.sustained); },
-    };
-    const { go, hold, pulse } = walkthrough(controls);
     pulse('loud');
     go('x', 2355);
     hold(180);
@@ -126,7 +133,7 @@ test('Adventure carries Waymarks through the Hermes and Viridia portals into Bor
 
 test('a partial push opens a real gap, completes the objective, and allows backtracking', () => {
     const journey = new Journey();
-    const game = new ViridiaSimulation(viridia, journey, { x: 1240, y: 224, facing: 'right' });
+    const game = new ViridiaSimulation(viridia, journey);
     const { step, go, pulse } = walkthrough(game);
     go('x', 1530);
     game.interact();
@@ -155,7 +162,7 @@ test('the entire Viridia route needs the correct sounds and an Echo, and survive
     const journey = new Journey();
     journey.findMap();
     journey.collectWaymark('hermes');
-    const game = new ViridiaSimulation(viridia, journey, { x: 1240, y: 224, facing: 'right' });
+    const game = new ViridiaSimulation(viridia, journey);
     const { step, go, hold, pulse } = walkthrough(game);
 
     go('x', 1530);
