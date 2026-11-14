@@ -1,7 +1,7 @@
 import { Scene } from 'phaser';
 import { hermes, STEP_MS } from '../worlds/hermes/room';
 import { Adventure } from '../worlds/adventure';
-import { viridia } from '../worlds/viridia/layout';
+import { viridia as viridiaLayout } from '../worlds/viridia/layout';
 import type { SoundInput } from '../input/commands';
 import { FollowCamera } from './FollowCamera';
 import { ViridiaHud } from './ViridiaHud';
@@ -34,7 +34,7 @@ export class Game extends Scene {
 
     preload(): void {
         preloadKobe(this);
-        preloadViridiaScenery(this, viridia);
+        preloadViridiaScenery(this, viridiaLayout);
         preloadOutpostBackground(this);
         preloadHermesTerrain(this);
         preloadCircularMachine(this);
@@ -51,8 +51,8 @@ export class Game extends Scene {
         this.adventure = new Adventure();
         this.viridiaHud = undefined;
         this.voice = { sustained: false };
-        this.followCamera = new FollowCamera(this.cameras.main, viridia.floor.x + viridia.floor.width);
-        this.viridiaView = new ViridiaView(this, viridia);
+        this.followCamera = new FollowCamera(this.cameras.main, viridiaLayout.floor.x + viridiaLayout.floor.width);
+        this.viridiaView = new ViridiaView(this, viridiaLayout);
         this.microphone = new Microphone();
         this.hud = new HermesHud();
         this.view = new HermesView(this, hermes);
@@ -60,6 +60,8 @@ export class Game extends Scene {
 
         const gameElement = document.querySelector<HTMLElement>('#game-container')!;
         document.querySelector<HTMLElement>('#game-hud')!.hidden = false;
+        document.querySelector<HTMLElement>('#objective-guide')!.hidden = false;
+        document.querySelector<HTMLElement>('#viridia-compass')!.hidden = true;
         document.querySelector<HTMLElement>('#location')!.hidden = false;
         gameElement.setAttribute('aria-label', 'Hermes game room');
         gameElement.focus({ preventScroll: true });
@@ -132,7 +134,13 @@ export class Game extends Scene {
     private render(delta: number, snap = false): void {
         const hermes = this.adventure.hermes.state;
         const viridia = this.adventure.viridia?.state;
-        this.followCamera.follow(viridia?.player.x ?? hermes.player.x, delta, snap);
+        const playerX = viridia?.player.x ?? hermes.player.x;
+        const { pedestal, plate } = viridiaLayout;
+        const sealFrame = viridia?.treeAwake && !viridia.collected
+            && playerX >= pedestal.x - 24 && playerX <= plate.x + plate.width
+            ? { left: pedestal.x - 24, right: plate.x + plate.width + 24 }
+            : undefined;
+        this.followCamera.follow(playerX, delta, snap, sealFrame);
         this.view.render(hermes, delta, snap);
         if (viridia) {
             if (!this.viridiaHud) {

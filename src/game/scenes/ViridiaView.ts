@@ -16,6 +16,7 @@ const STONE = { top: 0x83938b, left: 0x394b47, right: 0x63796d };
 export class ViridiaView {
     private readonly projection: RoomProjection;
     private readonly art: GameObjects.Graphics;
+    private readonly rootLabel: GameObjects.Text;
     private readonly prompt: GameObjects.Text;
     private readonly player: CharacterView;
     private readonly echo: CharacterView;
@@ -34,7 +35,7 @@ export class ViridiaView {
         this.echo = new CharacterView(scene, LILAC, LILAC, 0.65);
 
         const labels = [
-            [layout.log, 'FALLEN LOG'], [layout.roots, 'HARDENED ROOTS'], [layout.vines, 'VINES'],
+            [layout.log, 'FALLEN LOG'], [layout.vines, 'VINES'],
             [layout.tree, 'HEART TREE'], [layout.plate, 'SEAL PLATE'], [layout.pedestal, 'WAYMARK'],
             [layout.exit, 'EXIT PORTAL'],
             ...layout.soundProps.map(({ id, art }) => [art, {
@@ -42,14 +43,17 @@ export class ViridiaView {
                 bloom: 'BLOOM', fracture: 'FRACTURE', resonance: 'RESONANCE',
             }[id]] as const),
         ] as readonly (readonly [Rect, string])[];
-        for (const [rect, name] of labels) {
-            const pos = this.projection.center(rect);
-            scene.add.text(pos.x, pos.y + 29, name, {
-                fontFamily: 'monospace', fontSize: '8px', color: '#fff0cc', backgroundColor: '#182d26',
-                padding: { x: 3, y: 2 },
-            }).setOrigin(0.5).setDepth(361);
-        }
+        for (const [rect, name] of labels) this.label(scene, rect, name);
+        this.rootLabel = this.label(scene, layout.roots, 'HARDENED ROOTS');
         this.render();
+    }
+
+    private label(scene: Scene, rect: Rect, name: string): GameObjects.Text {
+        const pos = this.projection.center(rect);
+        return scene.add.text(pos.x, pos.y + 29, name, {
+            fontFamily: 'monospace', fontSize: '8px', color: '#fff0cc', backgroundColor: '#182d26',
+            padding: { x: 3, y: 2 },
+        }).setOrigin(0.5).setDepth(361);
     }
 
     render(state?: ViridiaState, delta = 0): void {
@@ -129,11 +133,15 @@ export class ViridiaView {
         this.art.fillStyle(0x253a36).fillCircle(center.x, center.y, 19);
         this.art.lineStyle(4, CYAN, 0.85).lineBetween(center.x, center.y, tip.x, tip.y);
         this.art.fillStyle(CYAN).fillCircle(tip.x, tip.y, 5);
-        if (state?.aligned && state.rootHits < 2) {
+        if (state?.aligned && !state.rootsBroken) {
             const wall = this.projection.center(roots, 11);
             this.art.lineStyle(2, CYAN, 0.48).lineBetween(tip.x, tip.y, wall.x, wall.y);
         }
-        this.rootBarrier(roots, state?.rootHits ?? 0);
+        this.rootLabel.setVisible(!state?.rootsBroken);
+        if (!state?.rootsBroken) {
+            this.projection.surface(this.art, { ...roots, width: roots.width + 14 }, 0x1d2921, 0.52);
+            this.rootBarrier(roots, state?.rootHits ?? 0);
+        }
         const receiver = this.prop('receiver');
         this.stone(receiver, CYAN, state?.vinesOpen ?? false, state?.receiverCharge ?? 0);
         if (!state?.vinesOpen) {
@@ -196,7 +204,7 @@ export class ViridiaView {
         const point = this.projection.center(this.prop(target), 10);
         const color = kind === 'loud' ? AMBER : kind === 'soft' ? CYAN : 0x9daba2;
         this.art.lineStyle(2, color, 0.63).strokeCircle(point.x, point.y, 24 + Math.sin(this.time / 110) * 4);
-        if (target === 'reflector' && kind === 'loud') {
+        if (target === 'reflector' && kind === 'loud' && !state.rootsBroken) {
             const roots = this.projection.center(this.layout.roots, 11);
             this.art.lineStyle(3, AMBER, 0.88).lineBetween(point.x, point.y, roots.x, roots.y);
         }

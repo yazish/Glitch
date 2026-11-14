@@ -1,5 +1,7 @@
 import type { SoundInput } from './commands.ts';
 
+const SOFT_RMS_FLOOR = 0.006;
+const LOUD_RMS_FLOOR = 0.055;
 const SOFT_MIN_MS = 55;
 const SOFT_MAX_MS = 450;
 const QUIET_REARM_MS = 150;
@@ -12,8 +14,8 @@ export class ViridiaSoundDetector {
     private armedOnset = false;
 
     update(level: number, noise: number, delta: number): SoundInput {
-        const audible = Math.max(0.012, noise * 2.2, noise + 0.008);
-        const peak = Math.max(0.085, noise * 4, audible * 2.5);
+        const audible = Math.max(SOFT_RMS_FLOOR, noise * 1.65, noise + 0.003);
+        const peak = Math.max(LOUD_RMS_FLOOR, noise * 3, audible * 2);
         if (level < audible) {
             const soft = this.armedOnset && !this.loud && this.duration >= SOFT_MIN_MS && this.duration <= SOFT_MAX_MS;
             this.duration = 0;

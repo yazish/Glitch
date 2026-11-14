@@ -22,11 +22,27 @@ export class ViridiaHud {
     private readonly micText = document.querySelector<HTMLElement>('#mic-status')!;
     private readonly meter = document.querySelector<HTMLMeterElement>('#mic-level')!;
     private readonly micButton = document.querySelector<HTMLButtonElement>('#mic-toggle')!;
+    private readonly compassSteps: readonly HTMLLIElement[];
     private activeId?: string;
+    private stoneIndex = -1;
     private checkTime = 0;
 
     constructor() {
         this.checkmark.hidden = true;
+        const clue = document.querySelector<HTMLOListElement>('#viridia-compass-clue')!;
+        this.compassSteps = STONE_SEQUENCE.map((stone, index) => {
+            const item = document.createElement('li');
+            item.textContent = `${index + 1}${stone[0].toUpperCase()}`;
+            if (index > 0) {
+                const separator = document.createElement('span');
+                separator.setAttribute('aria-hidden', 'true');
+                separator.textContent = '· ';
+                item.prepend(separator);
+            }
+            return item;
+        });
+        clue.replaceChildren(...this.compassSteps);
+        document.querySelector<HTMLElement>('#viridia-compass')!.hidden = false;
         document.querySelector<HTMLElement>('#game-hud .controls')!.hidden = true;
         document.querySelector<HTMLElement>('#how-to-play')!.hidden = true;
         document.querySelector<HTMLElement>('#star-map')!.hidden = false;
@@ -49,9 +65,15 @@ export class ViridiaHud {
             : next?.text ?? 'Viridia complete. Two Waymarks recovered.';
         this.setText(this.objective, this.checkTime > 0 && !state.finished ? '' : prompt);
         this.setText(this.location, 'Viridia · ' + state.areaName);
-        const sequence = state.discoveredTree ? ' · ' + STONE_SEQUENCE
-            .map((stone, index) => (index < state.stoneIndex ? '✓ ' : '') + stone[0].toUpperCase() + stone.slice(1)).join(' → ') : '';
-        this.setText(this.route, `${state.waymarks} of 6 · Current world: Viridia${sequence}`);
+        this.setText(this.route, `${state.waymarks} of 6 · Current world: Viridia`);
+        if (this.stoneIndex !== state.stoneIndex) {
+            this.stoneIndex = state.stoneIndex;
+            this.compassSteps.forEach((step, index) => {
+                const solved = index < state.stoneIndex;
+                step.classList.toggle('solved', solved);
+                step.setAttribute('aria-label', `${index + 1} ${STONE_SEQUENCE[index]}${solved ? ', complete' : ''}`);
+            });
+        }
         this.slots.forEach((slot, index) => slot.classList.toggle('filled', index < state.waymarks));
         this.micPanel.hidden = state.treeAwake || state.finished;
         this.setText(this.micText, micMessages[status]);

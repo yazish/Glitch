@@ -80,6 +80,33 @@ test('Hermes hands off to Viridia on the portal tick and keeps the first Waymark
     assert.equal(adventure.viridia.state.rootHits, 1);
 });
 
+test('a partial push opens a real gap, completes the objective, and allows backtracking', () => {
+    const journey = new Journey();
+    const game = new ViridiaSimulation(viridia, journey, { x: 1240, y: 224, facing: 'right' });
+    const { step, go, pulse } = walkthrough(game);
+    go('x', 1530);
+    game.interact();
+    for (let i = 0; i < 6; i++) step(0, 1);
+    game.interact();
+    go('y', 200);
+    for (let i = 0; i < 35; i++) step(1);
+    assert.equal(game.state.passedLog, false);
+    assert.ok(game.state.player.x < viridia.log.x);
+    game.interact();
+    for (let i = 0; i < 10; i++) step(0, 1);
+    game.interact();
+    assert.equal(game.state.logMoved, false);
+    go('y', 210);
+    go('x', 1610);
+    assert.equal(game.state.passedLog, true);
+    go('x', 1530);
+    assert.equal(game.state.passedLog, true);
+    go('x', 1750);
+    pulse('soft');
+    assert.equal(game.state.flowersOpen, true);
+    assert.equal(game.state.logMoved, false);
+});
+
 test('the entire Viridia route needs the correct sounds and an Echo, and survives resets', () => {
     const journey = new Journey();
     journey.findMap();
@@ -95,6 +122,7 @@ test('the entire Viridia route needs the correct sounds and an Echo, and survive
     assert.equal(game.state.logMoved, true);
     go('y', 224);
     go('x', 1750);
+    assert.equal(game.state.passedLog, true);
     pulse('loud');
     assert.equal(game.state.flowersOpen, false);
     pulse('soft');
@@ -108,8 +136,10 @@ test('the entire Viridia route needs the correct sounds and an Echo, and survive
     pulse('loud');
     hold(190);
     assert.equal(game.state.rootHits, 1);
+    assert.equal(game.state.rootsBroken, false);
     pulse('loud');
     assert.equal(game.state.rootHits, 2);
+    assert.equal(game.state.rootsBroken, true);
     go('x', 2355);
     hold(179);
     assert.equal(game.state.vinesOpen, false);
@@ -138,7 +168,7 @@ test('the entire Viridia route needs the correct sounds and an Echo, and survive
     assert.equal(game.state.treeAwake, true);
     assert.equal(game.state.waymarks, 1);
 
-    go('x', 3015);
+    go('x', 2609);
     go('y', 225);
     game.interact();
     assert.equal(game.state.collected, false);
@@ -148,19 +178,19 @@ test('the entire Viridia route needs the correct sounds and an Echo, and survive
     assert.equal(game.state.resonanceCharge, 1);
     assert.equal(game.state.vinesOpen, true);
     go('y', 265);
-    go('x', 2690);
+    go('x', 2938);
     assert.equal(game.state.sealOpen, false);
     game.rewind();
     for (let i = 0; i < 200; i++) step();
     assert.equal(game.state.sealOpen, true);
-    go('y', 240);
-    go('x', 3015);
+    go('x', 2609);
     game.interact();
     game.interact();
     assert.equal(game.state.waymarks, 2);
     game.restart();
     assert.equal(game.state.waymarks, 2);
-    go('x', 2550);
+    go('y', 240);
+    go('x', 3079);
     game.interact();
     assert.equal(game.state.finished, true);
     const before = game.state.player.x;
@@ -171,15 +201,28 @@ test('the entire Viridia route needs the correct sounds and an Echo, and survive
 test('sound detection distinguishes short quiet sounds, loud onsets and a held hum', () => {
     const detector = new ViridiaSoundDetector();
     const sample = (volume) => detector.update(volume, 0.004, 50);
-    sample(0.035);
-    sample(0.036);
+    sample(0.009);
+    sample(0.010);
     assert.equal(sample(0).pulse, 'soft');
     sample(0);
     sample(0);
     sample(0.025);
-    assert.equal(sample(0.14).pulse, 'loud');
-    for (let i = 0; i < 20; i++) assert.equal(sample(0.14).pulse, undefined);
+    assert.equal(sample(0.061).pulse, 'loud');
+    for (let i = 0; i < 20; i++) assert.equal(sample(0.061).pulse, undefined);
     for (let i = 0; i < 3; i++) sample(0);
     for (let i = 0; i < 60; i++) assert.equal(sample(0.035).sustained, true);
     assert.deepEqual(sample(0), { pulse: undefined, sustained: false });
+    sample(0);
+    sample(0);
+    assert.equal(sample(0.061).pulse, 'loud');
+});
+
+test('Viridia sound floors rise with calibrated room noise', () => {
+    const detector = new ViridiaSoundDetector();
+    const sample = (volume) => detector.update(volume, 0.024, 50);
+    for (let i = 0; i < 8; i++) {
+        assert.deepEqual(sample(0.026), { pulse: undefined, sustained: false });
+    }
+    assert.deepEqual(sample(0.062), { pulse: undefined, sustained: true });
+    assert.deepEqual(sample(0.026), { pulse: undefined, sustained: false });
 });

@@ -70,9 +70,10 @@ export const viridia: ViridiaLayout = {
     tree: { x: 2772, y: 176, width: 86, height: 62 },
     trunk: { x: 2801, y: 202, width: 28, height: 20 },
     discovery: { x: 2590, y: 96, width: 300, height: 224 },
-    plate: { x: 2670, y: 251, width: 44, height: 32 },
-    pedestal: { x: 2995, y: 193, width: 52, height: 56 },
-    exit: { x: 2526, y: 195, width: 50, height: 58 },
+    // Mirrored around the Resonance Stone's center at x = 2815.
+    plate: { x: 2916, y: 251, width: 44, height: 32 },
+    pedestal: { x: 2583, y: 193, width: 52, height: 56 },
+    exit: { x: 3054, y: 195, width: 50, height: 58 },
     arrivalPortal: { x: 1348, y: 202, width: 36, height: 44 },
     heartCheckpoint: { x: 2590, y: 224, facing: 'right' },
 };

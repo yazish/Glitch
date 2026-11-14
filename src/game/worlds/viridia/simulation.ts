@@ -39,7 +39,7 @@ export class ViridiaSimulation {
     private seenReceiver = false;
     private reachedTrail = false;
     private reachedHeart = false;
-    private inspectedLog = false;
+    private passedLog = false;
     private checkpoint?: Pose;
     private feedback?: Feedback;
     private feedbackTicks = 0;
@@ -69,14 +69,14 @@ export class ViridiaSimulation {
             area: area.id, areaName: area.name, target, hint: this.hint(target, feedback), feedback,
             logDistance: this.logDistance, braced: this.braced, logMoved: this.logMoved,
             flowersOpen: this.flowersOpen, reflectorTurn: this.reflectorTurn, aligned: this.aligned,
-            rootHits: this.rootHits, receiverCharge: this.receiverCharge / CHARGE_TICKS, vinesOpen: this.vinesOpen,
+            rootHits: this.rootHits, rootsBroken: this.rootsBroken, receiverCharge: this.receiverCharge / CHARGE_TICKS, vinesOpen: this.vinesOpen,
             discoveredTree: this.discoveredTree, examinedStones: this.examinedStones.size, stoneIndex: this.stoneIndex,
             fractureHits: this.fractureHits, resonanceCharge: this.resonanceCharge / CHARGE_TICKS,
             sealOpen: this.sealOpen, plateHeld: this.plateHeld,
             treeAwake: this.treeAwake, collected, finished: this.finished, recordingFull: this.replay.recordingFull,
             seenLog: this.seenLog, seenFlowers: this.seenFlowers, investigatedRoots: this.investigatedRoots,
             seenReflector: this.seenReflector, seenReceiver: this.seenReceiver,
-            reachedTrail: this.reachedTrail, reachedHeart: this.reachedHeart, inspectedLog: this.inspectedLog,
+            reachedTrail: this.reachedTrail, reachedHeart: this.reachedHeart, passedLog: this.passedLog,
             waymarks: this.journey.waymarkCount,
         } as const;
     }
@@ -86,7 +86,6 @@ export class ViridiaSimulation {
         if (this.braced || (!this.logMoved && contains(this.player, logBrace))) {
             this.braced = !this.braced;
             if (this.braced) {
-                this.inspectedLog = true;
                 this.player = { ...this.player, facing: 'right' };
             }
         } else if (this.target?.id === 'reflector') {
@@ -118,6 +117,8 @@ export class ViridiaSimulation {
     }
 
     private get logMoved(): boolean { return this.logDistance >= this.layout.logTravel; }
+    private get rootsBroken(): boolean { return this.rootHits === 2; }
+    private get logGapOpen(): boolean { return this.logDistance > BODY * 2; }
     private get aligned(): boolean { return this.reflectorTurn === this.layout.alignedTurn; }
     private get treeAwake(): boolean { return this.stoneIndex === STONE_SEQUENCE.length; }
     private get plateHeld(): boolean {
@@ -128,18 +129,24 @@ export class ViridiaSimulation {
 
     private isSoundPending(id: SoundTarget): boolean {
         switch (id) {
-            case 'flowers': return !this.flowersOpen && this.logMoved;
-            case 'reflector': return this.rootHits < 2;
-            case 'receiver': return !this.vinesOpen && this.rootHits === 2;
+            case 'flowers': return !this.flowersOpen;
+            case 'reflector': return !this.rootsBroken;
+            case 'receiver': return !this.vinesOpen && this.rootsBroken;
             default: return this.discoveredTree && STONE_SEQUENCE.indexOf(id) >= this.stoneIndex;
         }
     }
 
     private hint(target: SoundProp | undefined, feedback: Feedback | undefined): string {
-        if (this.braced) return 'Hold ↓ to move the log · E to let go';
+        if (this.braced) {
+            return this.logGapOpen ? 'E · Let go, then walk around the log' : 'Hold ↓ to move the log · E to let go';
+        }
         const { log, flowerBarrier } = this.layout;
-        if (this.logMoved && this.player.x < log.x && this.player.x > log.x - 60 && this.player.y > log.y + log.height - BODY) {
-            return 'Move up onto the trail, then continue right.';
+        if (this.logGapOpen && this.player.x < log.x && this.player.x > log.x - 60) {
+            const gapY = log.y + this.logDistance / 2;
+            if (Math.abs(this.player.y - gapY) >= this.logDistance / 2 - BODY) {
+                return this.player.y > gapY ? 'Move up to the gap, then right.' : 'Move down to the gap, then right.';
+            }
+            return 'Walk right through the gap.';
         }
         if (!this.flowersOpen && this.player.x > flowerBarrier.x - 105 && target?.id !== 'flowers') {
             return 'Approach the center of the flowers.';
@@ -169,7 +176,8 @@ export class ViridiaSimulation {
             soundProps.some((prop) => prop.id === id && contains(this.player, prop.zone, padding));
         this.reachedTrail ||= this.player.x >= this.layout.areas[1].startX;
         this.reachedHeart ||= this.player.x >= this.layout.areas[2].startX;
-        this.seenLog ||= contains(this.player, logBrace, 22);
+        this.passedLog ||= this.player.x >= this.layout.log.x + this.layout.log.width + BODY;
+        this.seenLog ||= this.passedLog || contains(this.player, logBrace, 22);
         this.seenFlowers ||= near('flowers', 20);
         this.investigatedRoots ||= this.player.x > this.layout.roots.x - 148;
         this.seenReflector ||= near('reflector', 16);
@@ -247,9 +255,8 @@ export class ViridiaSimulation {
         }
         const { floor, log, logTrackWalls, flowerBarrier, roots, vines, trunk } = this.layout;
         const barriers: Rect[] = [trunk, ...logTrackWalls, { ...log, y: log.y + this.logDistance }];
-        if (!this.logMoved) barriers.push(log);
         if (!this.flowersOpen) barriers.push(flowerBarrier);
-        if (this.rootHits < 2) barriers.push(roots);
+        if (!this.rootsBroken) barriers.push(roots);
         if (!this.vinesOpen) barriers.push(vines);
         const canMove = (point: Point) => point.x >= this.entry.x && contains(point, floor, -BODY)
             && !barriers.some((rect) => contains(point, rect, BODY));

@@ -12,7 +12,18 @@
             <h1>Glitch</h1>
             <p id="location" class="location" hidden>Hermes · The Forgotten Outpost</p>
         </header>
-        <div id="game-container" tabindex="-1" aria-label="Prologue illustration"></div>
+        <div id="game-stage">
+            <div id="game-container" tabindex="-1" aria-label="Prologue illustration"></div>
+            <aside id="viridia-compass" aria-label="Star Compass" hidden>
+                <h2><img src="%BASE_URL%assets/hermes/props/star-compass.png" width="20" height="20" alt=""> Star Compass</h2>
+                <ol id="viridia-compass-clue" aria-label="Resonance order"></ol>
+            </aside>
+            <aside id="objective-guide" aria-label="Current objective" aria-live="polite" hidden>
+                <h2>OBJECTIVE</h2>
+                <p id="objective-completed" hidden></p>
+                <p id="objective" role="status">Find the Star Compass.</p>
+            </aside>
+        </div>
         <section id="prologue" aria-label="Prologue" hidden>
             <div id="prologue-announcement" aria-live="polite" aria-atomic="true">
                 <p id="prologue-progress"></p>
@@ -25,11 +36,6 @@
             </div>
         </section>
         <div id="game-hud" hidden>
-            <aside id="objective-guide" aria-label="Current objective" aria-live="polite">
-                <h2>OBJECTIVE</h2>
-                <p id="objective-completed" hidden></p>
-                <p id="objective" role="status">Find the Star Compass.</p>
-            </aside>
             <p class="controls"><kbd>WASD</kbd> / <kbd>Arrows</kbd> Move <kbd>Space</kbd> Bridge <kbd>R</kbd> Record / rewind <kbd>Esc</kbd> Restart room</p>
             <p id="how-to-play">In the chamber, your movement is recorded automatically. Press R once to rewind and leave an Echo that repeats your route; press R again to rewind again. Hum softly near the broken bridge receiver to reveal the bridge. Microphone is optional: Space also activates it.</p>
             <section id="star-map" aria-labelledby="map-title" hidden>

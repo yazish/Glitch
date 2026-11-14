@@ -29,13 +29,14 @@ header { margin-bottom: 16px; }
     outline: 1px solid #5b475e;
 }
 
-#app { position: relative; }
+#game-stage { position: relative; }
 #objective-guide {
     position: absolute;
     z-index: 5;
-    top: 100px;
+    top: 12px;
     right: 12px;
-    width: min(250px, 40%);
+    box-sizing: border-box;
+    width: min(250px, 53%);
     padding: 9px 11px;
     border: 1px solid #8b7893;
     background: rgb(23 22 36 / 92%);
@@ -46,6 +47,47 @@ header { margin-bottom: 16px; }
 #objective-guide h2 { color: #87e0d0; font-size: 0.75rem; letter-spacing: .12em; }
 #objective { margin: 5px 0 0; color: #ffdbac; font-size: .88rem; }
 #objective-completed { margin: 3px 0 0; color: #87e0d0; font-size: .75rem; text-decoration: line-through; }
+#viridia-compass {
+    position: absolute;
+    z-index: 5;
+    top: 12px;
+    left: 12px;
+    box-sizing: border-box;
+    width: max-content;
+    max-width: calc(47% - 32px);
+    padding: 6px 9px;
+    border: 1px solid #9c8660;
+    background: rgb(23 22 36 / 95%);
+    color: #fff1e1;
+    pointer-events: none;
+    animation: compass-arrival 900ms ease-out;
+}
+#viridia-compass h2 { display: flex; align-items: center; gap: 5px; font-size: .75rem; }
+#viridia-compass img { image-rendering: pixelated; object-fit: contain; }
+#viridia-compass-clue {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 4px;
+    list-style: none;
+    padding: 0;
+    margin: 3px 0 0;
+    font: bold .75rem monospace;
+    color: #ffdbac;
+}
+#viridia-compass-clue .solved { color: #87e0d0; text-decoration: underline; }
+@keyframes compass-arrival {
+    from { border-color: #ffdbac; box-shadow: 0 0 12px #ffdbac; }
+    to { border-color: #9c8660; box-shadow: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #viridia-compass { animation: none; }
+}
+@media (max-width: 480px) {
+    #viridia-compass, #objective-guide { top: 6px; padding: 4px 5px; }
+    #viridia-compass { left: 6px; max-width: calc(47% - 16px); }
+    #objective-guide { right: 6px; }
+    #objective, #objective-completed { font-size: .75rem; }
+}
 .controls { line-height: 2; color: #d4c5d5; }
 #how-to-play { max-width: 800px; color: #c9b7cb; font-size: .82rem; line-height: 1.5; }
 kbd, button {
