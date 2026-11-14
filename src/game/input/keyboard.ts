@@ -4,6 +4,7 @@ const commands: Partial<Record<string, GameCommand>> = {
     Space: 'activateBridge',
     KeyR: 'rewind',
     KeyE: 'interact',
+    KeyF: 'reverseWind',
     Escape: 'restart',
 };
 const movementKeys = new Set([

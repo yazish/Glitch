@@ -3,7 +3,11 @@ import { WIDTH, HEIGHT } from '../viewport';
 
 export class FollowCamera {
     constructor(private readonly camera: Scene['cameras']['main'], worldEnd: number) {
-        camera.setBounds(0, 0, worldEnd, HEIGHT);
+        this.setBounds(0, worldEnd);
+    }
+
+    setBounds(left: number, right: number): void {
+        this.camera.setBounds(left, 0, right - left, HEIGHT);
     }
 
     follow(x: number, delta: number, snap: boolean, frame?: { left: number; right: number }): void {

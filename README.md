@@ -1,6 +1,6 @@
 # Glitch
 
-Glitch is a Phaser browser puzzle game. The playable route covers Hermes, the Forgotten Outpost, and the three connected areas of Viridia.
+Glitch is a Phaser browser puzzle game. The playable route covers Hermes, the Forgotten Outpost, Viridia, and Borealis.
 
 ## Run locally
 
@@ -16,7 +16,9 @@ Open the URL printed by Vite. Move with WASD or the arrow keys. Find the star co
 Hermes scrolls horizontally from the outpost to the anchor chamber. The first bridge crossing secures it for the return trip. Walking out of the chamber clears its Echo. Esc restarts the current area and clears its Echo. The star compass, secured bridge, and collected Waymark are kept until you reload the page.
 
 
-In Viridia, use E to interact and follow the sound prompt beside each prop. Tap Space for soft sounds and loud bursts, or hold it for sustained charge. The optional microphone accepts the same actions. At the Heart Tree, rewind with R to leave an Echo on the seal plate. Press E at the Waymark pedestal and at the lit exit portal to finish the level.
+In Viridia, use E to interact and follow the sound prompt beside each prop. Tap Space for soft sounds and loud bursts, or hold it for sustained charge. The optional microphone accepts the same actions. At the Heart Tree, rewind with R to leave an Echo on the seal plate. Press E at the Waymark pedestal and at the lit exit portal to reach Borealis.
+
+In Borealis, press F near a wind vane and use E for physical interactions. Follow the Star Compass through the Windward Pass, Frozen Basin, and Skybreak Summit. Use R to rewind to the current area entrance and leave an optional Shadow Echo, or Esc to reset the current puzzle attempt. Tap Space or make a soft sound near the resonant ice to reveal an optional etching.
 
 The [Viridia art slots](public/assets/viridia/README.md) show where to put the background and floor PNGs. Placeholder scenery is used when those layers are absent.
 

@@ -1,6 +1,9 @@
 import { Scene } from 'phaser';
 import { hermes, STEP_MS } from '../worlds/hermes/room';
 import { Adventure } from '../worlds/adventure';
+import { borealis as borealisLayout } from '../worlds/borealis/layout';
+import { BorealisHud } from './BorealisHud';
+import { BorealisView } from './BorealisView';
 import { viridia as viridiaLayout } from '../worlds/viridia/layout';
 import type { SoundInput } from '../input/commands';
 import { FollowCamera } from './FollowCamera';
@@ -21,6 +24,8 @@ export class Game extends Scene {
     private followCamera: FollowCamera;
     private viridiaView: ViridiaView;
     private viridiaHud?: ViridiaHud;
+    private borealisView?: BorealisView;
+    private borealisHud?: BorealisHud;
     private voice: SoundInput = { sustained: false };
     private microphone: Microphone;
     private keyboard: KeyboardControls;
@@ -50,6 +55,8 @@ export class Game extends Scene {
         prepareKobeWalkFrames(this);
         this.adventure = new Adventure();
         this.viridiaHud = undefined;
+        this.borealisView = undefined;
+        this.borealisHud = undefined;
         this.voice = { sustained: false };
         this.followCamera = new FollowCamera(this.cameras.main, viridiaLayout.floor.x + viridiaLayout.floor.width);
         this.viridiaView = new ViridiaView(this, viridiaLayout);
@@ -62,6 +69,7 @@ export class Game extends Scene {
         document.querySelector<HTMLElement>('#game-hud')!.hidden = false;
         document.querySelector<HTMLElement>('#objective-guide')!.hidden = false;
         document.querySelector<HTMLElement>('#viridia-compass')!.hidden = true;
+        document.querySelector<HTMLElement>('#borealis-compass-direction')!.hidden = true;
         document.querySelector<HTMLElement>('#location')!.hidden = false;
         gameElement.setAttribute('aria-label', 'Hermes game room');
         gameElement.focus({ preventScroll: true });
@@ -69,12 +77,12 @@ export class Game extends Scene {
         document.querySelector<HTMLElement>('#how-to-play')!.hidden = false;
         document.querySelector<HTMLElement>('#location')!.textContent = 'Hermes · The Forgotten Outpost';
         this.keyboard = new KeyboardControls(gameElement, (command) => {
-            const previous = this.player;
+            const previous = this.adventure.player;
             this.adventure.command(command);
             if (command === 'restart' || command === 'rewind') {
                 this.elapsed = 0;
                 this.voice = { sustained: false };
-                const player = this.player;
+                const player = this.adventure.player;
                 this.render(0, player.x !== previous.x || player.y !== previous.y);
             }
         });
@@ -101,22 +109,7 @@ export class Game extends Scene {
 
     update(_time: number, delta: number): void {
         const { horizontal, vertical } = this.keyboard.movement;
-        if (this.adventure.viridia) {
-            if (!this.adventure.viridia.needsMicrophone) {
-                if (this.microphone.status !== 'off') this.microphone.disable();
-                this.voice = { sustained: false };
-            } else {
-                const sample = this.microphone.pollViridia(delta);
-                this.voice = { pulse: this.voice.pulse ?? sample.pulse, sustained: sample.sustained };
-            }
-        } else {
-            const state = this.adventure.hermes.state;
-            if (state.screen === 'outpost' && !state.bridgePermanent) {
-                if (this.microphone.poll(delta, state.canActivateBridge)) this.adventure.command('activateBridge');
-            } else if (this.microphone.status !== 'off') {
-                this.microphone.disable();
-            }
-        }
+        this.pollMicrophone(delta);
 
         this.elapsed += Math.min(delta, 100);
         while (this.elapsed >= STEP_MS) {
@@ -127,11 +120,27 @@ export class Game extends Scene {
         this.render(delta);
     }
 
-    private get player() {
-        return this.adventure.viridia?.state.player ?? this.adventure.hermes.state.player;
+    private pollMicrophone(delta: number): void {
+        const { activeWorld, hermes, viridia, borealis } = this.adventure;
+        if (activeWorld === 'hermes' && hermes.state.screen === 'outpost' && !hermes.state.bridgePermanent) {
+            if (this.microphone.poll(delta, hermes.state.canActivateBridge)) this.adventure.command('activateBridge');
+            return;
+        }
+        const available = activeWorld === 'viridia' ? viridia?.needsMicrophone : borealis?.needsMicrophone;
+        if (available) {
+            const sample = this.microphone.pollViridia(delta);
+            this.voice = { pulse: this.voice.pulse ?? sample.pulse, sustained: sample.sustained };
+        } else {
+            if (this.microphone.status !== 'off') this.microphone.disable();
+            this.voice = { sustained: false };
+        }
     }
 
     private render(delta: number, snap = false): void {
+        if (this.adventure.activeWorld === 'borealis') {
+            this.renderBorealis(delta, snap);
+            return;
+        }
         const hermes = this.adventure.hermes.state;
         const viridia = this.adventure.viridia?.state;
         const playerX = viridia?.player.x ?? hermes.player.x;
@@ -152,5 +161,20 @@ export class Game extends Scene {
         } else {
             this.hud.render(hermes, this.microphone.status, this.microphone.level);
         }
+    }
+
+    private renderBorealis(delta: number, snap: boolean): void {
+        const state = this.adventure.borealis!.state;
+        if (!this.borealisView || !this.borealisHud) {
+            this.borealisView = new BorealisView(this, borealisLayout);
+            this.borealisHud = new BorealisHud(borealisLayout);
+            const { x, width } = borealisLayout.floor;
+            this.followCamera.setBounds(x, x + width);
+            document.querySelector('#game-container')?.setAttribute('aria-label', 'Borealis game world');
+            snap = true;
+        }
+        this.followCamera.follow(state.player.x, delta, snap);
+        this.borealisView.render(state, snap ? 0 : delta);
+        this.borealisHud.render(state, this.microphone.status, this.microphone.level, delta);
     }
 }

@@ -4,6 +4,7 @@ import { Adventure } from '../src/game/worlds/adventure.ts';
 import { Journey } from '../src/game/worlds/journey.ts';
 import { ViridiaSimulation } from '../src/game/worlds/viridia/simulation.ts';
 import { viridia } from '../src/game/worlds/viridia/layout.ts';
+import { borealis } from '../src/game/worlds/borealis/layout.ts';
 import { ViridiaSoundDetector } from '../src/game/input/viridia-sound.ts';
 
 const silent = { sustained: false };
@@ -24,7 +25,7 @@ function walkthrough(game) {
     return { step, go, hold, pulse };
 }
 
-test('Hermes hands off to Viridia on the portal tick and keeps the first Waymark', () => {
+test('Adventure carries Waymarks through the Hermes and Viridia portals into Borealis', () => {
     const adventure = new Adventure();
     const move = (count, x = 0, y = 0) => {
         for (let i = 0; i < count; i++) adventure.step(x, y, silent, false);
@@ -78,6 +79,49 @@ test('Hermes hands off to Viridia on the portal tick and keeps the first Waymark
     assert.equal(adventure.viridia.state.rootHits, 1);
     for (let i = 0; i < 20; i++) adventure.step(0, 0, silent, true);
     assert.equal(adventure.viridia.state.rootHits, 1);
+
+    const controls = {
+        get state() { return adventure.viridia.state; },
+        step(x = 0, y = 0, sound = silent) { adventure.step(x, y, sound, sound.sustained); },
+    };
+    const { go, hold, pulse } = walkthrough(controls);
+    pulse('loud');
+    go('x', 2355);
+    hold(180);
+    go('y', 155);
+    go('x', 2720);
+    pulse('soft');
+    go('x', 2890);
+    pulse('loud');
+    pulse('loud');
+    go('y', 275);
+    go('x', 2815);
+    hold(180);
+    adventure.command('restart');
+    go('y', 265);
+    go('x', 2938);
+    adventure.command('rewind');
+    move(200);
+    go('x', 2609);
+    adventure.command('interact');
+    go('y', 240);
+    go('x', 3079);
+    assert.equal(adventure.viridia.state.waymarks, 2);
+    assert.equal(adventure.activeWorld, 'viridia');
+    const viridiaExit = adventure.viridia.state.player;
+    adventure.command('interact');
+    assert.equal(adventure.activeWorld, 'viridia');
+    move(1);
+    assert.equal(adventure.activeWorld, 'borealis');
+    assert.equal(adventure.borealis.state.waymarks, 2);
+    assert.deepEqual(adventure.player, borealis.areas.pass.entry);
+
+    // The active world receives wind and movement commands after Viridia remains in memory.
+    move(170, 1);
+    adventure.command('reverseWind');
+    move(110);
+    assert.equal(adventure.borealis.state.drift, 1);
+    assert.deepEqual(adventure.viridia.state.player, viridiaExit);
 });
 
 test('a partial push opens a real gap, completes the objective, and allows backtracking', () => {

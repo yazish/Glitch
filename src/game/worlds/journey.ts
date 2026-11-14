@@ -1,4 +1,4 @@
-export type WorldId = 'hermes' | 'viridia';
+export type WorldId = 'hermes' | 'viridia' | 'borealis';
 
 export class Journey {
     private mapFound = false;

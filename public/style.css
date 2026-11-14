@@ -64,7 +64,7 @@ header { margin-bottom: 16px; }
 }
 #viridia-compass h2 { display: flex; align-items: center; gap: 5px; font-size: .75rem; }
 #viridia-compass img { image-rendering: pixelated; object-fit: contain; }
-#viridia-compass-clue {
+#viridia-compass-clue:not([hidden]) {
     display: flex;
     flex-wrap: wrap;
     gap: 0 4px;
@@ -74,6 +74,7 @@ header { margin-bottom: 16px; }
     font: bold .75rem monospace;
     color: #ffdbac;
 }
+#borealis-compass-direction { margin: 3px 0 0; font: bold .75rem monospace; color: #ffdbac; }
 #viridia-compass-clue .solved { color: #87e0d0; text-decoration: underline; }
 @keyframes compass-arrival {
     from { border-color: #ffdbac; box-shadow: 0 0 12px #ffdbac; }
