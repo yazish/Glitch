@@ -15,6 +15,8 @@ import { DEPARTURE_GATEWAY_TEXTURE, STAR_COMPASS_TEXTURE, WAYMARK_SCROLL_TEXTURE
 import { preloadOutpostBackground } from './OutpostBackground';
 import { preloadHermesTerrain } from './HermesTerrainAssets';
 import { preloadCircularMachine } from './CircularMachineView';
+import { preloadViridiaProps } from './ViridiaProps';
+import { preloadViridiaMagic } from './ViridiaMagic';
 
 export class Game extends Scene {
     private adventure: Adventure;
@@ -35,6 +37,8 @@ export class Game extends Scene {
     preload(): void {
         preloadKobe(this);
         preloadViridiaScenery(this, viridia);
+        preloadViridiaProps(this);
+        preloadViridiaMagic(this);
         preloadOutpostBackground(this);
         preloadHermesTerrain(this);
         preloadCircularMachine(this);

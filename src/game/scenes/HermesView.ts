@@ -25,7 +25,7 @@ const TEAL = 0x87e0d0;
 const VIOLET = 0xa7a4ff;
 const GATE_RISE_MS = 450;
 
-function gatewayTexture(scene: Scene): string {
+export function gatewayTexture(scene: Scene): string {
     const { textures } = scene;
     if (!textures.exists(DEPARTURE_GATEWAY_TEXTURE)) return '__MISSING';
     if (textures.exists(GATEWAY_CUTOUT_TEXTURE)) return GATEWAY_CUTOUT_TEXTURE;
