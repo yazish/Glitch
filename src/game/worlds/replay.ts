@@ -5,7 +5,7 @@ type RecordedFrame = Readonly<{ pose: Pose; walkTicks: number }>;
 const MAX_TICKS = 60 * 60 * 5;
 
 /**
- * Single Responsibility (SRP): Records Kobe's current run and replays one
+ * Single Responsibility (SRP): Records Kobi's current run and replays one
  * Shadow Echo from the active checkpoint.
  * - Ignores zero-tick accidental R presses (`run.length < 2`).
  * - A new rewind cleanly replaces the previous Echo.

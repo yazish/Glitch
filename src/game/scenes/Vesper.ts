@@ -5,7 +5,7 @@ import { STEP_MS } from '../worlds/geometry';
 import type { VesperProgress } from '../worlds/vesper/progress';
 import { PORTAL_OPEN_TICKS, PORTAL_PULL_TICKS } from '../worlds/vesper/layout';
 import { VesperSimulation } from '../worlds/vesper/simulation';
-import { preloadKobe, prepareKobeWalkFrames } from './KobeSprites';
+import { preloadKobi, prepareKobiWalkFrames } from './KobiSprites';
 import { VesperHud } from './VesperHud';
 import { VesperView } from './VesperView';
 import { preloadVesperCity } from './VesperCityArt';
@@ -43,7 +43,7 @@ export class Vesper extends Scene {
     }
 
     preload(): void {
-        preloadKobe(this);
+        preloadKobi(this);
         preloadVesperCity(this);
         preloadVesperDragon(this);
         preloadVesperEnemies(this);
@@ -52,7 +52,7 @@ export class Vesper extends Scene {
     }
 
     create(): void {
-        prepareKobeWalkFrames(this);
+        prepareKobiWalkFrames(this);
         this.host = document.querySelector<HTMLElement>('#game-container')!;
         const shell = this.host.closest<HTMLElement>('.game-shell');
         if (shell) shell.dataset.world = 'vesper';

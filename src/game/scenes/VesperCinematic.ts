@@ -2,7 +2,7 @@ import type { GameObjects, Scene } from 'phaser';
 import { ABYSS_TICKS, PORTAL, PORTAL_OPEN_TICKS, PORTAL_PULL_TICKS } from '../worlds/vesper/layout';
 import type { VesperState } from '../worlds/vesper/simulation';
 import { HEIGHT, WIDTH } from '../viewport';
-import { kobeFrame, KOBE_FOOT_ANCHOR } from './KobeSprites';
+import { kobiFrame, KOBI_FOOT_ANCHOR } from './KobiSprites';
 
 const TEAL = 0x88ffee;
 const VIOLET = 0xae79ff;
@@ -80,9 +80,9 @@ export class VesperCinematic {
                 );
             }
         }
-        const frame = kobeFrame(this.scene.textures, 'right', 0);
+        const frame = kobiFrame(this.scene.textures, 'right', 0);
         if (frame) {
-            this.traveler.setFrame(frame).setDisplayOrigin(KOBE_FOOT_ANCHOR.x, KOBE_FOOT_ANCHOR.y)
+            this.traveler.setFrame(frame).setDisplayOrigin(KOBI_FOOT_ANCHOR.x, KOBI_FOOT_ANCHOR.y)
                 .setPosition(150 + 280 * progress, center.y + 46 * (1 - progress) + Math.sin(motion / 13) * 6)
                 .setScale(1.65 * (1 - progress) + 0.14).setRotation(motion * 0.032).setVisible(true);
         } else {

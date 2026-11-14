@@ -1,7 +1,7 @@
 import type { GameObjects, Scene } from 'phaser';
 import type { Facing } from '../worlds/hermes/room';
 import { HEIGHT, WIDTH } from '../viewport';
-import { kobeFrame } from './KobeSprites';
+import { kobiFrame } from './KobiSprites';
 
 const INK = 0x110e1e;
 const VIOLET = 0x59436b;
@@ -38,7 +38,7 @@ export class RiftFallView {
         this.drawRavine(time);
         if (!still) this.drawDebris(time);
 
-        const frame = kobeFrame(this.scene.textures, facing, 0);
+        const frame = kobiFrame(this.scene.textures, facing, 0);
         this.sprite.setVisible(Boolean(frame));
         if (frame) {
             if (this.sprite.frame !== frame) this.sprite.setFrame(frame);

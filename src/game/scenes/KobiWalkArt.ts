@@ -55,7 +55,7 @@ function drawLeg(
     }
 }
 
-export function drawKobeWalkFrame(
+export function drawKobiWalkFrame(
     ctx: CanvasRenderingContext2D,
     source: HTMLImageElement,
     facing: Facing,

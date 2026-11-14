@@ -1,6 +1,6 @@
 import type { GameObjects, Scene } from 'phaser';
 import type { Facing, Pose } from '../worlds/hermes/room';
-import { KOBE_FOOT_ANCHOR, kobeFrame } from './KobeSprites';
+import { KOBI_FOOT_ANCHOR, kobiFrame } from './KobiSprites';
 
 const IDLE_BOB_PERIOD = 1250;
 const IDLE_BOB_HEIGHT = 2;
@@ -36,11 +36,11 @@ export class CharacterView {
             ? (this.idleTime + delta) % IDLE_BOB_PERIOD
             : 0;
         const lift = Math.round(IDLE_BOB_HEIGHT * Math.sin(Math.PI * this.idleTime / IDLE_BOB_PERIOD) ** 2);
-        const frame = pose && kobeFrame(this.scene.textures, pose.facing, walkTicks);
+        const frame = pose && kobiFrame(this.scene.textures, pose.facing, walkTicks);
         const graphics = this.placeholder;
         if (frame && pose) {
             if (this.image.frame !== frame) {
-                this.image.setFrame(frame).setDisplayOrigin(KOBE_FOOT_ANCHOR.x, KOBE_FOOT_ANCHOR.y);
+                this.image.setFrame(frame).setDisplayOrigin(KOBI_FOOT_ANCHOR.x, KOBI_FOOT_ANCHOR.y);
             }
             this.image.setVisible(true).setPosition(pose.x, pose.y - lift).setDepth(depth);
             graphics.setVisible(false);

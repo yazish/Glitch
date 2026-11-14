@@ -15,7 +15,7 @@ import { ViridiaView } from './ViridiaView';
 import { preloadViridiaScenery } from './ViridiaScenery';
 import { KeyboardControls } from '../input/keyboard';
 import { Microphone } from '../input/microphone';
-import { preloadKobe, prepareKobeWalkFrames } from './KobeSprites';
+import { preloadKobi, prepareKobiWalkFrames } from './KobiSprites';
 import { HermesHud } from './HermesHud';
 import { DEPARTURE_GATEWAY_TEXTURE, STAR_COMPASS_TEXTURE, WAYMARK_SCROLL_TEXTURE, HermesView } from './HermesView';
 import { preloadOutpostBackground } from './OutpostBackground';
@@ -50,7 +50,7 @@ export class Game extends Scene {
 
     preload(): void {
         preloadAdventureAudio(this);
-        preloadKobe(this);
+        preloadKobi(this);
         preloadBorealisScenery(this);
         preloadBorealisProps(this);
         preloadViridiaScenery(this, viridiaLayout);
@@ -68,7 +68,7 @@ export class Game extends Scene {
     }
 
     create(): void {
-        prepareKobeWalkFrames(this);
+        prepareKobiWalkFrames(this);
         this.adventure = new Adventure();
         this.audio = new AdventureAudio(this);
         this.lastMovementAt = -Infinity;

@@ -35,7 +35,7 @@ export class VesperView {
     private readonly ground: GameObjects.Graphics;
     private readonly fixtures: GameObjects.Graphics;
     private readonly fx: GameObjects.Graphics;
-    private readonly kael: CharacterView;
+    private readonly kobi: CharacterView;
     private readonly double: CharacterView;
     private readonly drake: VesperDragonArt;
     private readonly fire: VesperFireEffects;
@@ -78,7 +78,7 @@ export class VesperView {
         this.calibrationFeedback = scene.add.text(320, 281, '', {
             fontFamily: DISPLAY_FONT, fontSize: '13px', color: '#ffd8ba',
         }).setOrigin(0.5, 0).setDepth(420);
-        this.kael = new CharacterView(scene, CYAN, 0xffffff, 1);
+        this.kobi = new CharacterView(scene, CYAN, 0xffffff, 1);
         this.double = new CharacterView(scene, VIOLET, VIOLET, 0.78);
     }
 
@@ -93,7 +93,7 @@ export class VesperView {
         this.fx.clear();
         this.drawFixtures(state);
         const feet = project(state.player);
-        this.kael.render({ ...feet, facing: state.player.facing }, feet.y, state.walk, delta);
+        this.kobi.render({ ...feet, facing: state.player.facing }, feet.y, state.walk, delta);
         this.shotgun.setVisible(state.armed);
         if (state.armed) this.drawShotgun(feet, state.player.facing);
         if (state.invulnerable && state.effects.some(({ kind }) => kind === 'damage')) {

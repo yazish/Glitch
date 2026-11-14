@@ -1,6 +1,6 @@
 import type { GameObjects, Scene } from 'phaser';
 import { HEIGHT, WIDTH } from '../viewport';
-import { KOBE_FOOT_ANCHOR, preloadKobe } from '../scenes/KobeSprites';
+import { KOBI_FOOT_ANCHOR, preloadKobi } from '../scenes/KobiSprites';
 
 const images = {
     'hermes-background-sky': 'hermes/background/sky.png',
@@ -19,7 +19,7 @@ const GOLD = 0xffcc82;
 const VIOLET = 0xb9a2ff;
 
 export function preloadCutsceneArt(scene: Scene): void {
-    preloadKobe(scene);
+    preloadKobi(scene);
     for (const [key, path] of Object.entries(images)) {
         if (!scene.textures.exists(key)) scene.load.image(key, `${import.meta.env.BASE_URL}assets/${path}`);
     }
@@ -57,8 +57,8 @@ function stars(scene: Scene, animate: boolean, sky = INK): void {
 
 function traveler(scene: Scene, x: number, y: number, scale = 2, direction = 'rear'): GameObjects.Image {
     scene.add.ellipse(x, y + 2, 26 * scale, 6 * scale, INK, 0.55);
-    return scene.add.image(x, y, direction === 'rear' ? 'kobe-idle-up' : 'kobe-idle-right')
-        .setDisplayOrigin(KOBE_FOOT_ANCHOR.x, KOBE_FOOT_ANCHOR.y).setScale(scale);
+    return scene.add.image(x, y, direction === 'rear' ? 'kobi-idle-up' : 'kobi-idle-right')
+        .setDisplayOrigin(KOBI_FOOT_ANCHOR.x, KOBI_FOOT_ANCHOR.y).setScale(scale);
 }
 
 function portal(scene: Scene, animate: boolean, x: number, y: number, color: number, size = 1): void {

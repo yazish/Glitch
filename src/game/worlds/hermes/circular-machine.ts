@@ -24,7 +24,7 @@ export interface CircularMachineState {
 
 /**
  * Single Responsibility (SRP): Encapsulates the ancient circular machine puzzle.
- * - Holding the rotation control (by Kobe or the Shadow Echo) rotates the stone pillar.
+ * - Holding the rotation control (by Kobi or the Shadow Echo) rotates the stone pillar.
  * - The pillar casts a rotating shadow across the three symbols in sequence.
  * - Illuminating the three symbols in order (0 -> 1 -> 2) projects three constellations.
  */

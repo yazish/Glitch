@@ -218,7 +218,7 @@ export class VesperSimulation {
         }
         if (this.sequenceTick <= PORTAL_OPEN_TICKS) return;
         const progress = (this.sequenceTick - PORTAL_OPEN_TICKS) / PORTAL_PULL_TICKS;
-        // First draw Kael into the open lower lane, then accelerate toward the portal.
+        // First draw Kobi into the open lower lane, then accelerate toward the portal.
         const across = Math.max(0, (progress - 0.25) / 0.75) ** 2;
         const down = Math.min(1, progress * 4);
         this.player = {

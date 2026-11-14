@@ -220,7 +220,7 @@ test('a second rewind replaces the single Echo, zero-tick R spam is ignored, and
     assert.equal(game.state.hasMap, true);
 });
 
-test('the gate stays open until Kobe clears it when an Echo leaves the plate', () => {
+test('the gate stays open until Kobi clears it when an Echo leaves the plate', () => {
     const game = inChamber();
     reachPlate(game);
     move(game, 76);

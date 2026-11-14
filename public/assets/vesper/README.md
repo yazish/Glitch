@@ -1,11 +1,11 @@
 # Vesper artwork
 
-The standalone preview uses Phaser-drawn placeholders and the shared Kael sprite. The geometry and timing live in the simulation. When adding art, use matching bounds and anchors so a visible enemy, weak point, or piece of cover agrees with hit testing.
+The standalone preview uses Phaser-drawn placeholders and the shared Kobi sprite. The geometry and timing live in the simulation. When adding art, use matching bounds and anchors so a visible enemy, weak point, or piece of cover agrees with hit testing.
 
 | Suggested file | Content | Frame and anchor |
 | --- | --- | --- |
 | `weapons-case.png` | Shotgun and blade supply case at the street entrance | Ground contact centered on the pickup |
-| `shotgun.png`, `blade.png` | Held weapon frames for four directions and a short blade swing | Grip aligned to Kael’s hand, muzzle and blade tip separate from effects |
+| `shotgun.png`, `blade.png` | Held weapon frames for four directions and a short blade swing | Grip aligned to Kobi’s hand, muzzle and blade tip separate from effects |
 | `riftborn-idle.png`, `riftborn-walk.png` | One bipedal creature, four facing directions | 48 × 64 px, feet at (24, 60) |
 | `riftborn-attack.png`, `riftborn-hit.png`, `riftborn-death.png` | Claw warning and swipe, hit flash, dissolve | 48 × 64 px, same foot anchor |
 | `rift-drake-idle.png`, `rift-drake-attack.png` | Single angle, wings spread, hover and attack poses | 192 × 160 px, ground shadow centered at (96, 154) |
@@ -47,9 +47,9 @@ Enable **Show placeholder labels** beneath the Vesper canvas to identify assets 
 | Transmitter Avenue cover | Cargo crates, generator housing, pipe barricade, broken conduit, pylon foundation |
 | Transmitter Avenue fixtures | Resonance amplifier, calibration panel and needle, firing-position marker, shield barrier, barrier core in intact and cracked states, northeast gate |
 | Celestial Crown | Rift sky, orbital rings, ruined skyline, arena floor and ring inlays, west and east stone buttresses |
-| Celestial Crown fixtures | Waymark pedestal, floating Waymark, transmitter lectern with four Waymark slots in empty and lit states, Kael hologram, Earth portal |
-| Actors and equipment | Kael sprite, held shotgun, blade and melee swing, Riftborn, Rift Drake and chest crystal with intact and broken armor |
+| Celestial Crown fixtures | Waymark pedestal, floating Waymark, transmitter lectern with four Waymark slots in empty and lit states, Kobi hologram, Earth portal |
+| Actors and equipment | Kobi sprite, held shotgun, blade and melee swing, Riftborn, Rift Drake and chest crystal with intact and broken armor |
 | Combat effects | Riftborn spawn marker, claw warning, muzzle flash, three shotgun pellets, resonance cannon projectile, impact sparks, armor deflection, shield bubble and block, damage flash, dissolve particles, Rift Drake orb and aim line, beam lane, shockwave ring, and Drake defeat particles |
-| Portal sequence | Portal interior and luminous rings, wind streaks, Kael pulled toward the entrance, abyss tunnel rings and streaks, tumbling Kael flight pose |
+| Portal sequence | Portal interior and luminous rings, wind streaks, Kobi pulled toward the entrance, abyss tunnel rings and streaks, tumbling Kobi flight pose |
 
-The canvas is 640 × 360. Cover assets use the footprint and height in the Vesper layout. Align the bottom of each prop to that footprint so its depth and collision match. The portal sits at the far right and intentionally extends beyond the frame. The cutscene uses the shared Kael sprite as its flight placeholder.
+The canvas is 640 × 360. Cover assets use the footprint and height in the Vesper layout. Align the bottom of each prop to that footprint so its depth and collision match. The portal sits at the far right and intentionally extends beyond the frame. The cutscene uses the shared Kobi sprite as its flight placeholder.

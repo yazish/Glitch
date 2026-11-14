@@ -157,7 +157,7 @@ test('L defeats a full-health Riftborn in one swing before its claw connects', (
     assert.equal(game.state.wave, 1);
 });
 
-test('an enemy spawns on schedule even when Kael is standing in its entry marker', () => {
+test('an enemy spawns on schedule even when Kobi is standing in its entry marker', () => {
     const game = start();
     street(game);
     walk(game, { x: 305, y: 226 });
