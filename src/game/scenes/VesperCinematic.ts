@@ -11,27 +11,19 @@ export class VesperCinematic {
     private readonly rift: GameObjects.Graphics;
     private readonly overlay: GameObjects.Graphics;
     private readonly traveler: GameObjects.Image;
-    private readonly assetLabel: GameObjects.Text;
     private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     constructor(private readonly scene: Scene) {
         this.rift = scene.add.graphics().setDepth(388);
         this.overlay = scene.add.graphics().setDepth(500);
         this.traveler = scene.add.image(0, 0, '__MISSING').setDepth(499).setVisible(false);
-        this.assetLabel = scene.add.text(18, 16, '', {
-            fontFamily: 'system-ui', fontSize: '11px', color: '#e4eaff', backgroundColor: '#202239',
-            padding: { x: 5, y: 3 },
-        }).setDepth(499).setVisible(false);
+
     }
 
-    render(state: VesperState, showAssetLabels: boolean): void {
+    render(state: VesperState): void {
         this.rift.clear();
         this.overlay.clear();
         this.traveler.setVisible(false);
-        const label = state.mode === 'portal' ? 'Earth portal · wind · transmission hologram'
-            : state.mode === 'abyss' ? 'Abyss tunnel · Kael flight pose · rift streaks' : '';
-        this.assetLabel.setVisible(showAssetLabels && Boolean(label));
-        if (this.assetLabel.text !== label) this.assetLabel.setText(label);
         if (state.mode === 'portal') this.drawPortal(state.sequenceTick);
         if (state.mode === 'abyss') this.drawAbyss(state.sequenceTick);
         if (state.mode === 'arrival') this.overlay.fillStyle(0x080812).fillRect(0, 0, WIDTH, HEIGHT);

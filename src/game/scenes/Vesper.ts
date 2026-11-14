@@ -8,6 +8,9 @@ import { VesperSimulation } from '../worlds/vesper/simulation';
 import { preloadKobe, prepareKobeWalkFrames } from './KobeSprites';
 import { VesperHud } from './VesperHud';
 import { VesperView } from './VesperView';
+import { preloadVesperCity } from './VesperCityArt';
+import { preloadVesperDragon } from './VesperDragonArt';
+import { preloadVesperEnemies } from './VesperEnemyArt';
 
 export class Vesper extends Scene {
     private progressStore: VesperProgress;
@@ -34,7 +37,7 @@ export class Vesper extends Scene {
 
     init({ progress }: { progress: VesperProgress }): void { this.progressStore = progress; }
 
-    preload(): void { preloadKobe(this); }
+    preload(): void { preloadKobe(this); preloadVesperCity(this); preloadVesperDragon(this); preloadVesperEnemies(this); }
 
     create(): void {
         prepareKobeWalkFrames(this);
@@ -124,7 +127,7 @@ export class Vesper extends Scene {
             this.cameras.main.shakeEffect.reset();
             this.shaking = false;
         }
-        this.view.render(state, delta, this.hud.showAssetLabels);
+        this.view.render(state, delta);
         this.hud.render(state, this.microphone);
     }
 

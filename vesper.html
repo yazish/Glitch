@@ -29,22 +29,22 @@
             </aside>
             <aside id="objective-guide" aria-label="Current objective" aria-live="polite" hidden>
                 <h2>OBJECTIVE</h2>
-                <p id="objective" role="status">Walk to the supply case.</p>
+                <p id="objective" role="status">Pick up the weapons.</p>
             </aside>
             <div id="vesper-combat" aria-label="Combat status" hidden>
-                <span>Integrity <strong id="vesper-integrity"></strong></span>
-                <label>Shield <meter id="vesper-shield" min="0" max="90" value="90"></meter></label>
+                <div class="vesper-stat"><span>Health <strong id="vesper-integrity"></strong></span><span id="vesper-health" class="vesper-bar health" role="progressbar" aria-label="Health" aria-valuemin="0" aria-valuemax="3"><i></i></span></div>
+                <div class="vesper-stat"><span>Shield</span><span id="vesper-shield" class="vesper-bar shield" role="progressbar" aria-label="Shield" aria-valuemin="0" aria-valuemax="90"><i></i></span></div>
                 <span id="vesper-cannon" hidden></span>
                 <strong id="vesper-encounter" hidden></strong>
-                <progress id="vesper-boss-health" aria-label="Rift Drake health" max="12" value="12" hidden></progress>
+                <progress id="vesper-boss-health" aria-label="Boss health" max="12" value="12" hidden></progress>
             </div>
+            <p id="vesper-tutorial" role="status" hidden></p>
         </div>
         <div id="game-hud" hidden>
             <div id="vesper-hud" hidden>
                 <p class="controls"><kbd>WASD</kbd> / <kbd>Arrows</kbd> Move and face · <kbd>K</kbd> Shotgun
                     · <kbd>L</kbd> Melee · <kbd>F</kbd> / Right-click Shield · <kbd>E</kbd> Interact · <kbd>Esc</kbd> Retry encounter</p>
                 <p id="vesper-feedback" role="status" hidden></p>
-                <label class="vesper-art-toggle"><input id="vesper-asset-labels" type="checkbox"> Show placeholder labels</label>
             </div>
             <section id="star-map" aria-labelledby="map-title" hidden>
                 <h2 id="map-title">Star compass</h2>

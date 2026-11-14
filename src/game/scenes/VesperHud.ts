@@ -1,9 +1,10 @@
 import type { VesperMicrophone } from '../worlds/vesper/microphone';
-import { ARENAS, PORTAL_OPEN_TICKS, TUNING } from '../worlds/vesper/layout';
+import { ARENAS, TUNING } from '../worlds/vesper/layout';
 import type { VesperState } from '../worlds/vesper/simulation';
 import { VESPER_WAYMARK_TOTAL } from '../worlds/vesper/progress';
 
 import { vesperGuidance } from '../worlds/vesper/guidance';
+import { vesperTutorial } from './VesperTutorial';
 
 export class VesperHud {
     private readonly panel = document.querySelector<HTMLElement>('#vesper-hud')!;
@@ -13,7 +14,11 @@ export class VesperHud {
     private readonly route = document.querySelector<HTMLElement>('#route')!;
     private readonly combat = document.querySelector<HTMLElement>('#vesper-combat')!;
     private readonly integrity = this.combat.querySelector<HTMLElement>('#vesper-integrity')!;
-    private readonly charge = this.combat.querySelector<HTMLMeterElement>('#vesper-shield')!;
+    private readonly health = this.combat.querySelector<HTMLElement>('#vesper-health')!;
+    private readonly charge = this.combat.querySelector<HTMLElement>('#vesper-shield')!;
+    private readonly tutorial = document.querySelector<HTMLElement>('#vesper-tutorial')!;
+    private readonly shownTutorials = new Set<string>();
+    private tutorialUntil = 0;
     private readonly cannon = this.combat.querySelector<HTMLElement>('#vesper-cannon')!;
     private readonly encounter = this.combat.querySelector<HTMLElement>('#vesper-encounter')!;
     private readonly bossHealth = this.combat.querySelector<HTMLProgressElement>('#vesper-boss-health')!;
@@ -25,12 +30,7 @@ export class VesperHud {
     private readonly micLevel = document.querySelector<HTMLMeterElement>('#mic-level')!;
     private readonly slots = Array.from(document.querySelectorAll('#waymarks li'));
     readonly micButton = document.querySelector<HTMLButtonElement>('#mic-toggle')!;
-    private readonly labels = this.panel.querySelector<HTMLInputElement>('#vesper-asset-labels')!;
-
-    get showAssetLabels(): boolean { return this.labels.checked; }
-
     constructor() {
-        this.labels.checked = import.meta.env.DEV;
         for (const selector of ['#location', '#objective-guide', '#game-hud', '#star-map', '#vesper-hud']) {
             document.querySelector<HTMLElement>(selector)!.hidden = false;
         }
@@ -45,7 +45,15 @@ export class VesperHud {
         this.text(this.route, state.waymarks + ' of ' + VESPER_WAYMARK_TOTAL + ' Waymarks recovered');
         this.slots.forEach((slot, index) => slot.classList.toggle('filled', index < state.waymarks));
         this.text(this.integrity, state.integrity + ' / ' + TUNING.integrity);
-        this.charge.value = state.shield;
+        this.bar(this.health, state.integrity, TUNING.integrity);
+        this.bar(this.charge, state.shield, TUNING.shieldCapacity);
+        const hint = vesperTutorial(state);
+        if (hint && !this.shownTutorials.has(hint.id)) {
+            this.shownTutorials.add(hint.id);
+            this.text(this.tutorial, hint.text);
+            this.tutorialUntil = performance.now() + 6500;
+        }
+        this.tutorial.hidden = cinematic || state.mode === 'arrival' || performance.now() >= this.tutorialUntil;
         this.combat.hidden = cinematic || ['arrival', 'waymark', 'transmitter'].includes(state.mode);
         this.cannon.hidden = !state.cannonOnline;
         this.text(this.cannon, state.cannon ? 'Cannon ' + Math.ceil(state.cannon / 60) + 's' : 'Cannon ready · B / sound');
@@ -53,13 +61,13 @@ export class VesperHud {
         const boss = state.drake;
         this.bossHealth.hidden = !boss;
         if (boss) this.bossHealth.value = this.bossHealth.max - boss.hits;
-        this.text(this.encounter, boss ? 'Rift Drake · Phase ' + boss.phase + '/' + TUNING.phases
+        this.text(this.encounter, boss ? 'Phase ' + boss.phase + '/' + TUNING.phases
             + ' · ' + this.bossHealth.value + '/' + this.bossHealth.max + ' HP'
-            + (state.remaining ? ' · Riftborn ' + state.remaining : '')
-            : 'Wave ' + (state.wave + 1) + '/' + ARENAS[state.area].waves.length + ' · Riftborn ' + state.remaining);
+            + (state.remaining ? ' · Enemies ' + state.remaining : '')
+            : 'Wave ' + (state.wave + 1) + '/' + ARENAS[state.area].waves.length + ' · Enemies ' + state.remaining);
         this.text(this.feedback, state.feedback);
         this.feedback.hidden = !state.feedback || state.mode === 'arrival' || state.mode === 'calibration';
-        this.transmission.hidden = state.mode !== 'portal' || state.sequenceTick >= PORTAL_OPEN_TICKS;
+        this.transmission.hidden = state.mode !== 'portal';
         this.arrival.hidden = state.mode !== 'arrival';
         this.micPanel.hidden = !state.cannonOnline || !['barrier', 'wave', 'bossApproach', 'boss', 'exit'].includes(state.mode);
         const active = ['ready', 'requesting', 'calibrating'].includes(microphone.status);
@@ -81,10 +89,16 @@ export class VesperHud {
         this.combat.hidden = true;
         this.transmission.hidden = true;
         this.arrival.hidden = true;
+        this.tutorial.hidden = true;
         document.querySelector('#game-stage')!.classList.remove('vesper-stage');
     }
 
     private text(element: HTMLElement, value: string): void {
         if (element.textContent !== value) element.textContent = value;
+    }
+
+    private bar(element: HTMLElement, value: number, max: number): void {
+        element.setAttribute('aria-valuenow', String(Math.round(value)));
+        element.querySelector<HTMLElement>('i')!.style.width = `${Math.max(0, Math.min(1, value / max)) * 100}%`;
     }
 }

@@ -35,7 +35,7 @@ export type VesperInput = Readonly<{
     restart?: boolean;
 }>;
 
-const SHOT_SPEED: Record<ShotKind, number> = { pellet: 14, cannon: 8, orb: 1.35 };
+const SHOT_SPEED: Record<ShotKind, number> = { pellet: 14, cannon: 8, orb: 2.5 };
 const SPREAD = Math.PI * 2 / 9;
 const PELLET_ANGLES = [0, -SPREAD, SPREAD];
 const PELLET_RADIUS = 3;
@@ -283,7 +283,7 @@ export class VesperSimulation {
             this.cannon = TUNING.cannonInterval;
             this.shots.push({ at: origin, vector: direction(origin, target), kind: 'cannon' });
             this.effect(origin, 'fire', 16);
-        } else if (this.mode === 'boss' && !this.drake.open) this.message('Face the drake to fire the cannon.');
+        } else if (this.mode === 'boss' && !this.drake.open) this.message('Face the boss to fire the cannon.');
         else if (this.mode === 'barrier') this.message('Face the gate from the clear center lane.');
     }
 
@@ -376,7 +376,7 @@ export class VesperSimulation {
         const chest = this.drake.chest;
         this.effect({ x: chest.x + chest.width / 2, y: chest.y + chest.height / 2 },
             result === 'armor' ? 'armor' : 'hit', 12);
-        if (result === 'open') this.message('Armor broken for good. Face the drake and hold K to shoot.');
+        if (result === 'open') this.message('Armor broken for good. Face the boss and hold K to shoot.');
         if (result !== 'phase') return;
         this.clearShots();
         this.impact = undefined;
@@ -458,8 +458,8 @@ export class VesperSimulation {
         this.wave = index;
         this.clearShots();
         this.schedule(this.arena.waves[index]);
-        if (this.area === 'street' && index === 0) this.message('Shotgun and blade equipped. Face a Riftborn and hold K. Press L up close.');
-        if (this.area === 'street' && index === 2) this.message('Hold F to block a claw swipe, or press L to take down a nearby Riftborn.');
+        if (this.area === 'street' && index === 0) this.message('Shotgun and blade equipped. Face an enemy and hold K. Press L up close.');
+        if (this.area === 'street' && index === 2) this.message('Hold F to block a claw swipe, or press L to take down a nearby enemy.');
     }
 
     private finishWave(): void {
@@ -477,6 +477,7 @@ export class VesperSimulation {
         this.mode = this.area === 'avenue' ? 'amplifier' : 'bossApproach';
         this.resetCombat();
         this.feedback = '';
+        if (this.area === 'crown') this.startBoss();
     }
 
     private startBoss(): void {
@@ -484,7 +485,7 @@ export class VesperSimulation {
         const armorBroken = this.drake.open;
         this.drake = new Drake();
         this.drake.open = armorBroken;
-        this.message(armorBroken ? 'Face the drake and hold K to shoot.' : 'Face the drake. Press B or snap once to break its armor.');
+        this.message(armorBroken ? 'Face the boss and hold K to shoot.' : 'Face the boss. Press B or snap once to break its armor.');
     }
 
     private retry(): void {
@@ -495,7 +496,7 @@ export class VesperSimulation {
     }
 
     private resetCombat(): void {
-        this.player = { ...this.arena.entry, facing: this.area === 'crown' ? 'up' : 'right' };
+        this.player = { ...this.arena.entry, facing: 'right' };
         this.walk = 0;
         this.integrity = TUNING.integrity;
         this.shield = TUNING.shieldCapacity;

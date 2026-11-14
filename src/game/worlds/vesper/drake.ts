@@ -22,7 +22,7 @@ export class Drake {
     }
     get chest(): Rect { return boundsAround(BOSS_FEET, 48, 37, 33 + this.lift); }
     get body(): Rect { return boundsAround(BOSS_FEET, 78, 73, 9 + this.lift); }
-    get muzzle(): Point { return project(BOSS_FEET, 91 + this.lift); }
+    get muzzle(): Point { return project({ x: BOSS_FEET.x - 45, y: BOSS_FEET.y }, 57 + this.lift); }
 
     hit(cannon: boolean, damage: number = TUNING.pelletDamage): 'armor' | 'open' | 'hit' | 'phase' {
         if (this.defeated) return 'armor';
@@ -59,7 +59,7 @@ export class Drake {
         if (--this.interval > 0) return;
         this.attackIndex += 1;
         if (this.attackIndex % 2 === 1 && this.phase === 2) {
-            this.warning = { kind: 'beam', lane: { x: player.x - 30, y: 152, width: 60, height: 192 }, ticks: 108 };
+            this.warning = { kind: 'beam', lane: { x: 18, y: player.y - 30, width: BOSS_FEET.x - 18, height: 60 }, ticks: 108 };
         } else if (this.attackIndex % 2 === 1 && this.phase === 3) {
             this.warning = { kind: 'shockwave', target: player, ticks: 114 };
         } else {

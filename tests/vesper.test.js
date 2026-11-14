@@ -3,7 +3,7 @@ import test from 'node:test';
 import { VesperPreviewProgress } from '../src/game/worlds/vesper/progress.ts';
 import { Drake, groundAttackHits } from '../src/game/worlds/vesper/drake.ts';
 import {
-    ABYSS_TICKS, AMPLIFIER, ARENAS, FIRING_POSITION, GEAR, PORTAL, PORTAL_OPEN_TICKS, PORTAL_PULL_TICKS,
+    ABYSS_TICKS, AMPLIFIER, ARENAS, BOSS_FEET, FIRING_POSITION, GEAR, PORTAL, PORTAL_OPEN_TICKS, PORTAL_PULL_TICKS,
     TRANSMITTER, TUNING, WAYMARK, ZONES,
 } from '../src/game/worlds/vesper/layout.ts';
 import { CLAW_RANGE } from '../src/game/worlds/vesper/riftborn.ts';
@@ -257,7 +257,7 @@ test('Drake armor stays open and attack warnings lock their footprints', () => {
     assert.equal(drake.warning.kind, 'beam');
     const lane = drake.warning.lane;
     let attack;
-    const dodge = { x: 220, y: 290 };
+    const dodge = { x: 318, y: 210 };
     for (let frame = 0; !attack && frame < 120; frame++) attack = drake.step(dodge);
     assert.deepEqual(attack.lane, lane);
     assert.equal(groundAttackHits(attack, dodge), false);
@@ -275,6 +275,8 @@ test('a full run breaks the armor once and uses four Waymarks to open the portal
     const game = start();
     crown(game);
     assert.equal(game.state.waymarks, 3);
+    assert.equal(game.state.player.facing, 'right');
+    assert.ok(game.state.player.x < BOSS_FEET.x);
     tick(game, { cannon: true });
     until(game, ({ drake }) => drake.open);
     tick(game, { restart: true, cannon: true, melee: true });
@@ -286,14 +288,14 @@ test('a full run breaks the armor once and uses four Waymarks to open the portal
     assert.equal(game.state.barrier, 0);
     tick(game, { vertical: 1 });
     until(game, ({ integrity }) => integrity === 2);
-    tick(game, { vertical: -1 });
+    tick(game, { horizontal: 1 });
     until(game, ({ drake }) => drake.phase === 2, () => ({ shoot: true }));
     assert.equal(game.state.remaining, 2);
     assert.equal(game.state.drake.open, true);
     assert.equal(game.state.shots.length, 0);
     assert.equal(game.state.integrity, 3);
     until(game, ({ remaining }) => remaining === 0, fight);
-    tick(game, { vertical: -1 });
+    tick(game, { horizontal: 1 });
     until(game, ({ mode }) => mode === 'waymark' || game.state.drake?.phase === 3, () => ({ shoot: true }));
     assert.equal(game.state.integrity, 3);
     until(game, ({ mode }) => mode === 'waymark', () => ({ shoot: true }));

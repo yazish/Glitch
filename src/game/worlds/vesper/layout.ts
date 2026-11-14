@@ -5,7 +5,7 @@ export const WALK: Rect = { x: 18, y: 154, width: 604, height: 190 };
 export const BARRIER: Rect = { x: 552, y: 212, width: 36, height: 64 };
 export const BARRIER_CORE: Rect = { x: 552, y: 201, width: 36, height: 44 };
 export const BARRIER_FACE: Rect = { x: 543, y: 186, width: 54, height: 85 };
-export const BOSS_FEET: Point = { x: 320, y: 198 };
+export const BOSS_FEET: Point = { x: 500, y: 250 };
 export const GEAR: Point = { x: 119, y: 207 };
 export const AMPLIFIER: Point = { x: 315, y: 186 };
 export const FIRING_POSITION: Point = { x: 365, y: 243 };
@@ -39,7 +39,7 @@ type Arena = Readonly<{
 const point = (x: number, y: number): Point => ({ x, y });
 const cover = (x: number, y: number, width: number, height: number): Rect => ({ x, y, width, height });
 const prop = (label: string, heightAboveGround: number, x: number, y: number, width: number, height: number): Cover =>
-    ({ ...cover(x, y, width, height), label, heightAboveGround });
+    ({ ...cover(x + width * 0.15, y + height * 0.175, width * 0.7, height * 0.65), label, heightAboveGround });
 const spawn = (x: number, y: number, delay = 0): Spawn => ({ at: point(x, y), delay });
 
 export const ARENAS: Readonly<Record<AreaId, Arena>> = {
@@ -69,8 +69,8 @@ export const ARENAS: Readonly<Record<AreaId, Arena>> = {
     },
     crown: {
         name: 'The Celestial Crown',
-        entry: point(320, 319),
-        cover: [prop('West stone buttress', 32, 110, 232, 65, 43), prop('East stone buttress', 32, 465, 220, 65, 43)],
+        entry: point(205, 250),
+        cover: [prop('North barricade', 32, 295, 158, 65, 30), prop('South barricade', 32, 295, 310, 65, 30)],
         waves: [],
     },
 };
