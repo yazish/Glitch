@@ -13,6 +13,10 @@ export class HumDetector {
         return this.calibrationMs < CALIBRATION_MS;
     }
 
+    get noiseLevel(): number {
+        return this.calibrationMs ? this.noiseSum / this.calibrationMs : 0;
+    }
+
     update(level: number, delta: number, nearReceiver: boolean): boolean {
         if (this.calibrating) {
             this.calibrationMs += delta;
@@ -20,7 +24,7 @@ export class HumDetector {
             return false;
         }
 
-        const noise = this.noiseSum / this.calibrationMs;
+        const noise = this.noiseLevel;
         const threshold = Math.max(0.012, noise * 2.2, noise + 0.008);
         if (level < threshold) {
             this.soundMs = 0;

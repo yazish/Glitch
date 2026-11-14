@@ -78,3 +78,25 @@ test('a stream granted after leaving the room is stopped immediately', async (t)
     assert.equal(stream.track.stops, 1);
     assert.equal(audio.closed, 1);
 });
+
+test('Viridia samples calibrated Web Audio as a pulse or a sustained signal', async (t) => {
+    const stream = audioStream();
+    const audio = browserAudio(t, async () => stream);
+    const mic = new Microphone();
+    await mic.enable();
+    for (let i = 0; i < 13; i++) assert.equal(mic.pollViridia(50).sustained, false);
+    assert.equal(mic.status, 'ready');
+
+    audio.volume = 0.034;
+    for (let i = 0; i < 3; i++) assert.equal(mic.pollViridia(50).sustained, true);
+    audio.volume = 0.005;
+    assert.equal(mic.pollViridia(50).pulse, 'soft');
+    for (let i = 0; i < 2; i++) mic.pollViridia(50);
+
+    audio.volume = 0.14;
+    assert.deepEqual(mic.pollViridia(50), { pulse: 'loud', sustained: false });
+    assert.deepEqual(mic.pollViridia(50), { pulse: undefined, sustained: false });
+    mic.disable();
+    assert.equal(stream.track.stops, 1);
+    assert.deepEqual(mic.pollViridia(50), { sustained: false });
+});

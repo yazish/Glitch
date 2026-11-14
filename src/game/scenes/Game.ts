@@ -1,16 +1,26 @@
 import { Scene } from 'phaser';
 import { hermes, STEP_MS } from '../worlds/hermes/room';
-import { HermesSimulation } from '../worlds/hermes/simulation';
+import { Adventure } from '../worlds/adventure';
+import { viridia } from '../worlds/viridia/layout';
+import type { SoundInput } from '../input/commands';
+import { FollowCamera } from './FollowCamera';
+import { ViridiaHud } from './ViridiaHud';
+import { ViridiaView } from './ViridiaView';
+import { preloadViridiaScenery } from './ViridiaScenery';
 import { KeyboardControls } from '../input/keyboard';
 import { Microphone } from '../input/microphone';
-import { preloadKobi } from './CharacterView';
+import { preloadKobe, prepareKobeWalkFrames } from './KobeSprites';
 import { HermesHud } from './HermesHud';
 import { DEPARTURE_GATEWAY_TEXTURE, STAR_COMPASS_TEXTURE, WAYMARK_SCROLL_TEXTURE, HermesView } from './HermesView';
 import { preloadOutpostBackground } from './OutpostBackground';
 import { preloadHermesTerrain } from './HermesTerrainAssets';
 
 export class Game extends Scene {
-    private simulation: HermesSimulation;
+    private adventure: Adventure;
+    private followCamera: FollowCamera;
+    private viridiaView: ViridiaView;
+    private viridiaHud?: ViridiaHud;
+    private voice: SoundInput = { sustained: false };
     private microphone: Microphone;
     private keyboard: KeyboardControls;
     private hud: HermesHud;
@@ -22,7 +32,8 @@ export class Game extends Scene {
     }
 
     preload(): void {
-        preloadKobi(this);
+        preloadKobe(this);
+        preloadViridiaScenery(this, viridia);
         preloadOutpostBackground(this);
         preloadHermesTerrain(this);
         this.load.image(WAYMARK_SCROLL_TEXTURE, `${import.meta.env.BASE_URL}assets/hermes/props/waymark-scroll.png`);
@@ -34,7 +45,12 @@ export class Game extends Scene {
     }
 
     create(): void {
-        this.simulation = new HermesSimulation(hermes);
+        prepareKobeWalkFrames(this);
+        this.adventure = new Adventure();
+        this.viridiaHud = undefined;
+        this.voice = { sustained: false };
+        this.followCamera = new FollowCamera(this.cameras.main, viridia.floor.x + viridia.floor.width);
+        this.viridiaView = new ViridiaView(this, viridia);
         this.microphone = new Microphone();
         this.hud = new HermesHud();
         this.view = new HermesView(this, hermes);
@@ -45,13 +61,17 @@ export class Game extends Scene {
         document.querySelector<HTMLElement>('#location')!.hidden = false;
         gameElement.setAttribute('aria-label', 'Hermes game room');
         gameElement.focus({ preventScroll: true });
+        document.querySelector<HTMLElement>('#game-hud .controls')!.hidden = false;
+        document.querySelector<HTMLElement>('#how-to-play')!.hidden = false;
+        document.querySelector<HTMLElement>('#location')!.textContent = 'Hermes · The Forgotten Outpost';
         this.keyboard = new KeyboardControls(gameElement, (command) => {
-            const previous = this.simulation.state.player;
-            this.simulation.command(command);
-            if (command !== 'activateBridge') {
+            const previous = this.player;
+            this.adventure.command(command);
+            if (command === 'restart' || command === 'rewind') {
                 this.elapsed = 0;
-                const player = this.simulation.state.player;
-                if (player.x !== previous.x || player.y !== previous.y) this.render(0, true);
+                this.voice = { sustained: false };
+                const player = this.player;
+                this.render(0, player.x !== previous.x || player.y !== previous.y);
             }
         });
 
@@ -77,24 +97,50 @@ export class Game extends Scene {
 
     update(_time: number, delta: number): void {
         const { horizontal, vertical } = this.keyboard.movement;
-        this.elapsed += Math.min(delta, 100);
-        while (this.elapsed >= STEP_MS) {
-            this.simulation.step(horizontal, vertical);
-            this.elapsed -= STEP_MS;
+        if (this.adventure.viridia) {
+            if (!this.adventure.viridia.needsMicrophone) {
+                if (this.microphone.status !== 'off') this.microphone.disable();
+                this.voice = { sustained: false };
+            } else {
+                const sample = this.microphone.pollViridia(delta);
+                this.voice = { pulse: this.voice.pulse ?? sample.pulse, sustained: sample.sustained };
+            }
+        } else {
+            const state = this.adventure.hermes.state;
+            if (state.screen === 'outpost' && !state.bridgePermanent) {
+                if (this.microphone.poll(delta, state.canActivateBridge)) this.adventure.command('activateBridge');
+            } else if (this.microphone.status !== 'off') {
+                this.microphone.disable();
+            }
         }
 
-        const state = this.simulation.state;
-        if (state.screen === 'outpost' && !state.bridgePermanent) {
-            if (this.microphone.poll(delta, state.canActivateBridge)) this.simulation.command('activateBridge');
-        } else if (this.microphone.status !== 'off') {
-            this.microphone.disable();
+        this.elapsed += Math.min(delta, 100);
+        while (this.elapsed >= STEP_MS) {
+            this.adventure.step(horizontal, vertical, this.voice, this.keyboard.soundHeld);
+            this.voice = { sustained: this.voice.sustained };
+            this.elapsed -= STEP_MS;
         }
         this.render(delta);
     }
 
+    private get player() {
+        return this.adventure.viridia?.state.player ?? this.adventure.hermes.state.player;
+    }
+
     private render(delta: number, snap = false): void {
-        const state = this.simulation.state;
-        this.view.render(state, delta, snap);
-        this.hud.render(state, this.microphone.status, this.microphone.level);
+        const hermes = this.adventure.hermes.state;
+        const viridia = this.adventure.viridia?.state;
+        this.followCamera.follow(viridia?.player.x ?? hermes.player.x, delta, snap);
+        this.view.render(hermes, delta, snap);
+        if (viridia) {
+            if (!this.viridiaHud) {
+                this.viridiaHud = new ViridiaHud();
+                document.querySelector('#game-container')?.setAttribute('aria-label', 'Viridia game world');
+            }
+            this.viridiaView.render(viridia, snap ? 0 : delta);
+            this.viridiaHud.render(viridia, this.microphone.status, this.microphone.level, delta);
+        } else {
+            this.hud.render(hermes, this.microphone.status, this.microphone.level);
+        }
     }
 }

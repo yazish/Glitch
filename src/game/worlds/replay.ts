@@ -1,4 +1,6 @@
-import type { Pose } from './room.ts';
+import type { Pose } from './geometry.ts';
+
+type RecordedFrame = Readonly<{ pose: Pose; walkTicks: number }>;
 
 const MAX_TICKS = 60 * 60 * 5;
 
@@ -9,22 +11,22 @@ const MAX_TICKS = 60 * 60 * 5;
  * - A new rewind cleanly replaces the previous Echo.
  */
 export class EchoReplay {
-    private run: Pose[] = [];
-    private saved: readonly Pose[] = [];
+    private run: RecordedFrame[] = [];
+    private saved: readonly RecordedFrame[] = [];
     private tick = 0;
 
-    begin(pose: Pose): void {
-        this.run = [pose];
+    begin(pose: Pose, walkTicks = 0): void {
+        this.run = [{ pose, walkTicks }];
         this.tick = 0;
     }
 
-    startCheckpointRun(pose: Pose): void {
-        this.run = [pose];
+    startCheckpointRun(pose: Pose, walkTicks: number): void {
+        this.run = [{ pose, walkTicks }];
     }
 
-    record(pose: Pose): void {
+    record(pose: Pose, walkTicks: number): void {
         this.tick += 1;
-        if (this.run.length <= MAX_TICKS) this.run.push(pose);
+        if (this.run.length <= MAX_TICKS) this.run.push({ pose, walkTicks });
     }
 
     rewind(): boolean {
@@ -39,9 +41,10 @@ export class EchoReplay {
         this.tick = 0;
     }
 
-    get pose(): Pose | undefined {
-        if (this.saved.length === 0) return undefined;
-        return this.saved[Math.min(this.tick, this.saved.length - 1)];
+    get frame(): RecordedFrame | undefined {
+        const last = this.saved[this.saved.length - 1];
+        if (!last) return undefined;
+        return this.saved[this.tick] ?? { pose: last.pose, walkTicks: 0 };
     }
 
     get recordingFull(): boolean {

@@ -1,6 +1,6 @@
 # Glitch
 
-Glitch is a Phaser browser puzzle game. The first playable build covers Hermes, the Forgotten Outpost.
+Glitch is a Phaser browser puzzle game. The playable route covers Hermes, the Forgotten Outpost, and the three connected areas of Viridia.
 
 ## Run locally
 
@@ -11,9 +11,14 @@ npm ci
 npm run dev-nolog
 ```
 
-Open the URL printed by Vite. Move with WASD or the arrow keys. Find the star compass and press Space near the SING!!! cue to extend the bridge. You can also enable the microphone, stay quiet during calibration, then hum near the cue. In the anchor chamber, stand on the pressure plate and press R. Let your Shadow Echo hold the plate while you pass through the gate. Touch the Waymark to collect it, then enter the departure gateway.
+Open the URL printed by Vite. Move with WASD or the arrow keys. Find the star compass and press Space near the SING!!! cue to extend the bridge. You can also enable the microphone, stay quiet during calibration, then hum near the cue. In the anchor chamber, stand on the pressure plate and press R. Let your Shadow Echo hold the plate while you pass through the gate. Use the Echo again at the sundial and align its three symbols to recover the first Waymark. Walk through the departure gateway to reach Viridia.
 
 Hermes scrolls horizontally from the outpost to the anchor chamber. The first bridge crossing secures it for the return trip. Walking out of the chamber clears its Echo. Esc restarts the current area and clears its Echo. The star compass, secured bridge, and collected Waymark are kept until you reload the page.
+
+
+In Viridia, use E to interact and follow the sound prompt beside each prop. Tap Space for soft sounds and loud bursts, or hold it for sustained charge. The optional microphone accepts the same actions. At the Heart Tree, rewind with R to leave an Echo on the seal plate. Press E at the Waymark pedestal and at the lit exit portal to finish the level.
+
+The [Viridia art slots](public/assets/viridia/README.md) show where to put the background and floor PNGs. Placeholder scenery is used when those layers are absent.
 
 ## Code and art
 

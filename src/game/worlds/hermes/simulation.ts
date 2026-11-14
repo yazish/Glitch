@@ -1,11 +1,11 @@
 import { CircularMachinePuzzle } from './circular-machine.ts';
-import { Journey } from './journey.ts';
-import { EchoReplay } from './replay.ts';
+import { Journey } from '../journey.ts';
+import { EchoReplay } from '../replay.ts';
 import { RiftHazard } from './rift-hazard.ts';
 import { contains, STEP_MS } from './room.ts';
 import type { HermesLayout, Point, Pose } from './room.ts';
 
-export type GameCommand = 'activateBridge' | 'rewind' | 'restart';
+import type { GameCommand } from '../../input/commands.ts';
 export type Screen = 'outpost' | 'chamber' | 'complete';
 
 const BODY = 7;
@@ -13,13 +13,14 @@ const STEP_DISTANCE = 135 * STEP_MS / 1000;
 const BRIDGE_TICKS = 360;
 
 export class HermesSimulation {
+    private readonly journey: Journey;
     private readonly layout: HermesLayout;
-    private readonly journey = new Journey();
     private readonly replay = new EchoReplay();
     private readonly riftHazard: RiftHazard;
     private readonly machine: CircularMachinePuzzle;
     private currentScreen: Screen = 'outpost';
     private player: Pose;
+    private playerWalkTicks = 0;
     private bridgeTicks = 0;
     private bridgeOccupied = false;
     private bridgePermanent = false;
@@ -30,12 +31,13 @@ export class HermesSimulation {
     private chamberCheckpoint?: Pose;
     private inMachineZone = false;
 
-    constructor(layout: HermesLayout) {
+    constructor(layout: HermesLayout, journey = new Journey()) {
+        this.journey = journey;
         this.layout = layout;
         this.player = layout.outpost.spawn;
         this.riftHazard = new RiftHazard(layout.outpost);
         this.machine = new CircularMachinePuzzle(layout.chamber.machine, () => {
-            this.journey.restoreHermes();
+            this.journey.collectWaymark('hermes');
         });
     }
 
@@ -50,21 +52,24 @@ export class HermesSimulation {
 
     private get plateHeld(): boolean {
         const plate = this.layout.chamber.plate;
-        const echo = this.replay.pose;
+        const echo = this.replay.frame?.pose;
         return contains(this.player, plate) || (echo !== undefined && contains(echo, plate));
     }
 
     private get gateOpen(): boolean {
-        return this.journey.canDepart || this.plateHeld || this.gateOccupied;
+        return this.journey.hasWaymark('hermes') || this.plateHeld || this.gateOccupied;
     }
 
     get state() {
-        const echo = this.currentScreen === 'chamber' ? this.replay.pose : undefined;
+        const echoFrame = this.currentScreen === 'chamber' ? this.replay.frame : undefined;
+        const echo = echoFrame?.pose;
         const machine = this.machine.getState(this.player, echo);
         return {
             screen: this.currentScreen,
             player: this.player,
+            playerWalkTicks: this.playerWalkTicks,
             echo,
+            echoWalkTicks: echoFrame?.walkTicks ?? 0,
             plateHeld: this.currentScreen === 'chamber' && this.plateHeld,
             gateOpen: this.gateOpen,
             bridgeOpen: this.bridgeOpen,
@@ -78,8 +83,8 @@ export class HermesSimulation {
             alignedSymbols: machine.alignedSymbols,
             constellations: machine.constellations,
             hasMap: this.journey.hasMap,
-            waymarks: Number(this.journey.hasWaymark),
-            canDepart: this.journey.canDepart,
+            waymarks: this.journey.waymarkCount,
+            canDepart: this.journey.hasWaymark('hermes'),
             recordingFull: this.replay.recordingFull,
         } as const;
     }
@@ -95,7 +100,7 @@ export class HermesSimulation {
                 }
                 break;
             case 'rewind':
-                if (this.currentScreen === 'chamber' && !this.journey.canDepart && this.replay.rewind()) {
+                if (this.currentScreen === 'chamber' && !this.journey.hasWaymark('hermes') && this.replay.rewind()) {
                     this.machine.reset(true);
                     this.resetRoom(false);
                 }
@@ -117,7 +122,10 @@ export class HermesSimulation {
         const wasInChamber = this.currentScreen === 'chamber';
         const bridgeWasOpen = this.bridgeOpen;
         const gateWasOpen = this.gateOpen;
+        const previous = this.player;
         this.move(horizontal, vertical, gateWasOpen);
+        const moved = previous.x !== this.player.x || previous.y !== this.player.y;
+        this.playerWalkTicks = moved ? this.playerWalkTicks + 1 : 0;
 
         this.bridgeTicks = Math.max(0, this.bridgeTicks - 1);
         this.bridgeOccupied = this.riftHazard.isBridgeOccupied(this.player, bridgeWasOpen, BODY);
@@ -131,6 +139,7 @@ export class HermesSimulation {
             this.bridgeTicks = 0;
             this.bridgeOccupied = false;
             this.player = outpost.spawn;
+            this.playerWalkTicks = 0;
             return;
         }
         if (this.fellInRift && this.player.x > outpost.spawn.x) {
@@ -146,15 +155,15 @@ export class HermesSimulation {
             this.chamberEntryCheckpoint = this.player;
             this.chamberCheckpoint = this.player;
             this.inMachineZone = false;
-            this.replay.begin(this.player);
+            this.replay.begin(this.player, this.playerWalkTicks);
         } else if (inChamber) {
             if (!this.inMachineZone && this.player.x >= chamber.machineStartX) {
                 this.inMachineZone = true;
                 this.chamberCheckpoint = this.player;
                 this.replay.clear();
-                this.replay.startCheckpointRun(this.player);
+                this.replay.startCheckpointRun(this.player, this.playerWalkTicks);
             } else {
-                this.replay.record(this.player);
+                this.replay.record(this.player, this.playerWalkTicks);
             }
         } else if (wasInChamber) {
             this.chamberEntryCheckpoint = undefined;
@@ -162,13 +171,13 @@ export class HermesSimulation {
             this.inMachineZone = false;
             this.machine.reset(true);
             this.replay.clear();
-            this.replay.begin(this.player);
+            this.replay.begin(this.player, this.playerWalkTicks);
         }
 
         if (inChamber) {
-            this.machine.step(this.player, this.replay.pose);
+            this.machine.step(this.player, this.replay.frame?.pose);
         }
-        if (contains(this.player, chamber.gateway) && this.journey.canDepart) {
+        if (contains(this.player, chamber.gateway) && this.journey.hasWaymark('hermes')) {
             this.currentScreen = 'complete';
         }
     }
@@ -197,6 +206,7 @@ export class HermesSimulation {
         this.fellInRift = false;
         const checkpoint = fullChamberReset ? this.chamberEntryCheckpoint : this.chamberCheckpoint;
         this.player = checkpoint ?? this.layout.outpost.spawn;
+        this.playerWalkTicks = 0;
         this.replay.begin(this.player);
     }
 }

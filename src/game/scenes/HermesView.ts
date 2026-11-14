@@ -23,8 +23,6 @@ const WALL = 0x4b3645;
 const GOLD = 0xffcc82;
 const TEAL = 0x87e0d0;
 const VIOLET = 0xa7a4ff;
-const CAMERA_LEAD = WIDTH * 0.45;
-const CAMERA_EASE_MS = 100;
 const GATE_RISE_MS = 450;
 
 function gatewayTexture(scene: Scene): string {
@@ -77,13 +75,10 @@ export class HermesView {
     private readonly mapLabel: GameObjects.Text;
     private readonly pillarLabel: GameObjects.Text;
     private readonly labels: GameObjects.Text[];
-    private readonly completionBackdrop: GameObjects.Rectangle;
-    private readonly completion: GameObjects.Text;
 
     constructor(scene: Scene, private readonly layout: HermesLayout) {
         this.projection = new RoomProjection(layout.floor);
         this.camera = scene.cameras.main;
-        this.camera.setBounds(0, 0, layout.floor.x * 2 + layout.floor.width, HEIGHT);
         this.drawSky(scene.add.graphics().setDepth(-3).setScrollFactor(0));
         this.outpostBackground = new OutpostBackground(scene);
         this.machineView = new CircularMachineView(scene, this.projection, layout.chamber.machine);
@@ -182,23 +177,11 @@ export class HermesView {
             label(chamber.machine.symbols[2], 'SYMBOL III', 0, 22),
             label(chamber.gateway, 'GATEWAY', 0, 34),
         ];
-        this.completionBackdrop = scene.add.rectangle(0, 0, WIDTH, HEIGHT, INK, 0.86)
-            .setOrigin(0).setScrollFactor(0).setDepth(HEIGHT + 1);
-        this.completion = scene.add.text(WIDTH / 2, HEIGHT / 2,
-            'Hermes complete\n\nConstellation route aligned · Waymark 1 of 6 recovered\nNext destination: Demeter', {
-                fontFamily: 'monospace',
-                fontSize: '18px',
-                color: '#fff2dc',
-                align: 'center',
-            }).setOrigin(0.5).setScrollFactor(0).setDepth(HEIGHT + 2);
     }
 
     render(state: HermesState, delta: number, snap = false): void {
         const playing = state.screen !== 'complete';
         const { player, echo } = state;
-        const target = this.camera.clampX(player.x - CAMERA_LEAD);
-        const offset = this.camera.scrollX + (target - this.camera.scrollX) * (1 - Math.exp(-delta / CAMERA_EASE_MS));
-        this.camera.setScroll(snap || Math.abs(offset - target) < 0.1 ? target : offset, 0);
         this.outpostBackground.render(this.camera.scrollX);
 
         this.art.clear();
@@ -223,13 +206,11 @@ export class HermesView {
             .setTint(state.plateHeld ? 0xd1ad7b : 0xffffff);
         this.labels.forEach((label) => label.setVisible(playing));
         this.mapLabel.setVisible(playing && !state.hasMap);
-        this.completionBackdrop.setVisible(!playing);
-        this.completion.setVisible(!playing);
 
         const playerOnScreen = { ...this.projection.project(player), facing: player.facing };
         const echoOnScreen = playing && echo ? { ...this.projection.project(echo), facing: echo.facing } : undefined;
-        this.player.render(playing ? playerOnScreen : undefined, playerOnScreen.y + 0.01);
-        this.echo.render(echoOnScreen, echoOnScreen?.y ?? 0);
+        this.player.render(playing ? playerOnScreen : undefined, playerOnScreen.y + 0.01, state.playerWalkTicks, snap ? 0 : delta);
+        this.echo.render(echoOnScreen, echoOnScreen?.y ?? 0, state.echoWalkTicks, snap ? 0 : delta);
 
         this.outpost(state);
         this.chamber(state);
@@ -283,7 +264,10 @@ export class HermesView {
         this.projection.outline(this.art, plate, plateColor, 0.9, state.plateHeld ? 1 : 4);
         if (state.gateOpen) this.projection.surface(this.art, gate, 0x5d403f, 0.25);
 
-        this.machineView.render(this.art, state);
+        const edge = this.layout.floor.x * 2 + this.layout.floor.width;
+        const cameraFocus = this.camera.scrollX + WIDTH * 0.45;
+        const skyOpacity = PhaserMath.Clamp((edge - cameraFocus) / 150, 0, 1);
+        this.machineView.render(this.art, state, skyOpacity);
         this.projection.surface(this.art, gateway, state.canDepart ? VIOLET : WALL, 0.28);
         if (!this.gateway.visible) {
             this.marker(gateway, state.canDepart ? VIOLET : WALL);

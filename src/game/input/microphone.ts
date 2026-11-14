@@ -1,4 +1,6 @@
 import { HumDetector } from './hum-detector.ts';
+import type { SoundInput } from './commands.ts';
+import { ViridiaSoundDetector } from './viridia-sound.ts';
 
 export type MicrophoneStatus = 'off' | 'requesting' | 'calibrating' | 'ready' | 'denied' | 'unavailable';
 
@@ -11,6 +13,7 @@ export class Microphone {
     private analyser?: AnalyserNode;
     private samples = new Float32Array(1024);
     private detector = new HumDetector();
+    private viridiaDetector = new ViridiaSoundDetector();
 
     async enable(): Promise<void> {
         this.disable();
@@ -54,6 +57,7 @@ export class Microphone {
             }
             this.analyser = analyser;
             this.detector = new HumDetector();
+            this.viridiaDetector = new ViridiaSoundDetector();
             this.status = 'calibrating';
         } catch (error) {
             if (request !== this.request) return;
@@ -64,15 +68,30 @@ export class Microphone {
     }
 
     poll(delta: number, nearReceiver: boolean): boolean {
-        if (!this.analyser) return false;
+        if (!this.sample()) return false;
+        const activated = this.detector.update(this.level, Math.min(delta, 50), nearReceiver);
+        this.status = this.detector.calibrating ? 'calibrating' : 'ready';
+        return activated;
+    }
 
+    pollViridia(delta: number): SoundInput {
+        if (!this.sample()) return { sustained: false };
+        const sampleMs = Math.min(delta, 50);
+        if (this.detector.calibrating) {
+            this.detector.update(this.level, sampleMs, false);
+            this.status = this.detector.calibrating ? 'calibrating' : 'ready';
+            return { sustained: false };
+        }
+        return this.viridiaDetector.update(this.level, this.detector.noiseLevel, sampleMs);
+    }
+
+    private sample(): boolean {
+        if (!this.analyser) return false;
         this.analyser.getFloatTimeDomainData(this.samples);
         let energy = 0;
         for (const sample of this.samples) energy += sample * sample;
         this.level = Math.sqrt(energy / this.samples.length);
-        const activated = this.detector.update(this.level, Math.min(delta, 50), nearReceiver);
-        this.status = this.detector.calibrating ? 'calibrating' : 'ready';
-        return activated;
+        return true;
     }
 
     disable(): void {

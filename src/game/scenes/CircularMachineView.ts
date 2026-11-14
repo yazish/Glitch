@@ -49,13 +49,14 @@ export class CircularMachineView {
         this.skyConstellations = scene.add.graphics().setDepth(-2.1).setScrollFactor(0);
     }
 
-    render(art: GameObjects.Graphics, state: HermesState): void {
+    render(art: GameObjects.Graphics, state: HermesState, skyOpacity: number): void {
         this.drawCircularRing(art, state);
         this.drawControlPad(art, state);
         this.drawShadowBeam(art, state);
         this.drawSymbols(art, state);
         this.drawPillar(art, state);
         this.drawSkyConstellations(state);
+        this.skyConstellations.setAlpha(skyOpacity);
     }
 
     private drawCircularRing(art: GameObjects.Graphics, state: HermesState): void {

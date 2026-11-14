@@ -1,8 +1,9 @@
-import type { GameCommand } from '../worlds/hermes/simulation';
+import type { GameCommand } from './commands';
 
 const commands: Partial<Record<string, GameCommand>> = {
     Space: 'activateBridge',
     KeyR: 'rewind',
+    KeyE: 'interact',
     Escape: 'restart',
 };
 const movementKeys = new Set([
@@ -16,6 +17,10 @@ export class KeyboardControls {
         window.addEventListener('keydown', this.keyDown);
         window.addEventListener('keyup', this.keyUp);
         window.addEventListener('blur', this.clear);
+    }
+
+    get soundHeld(): boolean {
+        return this.held.has('Space');
     }
 
     get movement() {
@@ -43,6 +48,7 @@ export class KeyboardControls {
         const command = commands[event.code];
         if (!command || (event.code === 'Space' && event.target instanceof HTMLButtonElement)) return;
         event.preventDefault();
+        if (event.code === 'Space') this.held.add(event.code);
         if (!event.repeat) this.issue(command);
     };
 

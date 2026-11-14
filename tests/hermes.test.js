@@ -61,6 +61,45 @@ function solveCircularMachine(game) {
     assert.equal(game.state.canDepart, true);
 }
 
+test('walk timing follows movement, stops at a wall, and resets on restart', () => {
+    const game = new HermesSimulation(hermes);
+    assert.equal(game.state.playerWalkTicks, 0);
+    move(game, 12, 1);
+    assert.equal(game.state.playerWalkTicks, 12);
+    move(game, 1);
+    assert.equal(game.state.playerWalkTicks, 0);
+
+    move(game, 100, -1);
+    const wallPosition = game.state.player.x;
+    move(game, 1, -1);
+    assert.equal(game.state.player.x, wallPosition);
+    assert.equal(game.state.playerWalkTicks, 0);
+
+    move(game, 2, 1, 1);
+    assert.equal(game.state.playerWalkTicks, 2);
+    game.command('restart');
+    assert.equal(game.state.playerWalkTicks, 0);
+});
+
+test('the Echo replays walk phases and pauses, then idles at its last pose', () => {
+    const game = inChamber();
+    const recorded = [{ pose: game.state.player, walkTicks: game.state.playerWalkTicks }];
+    for (const vertical of [-1, -1, 0, 0, -1, -1]) {
+        move(game, 1, 0, vertical);
+        recorded.push({ pose: game.state.player, walkTicks: game.state.playerWalkTicks });
+    }
+
+    game.command('rewind');
+    assert.equal(game.state.playerWalkTicks, 0);
+    for (const frame of recorded) {
+        assert.deepEqual(game.state.echo, frame.pose);
+        assert.equal(game.state.echoWalkTicks, frame.walkTicks);
+        move(game, 1);
+    }
+    assert.deepEqual(game.state.echo, recorded.at(-1).pose);
+    assert.equal(game.state.echoWalkTicks, 0);
+});
+
 test('the bridge requires proximity, enlarges the safe crossing box, and drops players who cross outside it', () => {
     const game = new HermesSimulation(hermes);
     game.command('activateBridge');
@@ -72,6 +111,7 @@ test('the bridge requires proximity, enlarges the safe crossing box, and drops p
     for (let tick = 0; tick < 25 && !game.state.fellInRift; tick++) move(game, 1, 1);
     assert.equal(game.state.fellInRift, true);
     assert.equal(game.state.fallCount, 1);
+    assert.equal(game.state.playerWalkTicks, 0);
     assert.deepEqual(game.state.player, hermes.outpost.spawn);
 
     // Attempting to cross outside the enlarged bridge bounds (y: 168..280) also drops the player.
