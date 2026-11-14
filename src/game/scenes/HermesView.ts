@@ -5,6 +5,7 @@ import { HEIGHT, WIDTH } from '../viewport';
 import type { HermesLayout, Rect } from '../worlds/hermes/room';
 import type { HermesState } from '../worlds/hermes/simulation';
 import { CharacterView } from './CharacterView';
+import { CircularMachineView } from './CircularMachineView';
 import { RoomProjection } from './RoomProjection';
 import { OutpostBackground } from './OutpostBackground';
 import { drawOutpostTerrain } from './OutpostTerrain';
@@ -20,6 +21,7 @@ const WALL_STONE = { top: 0xa68b99, left: 0x59485f, right: 0x726075 };
 const GATE_METAL = { top: 0xbe7c72, left: 0x64414e, right: 0x955966 };
 const WALL = 0x4b3645;
 const GOLD = 0xffcc82;
+const TEAL = 0x87e0d0;
 const VIOLET = 0xa7a4ff;
 const CAMERA_LEAD = WIDTH * 0.45;
 const CAMERA_EASE_MS = 100;
@@ -39,7 +41,6 @@ function gatewayTexture(scene: Scene): string {
     context.drawImage(source, 0, 0);
     const pixels = context.getImageData(0, 0, source.width, source.height);
     const rgba = pixels.data;
-    // The supplied sprite is on a white matte. Preserve any alpha in a replacement PNG.
     if (rgba.some((value, index) => index % 4 === 3 && value < 255)) {
         textures.remove(GATEWAY_CUTOUT_TEXTURE);
         return DEPARTURE_GATEWAY_TEXTURE;
@@ -57,6 +58,7 @@ export class HermesView {
     private readonly projection: RoomProjection;
     private readonly camera: Scene['cameras']['main'];
     private readonly outpostBackground: OutpostBackground;
+    private readonly machineView: CircularMachineView;
     private readonly floor: GameObjects.Graphics;
     private readonly art: GameObjects.Graphics;
     private readonly player: CharacterView;
@@ -73,7 +75,7 @@ export class HermesView {
     private gateDoorY = 0;
     private gateRise = 0;
     private readonly mapLabel: GameObjects.Text;
-    private readonly waymarkLabel: GameObjects.Text;
+    private readonly pillarLabel: GameObjects.Text;
     private readonly labels: GameObjects.Text[];
     private readonly completionBackdrop: GameObjects.Rectangle;
     private readonly completion: GameObjects.Text;
@@ -84,6 +86,7 @@ export class HermesView {
         this.camera.setBounds(0, 0, layout.floor.x * 2 + layout.floor.width, HEIGHT);
         this.drawSky(scene.add.graphics().setDepth(-3).setScrollFactor(0));
         this.outpostBackground = new OutpostBackground(scene);
+        this.machineView = new CircularMachineView(scene, this.projection, layout.chamber.machine);
         this.floor = scene.add.graphics().setDepth(-2);
         this.drawFloor(drawHermesTerrainAssets(scene, this.projection, layout));
         this.art = scene.add.graphics().setDepth(-1);
@@ -108,12 +111,11 @@ export class HermesView {
         this.gateway = scene.add.image(gateway.x, gateway.y, gatewayTexture(scene))
             .setOrigin(0.5, 1).setDisplaySize(52, 52).setDepth(gateway.y);
         if (scene.textures.exists(WAYMARK_SCROLL_TEXTURE)) {
-            const waymark = this.projection.center(chamber.anchor);
+            const waymark = this.projection.center(chamber.anchor, 64);
             this.waymarkScroll = scene.add.image(waymark.x, waymark.y, WAYMARK_SCROLL_TEXTURE)
                 .setDisplaySize(32, 32).setDepth(waymark.y);
         }
 
-        // Split the wall into short sections so characters can pass behind its far end.
         for (const wall of chamber.walls) {
             const end = wall.y + wall.height;
             for (let y = wall.y; y < end; y += TILE_SIZE) {
@@ -169,19 +171,23 @@ export class HermesView {
             }).setOrigin(0.5).setDepth(HEIGHT);
         };
         this.mapLabel = label(outpost.map, 'STAR COMPASS', 0, 21);
-        this.waymarkLabel = label(chamber.anchor, 'WAYMARK', 0, 34, 8);
+        this.pillarLabel = label(chamber.machine.pillar, 'SUNDIAL PILLAR', 0, -38);
         this.labels = [
             label(outpost.receiver, 'SING!!!', -16, 22),
             label({ x: chamber.startX, y: layout.floor.y, width: 0, height: 0 }, 'ANCHOR CHAMBER', 0, -25),
             label(chamber.plate, 'PRESSURE PLATE', 0, -43),
+            label(chamber.machine.control, 'PILLAR CONTROL', 0, -34),
+            label(chamber.machine.symbols[0], 'SYMBOL I', 0, -22),
+            label(chamber.machine.symbols[1], 'SYMBOL II', 38, 0),
+            label(chamber.machine.symbols[2], 'SYMBOL III', 0, 22),
             label(chamber.gateway, 'GATEWAY', 0, 34),
         ];
         this.completionBackdrop = scene.add.rectangle(0, 0, WIDTH, HEIGHT, INK, 0.86)
             .setOrigin(0).setScrollFactor(0).setDepth(HEIGHT + 1);
         this.completion = scene.add.text(WIDTH / 2, HEIGHT / 2,
-            'Hermes complete\n\nWaymark 1 of 6 recovered\nNext destination: Demeter', {
+            'Hermes complete\n\nConstellation route aligned · Waymark 1 of 6 recovered\nNext destination: Demeter', {
                 fontFamily: 'monospace',
-                fontSize: '19px',
+                fontSize: '18px',
                 color: '#fff2dc',
                 align: 'center',
             }).setOrigin(0.5).setScrollFactor(0).setDepth(HEIGHT + 2);
@@ -209,8 +215,9 @@ export class HermesView {
         this.gateDoor?.setVisible(playing).setY(this.gateDoorY - this.gateRise * this.gateLift);
         this.bridgeTexture?.setVisible(state.bridgeOpen);
         this.gateway.setVisible(this.gateway.texture.key !== '__MISSING');
-        this.waymarkScroll?.setVisible(playing && state.waymarks === 0);
-        this.waymarkLabel.setVisible(playing && state.waymarks === 0);
+        const waymarkRecovered = state.waymarks > 0;
+        this.waymarkScroll?.setVisible(playing && waymarkRecovered);
+        this.pillarLabel.setVisible(playing).setText(waymarkRecovered ? 'WAYMARK RECOVERED' : 'SUNDIAL PILLAR');
         this.starCompass?.setVisible(playing && !state.hasMap);
         this.pressurePlate?.setVisible(playing).setY(this.pressurePlateY - (state.plateHeld ? 1 : 4))
             .setTint(state.plateHeld ? 0xd1ad7b : 0xffffff);
@@ -220,7 +227,7 @@ export class HermesView {
         this.completion.setVisible(!playing);
 
         const playerOnScreen = { ...this.projection.project(player), facing: player.facing };
-        const echoOnScreen = echo && { ...this.projection.project(echo), facing: echo.facing };
+        const echoOnScreen = playing && echo ? { ...this.projection.project(echo), facing: echo.facing } : undefined;
         this.player.render(playing ? playerOnScreen : undefined, playerOnScreen.y + 0.01);
         this.echo.render(echoOnScreen, echoOnScreen?.y ?? 0);
 
@@ -243,11 +250,10 @@ export class HermesView {
 
     private drawFloor(textured: boolean): void {
         const { floor, outpost, chamber } = this.layout;
-        const { bridge } = outpost;
-        const rightX = bridge.x + bridge.width;
-        // A small apron reaches the camera bounds at both ends of the map.
+        const { rift } = outpost;
+        const rightX = rift.x + rift.width;
         const ground = { ...floor, x: 0, width: floor.width + floor.x * 2 };
-        drawOutpostTerrain(this.floor, this.projection, ground, bridge.x, rightX, textured);
+        drawOutpostTerrain(this.floor, this.projection, ground, rift.x, rightX, textured);
         for (let band = 0; band < 4; band++) {
             const x = chamber.startX + band * TILE_SIZE;
             const width = band === 3 ? ground.width - x : TILE_SIZE;
@@ -258,22 +264,26 @@ export class HermesView {
     }
 
     private outpost(state: HermesState): void {
-        const { map, bridge } = this.layout.outpost;
-        if (state.bridgeOpen) {
-            if (!this.bridgeTexture) this.projection.block(this.art, bridge, 6, { top: 0x70513e, left: 0x3d2b26, right: 0x574034 }, -6);
+        const { map, receiver, bridge } = this.layout.outpost;
+        if (state.bridgeOpen && !this.bridgeTexture) {
+            this.projection.block(this.art, bridge, 6, { top: 0x70513e, left: 0x3d2b26, right: 0x574034 }, -6);
         }
+        this.projection.outline(this.art, bridge, TEAL, state.bridgeOpen ? 0.92 : 0.37);
+        this.projection.surface(this.art, receiver, TEAL, state.canActivateBridge ? 0.23 : 0.08);
+        this.projection.outline(this.art, receiver, TEAL, state.canActivateBridge ? 1 : 0.4);
         if (!state.hasMap && !this.starCompass) this.marker(map, GOLD);
     }
 
     private chamber(state: HermesState): void {
-        const { plate, gate, anchor, gateway } = this.layout.chamber;
+        const { plate, gate, gateway } = this.layout.chamber;
         const plateColor = state.plateHeld ? GOLD : 0x8f7160;
         this.projection.block(this.art, plate, state.plateHeld ? 1 : 4, {
             top: 0x77573f, left: 0x3d2b26, right: 0x574034,
         });
         this.projection.outline(this.art, plate, plateColor, 0.9, state.plateHeld ? 1 : 4);
         if (state.gateOpen) this.projection.surface(this.art, gate, 0x5d403f, 0.25);
-        if (!this.waymarkScroll && state.waymarks === 0) this.marker(anchor, GOLD);
+
+        this.machineView.render(this.art, state);
         this.projection.surface(this.art, gateway, state.canDepart ? VIOLET : WALL, 0.28);
         if (!this.gateway.visible) {
             this.marker(gateway, state.canDepart ? VIOLET : WALL);

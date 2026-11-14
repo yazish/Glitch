@@ -13,17 +13,28 @@ const micMessages: Record<MicrophoneStatus, string> = {
 function objective(state: HermesState): string {
     if (state.screen === 'complete') return 'Hermes complete. Next destination: Demeter.';
     if (state.screen === 'outpost') {
+        if (state.fellInRift) return 'You fell into the rift! Cross only on the extended bridge.';
         if (!state.hasMap) return 'Find the star compass on the transit platform.';
         if (state.bridgePermanent) return 'Bridge secured. Head right to the anchor chamber.';
-        if (state.bridgeOpen) return 'Bridge extended. Cross to the anchor chamber.';
+        if (state.bridgeOpen) return 'Bridge extended. Stay on the bridge to cross to the anchor chamber.';
         if (state.canActivateBridge) return 'Hum or press Space to extend the bridge.';
         return 'Home signal detected. Six Waymarks needed. Find the SING!!! cue near the bridge.';
     }
-    if (state.canDepart) return 'Hermes restored. Next destination: Demeter. Enter the gateway.';
+    if (state.canDepart) return 'Constellation route revealed! Next destination: Demeter. Enter the gateway.';
     if (state.recordingFull) return 'Recording limit reached. Press Esc to restart the chamber.';
+    if (state.controlHeld && !state.echo) {
+        return 'Pillar rotating. Press R to rewind so your Echo holds the rotation control.';
+    }
+    if (state.echo && state.controlHeld) {
+        const nextSymbol = state.alignedSymbols + 1;
+        return `Echo holding pillar control (${state.constellations}/3 constellations). Step onto Symbol ${nextSymbol} when the shadow aligns.`;
+    }
+    if (state.player.x >= 992) {
+        return `Stand on the pillar control and press R so your Echo rotates the shadow across Symbols I, II, and III (${state.constellations}/3 constellations).`;
+    }
     if (state.plateHeld && !state.echo) return 'Press R while you are on the pressure plate.';
     if (state.echo && state.plateHeld) return 'Cross the gate while your Echo holds the plate.';
-    if (state.echo) return 'Watch your Echo reach the pressure plate. Esc clears the Echo.';
+    if (state.echo) return 'Watch your Echo reach its target. Esc clears the Echo.';
     return 'Stand on the pressure plate, then press R to rewind.';
 }
 
@@ -41,7 +52,9 @@ export class HermesHud {
         const message = objective(state);
         if (this.objective.textContent !== message) this.objective.textContent = message;
         this.map.hidden = !state.hasMap;
-        const route = state.canDepart ? '1 of 6 · Next destination: Demeter' : '0 of 6 · Current world: Hermes';
+        const route = state.canDepart
+            ? '1 of 6 · Constellation route complete · Next destination: Demeter'
+            : `0 of 6 · Current world: Hermes · Constellations: ${state.constellations}/3`;
         if (this.route.textContent !== route) this.route.textContent = route;
         this.slots.forEach((slot, i) => slot.classList.toggle('filled', i < state.waymarks));
 
