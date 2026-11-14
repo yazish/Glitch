@@ -1,3 +1,4 @@
+import { PARCHMENT_LABEL } from '../typography';
 import type { GameObjects, Scene } from 'phaser';
 import { Math as PhaserMath } from 'phaser';
 import { TILE_SIZE } from '../worlds/hermes/room';
@@ -11,6 +12,7 @@ import { OutpostBackground } from './OutpostBackground';
 import { drawOutpostTerrain } from './OutpostTerrain';
 import { drawHermesTerrainAssets } from './HermesTerrainAssets';
 import { addHorizonFade } from './HorizonFade';
+import { RiftFallView } from './RiftFallView';
 
 export const DEPARTURE_GATEWAY_TEXTURE = 'hermes-departure-gateway';
 export const WAYMARK_SCROLL_TEXTURE = 'hermes-waymark-scroll';
@@ -61,6 +63,7 @@ export class HermesView {
     private readonly floor: GameObjects.Graphics;
     private readonly art: GameObjects.Graphics;
     private readonly player: CharacterView;
+    private readonly riftFall: RiftFallView;
     private readonly echo: CharacterView;
     private readonly gateway: GameObjects.Image;
     private readonly waymarkScroll?: GameObjects.Image;
@@ -161,15 +164,14 @@ export class HermesView {
         }
 
         this.player = new CharacterView(scene, GOLD, 0xffffff, 1);
+        this.riftFall = new RiftFallView(scene);
         this.echo = new CharacterView(scene, VIOLET, VIOLET, 0.65);
 
         const label = (target: Rect, text: string, dx: number, dy: number, size = 9) => {
             const point = this.projection.center(target);
             return scene.add.text(point.x + dx, point.y + dy, text, {
-                fontFamily: 'monospace',
+                ...PARCHMENT_LABEL,
                 fontSize: `${size}px`,
-                color: '#fff2dc',
-                backgroundColor: '#232031',
                 padding: { x: 4, y: 3 },
             }).setOrigin(0.5).setDepth(HEIGHT);
         };
@@ -217,7 +219,9 @@ export class HermesView {
 
         const playerOnScreen = { ...this.projection.project(player), facing: player.facing };
         const echoOnScreen = playing && echo ? { ...this.projection.project(echo), facing: echo.facing } : undefined;
-        this.player.render(playing ? playerOnScreen : undefined, playerOnScreen.y + 0.01, state.playerWalkTicks, snap ? 0 : delta);
+        const showPlayer = playing && state.riftFallProgress === undefined;
+        this.player.render(showPlayer ? playerOnScreen : undefined, playerOnScreen.y + 0.01, state.playerWalkTicks, snap ? 0 : delta);
+        this.riftFall.render(player.facing, state.riftFallProgress);
         this.echo.render(echoOnScreen, echoOnScreen?.y ?? 0, state.echoWalkTicks, snap ? 0 : delta);
 
         this.outpost(state);

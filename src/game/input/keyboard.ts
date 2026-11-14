@@ -47,13 +47,14 @@ export class KeyboardControls {
 
     private readonly keyDown = (event: KeyboardEvent): void => {
         if (!this.enabled || event.metaKey || event.ctrlKey || event.altKey) return;
+        const onControl = event.target instanceof HTMLElement && event.target.closest('button, summary, a');
         if (movementKeys.has(event.code)) {
             event.preventDefault();
-            if (event.target instanceof HTMLButtonElement) this.gameElement.focus({ preventScroll: true });
+            if (onControl) this.gameElement.focus({ preventScroll: true });
             this.held.add(event.code);
         }
         const command = commands[event.code];
-        if (!command || (event.code === 'Space' && event.target instanceof HTMLButtonElement)) return;
+        if (!command || (event.code === 'Space' && onControl)) return;
         event.preventDefault();
         if (event.code === 'Space') this.held.add(event.code);
         if (!event.repeat) this.issue(command);

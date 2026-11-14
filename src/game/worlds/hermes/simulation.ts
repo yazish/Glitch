@@ -11,6 +11,7 @@ export type Screen = 'outpost' | 'chamber' | 'complete';
 const BODY = 7;
 const STEP_DISTANCE = 135 * STEP_MS / 1000;
 const BRIDGE_TICKS = 360;
+const RIFT_FALL_TICKS = 96;
 
 export class HermesSimulation {
     private readonly journey: Journey;
@@ -26,6 +27,7 @@ export class HermesSimulation {
     private bridgePermanent = false;
     private gateOccupied = false;
     private fellInRift = false;
+    private fallTick?: number;
     private fallCount = 0;
     private chamberEntryCheckpoint?: Pose;
     private chamberCheckpoint?: Pose;
@@ -43,7 +45,7 @@ export class HermesSimulation {
 
     get canActivateBridge(): boolean {
         return this.currentScreen === 'outpost' && this.journey.hasMap
-            && !this.bridgeOpen && contains(this.player, this.layout.outpost.receiver);
+            && this.fallTick === undefined && !this.bridgeOpen && contains(this.player, this.layout.outpost.receiver);
     }
 
     private get bridgeOpen(): boolean {
@@ -76,6 +78,7 @@ export class HermesSimulation {
             bridgePermanent: this.bridgePermanent,
             canActivateBridge: this.canActivateBridge,
             fellInRift: this.fellInRift,
+            riftFallProgress: this.fallTick === undefined ? undefined : this.fallTick / RIFT_FALL_TICKS,
             fallCount: this.fallCount,
             machine,
             controlHeld: this.currentScreen === 'chamber' && machine.controlHeld,
@@ -117,6 +120,11 @@ export class HermesSimulation {
 
     step(horizontal: number, vertical: number): void {
         if (this.currentScreen === 'complete') return;
+        if (this.fallTick !== undefined) {
+            this.fallTick += 1;
+            if (this.fallTick >= RIFT_FALL_TICKS) this.respawnAfterFall();
+            return;
+        }
 
         const { outpost, chamber } = this.layout;
         const wasInChamber = this.currentScreen === 'chamber';
@@ -134,11 +142,8 @@ export class HermesSimulation {
         }
 
         if (this.riftHazard.didFallOffMap(this.player, this.bridgeOpen, BODY)) {
-            this.fellInRift = true;
+            this.fallTick = 0;
             this.fallCount += 1;
-            this.bridgeTicks = 0;
-            this.bridgeOccupied = false;
-            this.player = outpost.spawn;
             this.playerWalkTicks = 0;
             return;
         }
@@ -200,6 +205,7 @@ export class HermesSimulation {
     }
 
     private resetRoom(fullChamberReset: boolean): void {
+        this.fallTick = undefined;
         this.bridgeTicks = 0;
         this.bridgeOccupied = false;
         this.gateOccupied = false;
@@ -208,6 +214,14 @@ export class HermesSimulation {
         this.player = checkpoint ?? this.layout.outpost.spawn;
         this.playerWalkTicks = 0;
         this.replay.begin(this.player);
+    }
+
+    private respawnAfterFall(): void {
+        this.fallTick = undefined;
+        this.fellInRift = true;
+        this.bridgeTicks = 0;
+        this.bridgeOccupied = false;
+        this.player = this.layout.outpost.spawn;
     }
 }
 

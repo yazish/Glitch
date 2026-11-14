@@ -107,18 +107,30 @@ test('the bridge requires proximity, enlarges the safe crossing box, and drops p
     move(game, 68, 1);
     assert.equal(game.state.hasMap, true);
 
-    // Attempting to cross the rift without the bridge drops the player back to spawn.
-    for (let tick = 0; tick < 25 && !game.state.fellInRift; tick++) move(game, 1, 1);
+    // The player stays at the lip while the fall plays, even with movement held.
+    for (let tick = 0; tick < 25 && game.state.riftFallProgress === undefined; tick++) move(game, 1, 1);
+    assert.equal(game.state.riftFallProgress, 0);
+    const fallStart = game.state.player;
+    assert.ok(fallStart.x > hermes.outpost.rift.x);
+    move(game, 48, 1);
+    assert.deepEqual(game.state.player, fallStart);
+    assert.ok(game.state.riftFallProgress > 0 && game.state.riftFallProgress < 1);
+    assert.equal(game.state.fallCount, 1);
+    move(game, 48, 1);
+    assert.equal(game.state.riftFallProgress, undefined);
     assert.equal(game.state.fellInRift, true);
     assert.equal(game.state.fallCount, 1);
     assert.equal(game.state.playerWalkTicks, 0);
     assert.deepEqual(game.state.player, hermes.outpost.spawn);
+    assert.equal(game.state.hasMap, true);
 
     // Attempting to cross outside the enlarged bridge bounds (y: 168..280) also drops the player.
     move(game, 68, 1);
     game.command('activateBridge');
     move(game, 43, 0, -1);
-    for (let tick = 0; tick < 25 && !game.state.fellInRift; tick++) move(game, 1, 1);
+    for (let tick = 0; tick < 25 && game.state.riftFallProgress === undefined; tick++) move(game, 1, 1);
+    assert.equal(game.state.riftFallProgress, 0);
+    move(game, 96);
     assert.equal(game.state.fellInRift, true);
     assert.equal(game.state.fallCount, 2);
     assert.deepEqual(game.state.player, hermes.outpost.spawn);

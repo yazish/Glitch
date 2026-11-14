@@ -1,3 +1,4 @@
+import { DISPLAY_FONT, PARCHMENT_LABEL, READING_FONT } from '../typography';
 import type { GameObjects, Scene } from 'phaser';
 import type { Point } from '../worlds/geometry';
 import { AMPLIFIER, ARENAS, BARRIER, BARRIER_CORE, BARRIER_FACE, BOSS_FEET, FLOOR, GEAR,
@@ -66,15 +67,15 @@ export class VesperView {
         this.shotgun = scene.add.image(0, 0, 'vesper-shotgun').setScale(0.48).setDepth(390).setVisible(false);
         this.cinematic = new VesperCinematic(scene);
         this.marker = scene.add.text(0, 0, '', {
-            fontFamily: 'system-ui', fontSize: '13px', color: '#f0fffa', backgroundColor: '#161d2f',
+            ...PARCHMENT_LABEL, fontSize: '12px',
             padding: { x: 5, y: 3 },
         }).setOrigin(0.5, 1).setDepth(400);
         this.calibrationArt = scene.add.graphics().setDepth(410);
         this.calibration = scene.add.text(320, 194, '', {
-            fontFamily: 'system-ui', fontSize: '16px', color: '#ecfff5', align: 'center', lineSpacing: 6,
+            fontFamily: READING_FONT, fontStyle: '600', fontSize: '17px', color: '#fff1ce', align: 'center', lineSpacing: 6,
         }).setOrigin(0.5, 0).setDepth(420);
         this.calibrationFeedback = scene.add.text(320, 281, '', {
-            fontFamily: 'system-ui', fontSize: '13px', color: '#ffd8ba',
+            fontFamily: DISPLAY_FONT, fontSize: '13px', color: '#ffd8ba',
         }).setOrigin(0.5, 0).setDepth(420);
         this.kael = new CharacterView(scene, CYAN, 0xffffff, 1);
         this.double = new CharacterView(scene, VIOLET, VIOLET, 0.78);

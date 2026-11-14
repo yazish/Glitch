@@ -31,8 +31,7 @@ export class BorealisHud {
         this.checkmark.hidden = true;
         const clue = document.querySelector<HTMLOListElement>('#viridia-compass-clue')!;
         clue.hidden = true;
-        document.querySelector<HTMLElement>('#game-hud .controls')!.hidden = true;
-        document.querySelector<HTMLElement>('#how-to-play')!.hidden = true;
+        document.querySelector<HTMLElement>('#hermes-help')!.hidden = true;
         document.querySelector<HTMLElement>('#star-map')!.hidden = false;
         this.compassPanel.hidden = false;
         this.compass.hidden = false;

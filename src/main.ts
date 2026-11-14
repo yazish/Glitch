@@ -1,17 +1,16 @@
 import StartGame from './game/main';
+import { loadGameFonts } from './game/typography';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
 
+    await loadGameFonts();
     StartGame('game-container');
 
     if (import.meta.env.DEV) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.textContent = 'Developer: Open Level 4';
-        button.addEventListener('click', () => {
-            window.location.assign(`${import.meta.env.BASE_URL}vesper.html`);
-        });
-        document.querySelector('header')?.append(button);
+        const link = document.createElement('a');
+        link.href = `${import.meta.env.BASE_URL}vesper.html`;
+        link.textContent = 'Open Level 4 preview';
+        document.querySelector('#hermes-help')?.append(link);
     }
 
 });

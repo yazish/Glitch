@@ -76,6 +76,7 @@ export class Game extends Scene {
         this.hud = new HermesHud();
         this.view = new HermesView(this, hermes);
         this.elapsed = 0;
+        this.showWorldBackdrop('hermes');
 
         const gameElement = document.querySelector<HTMLElement>('#game-container')!;
         document.querySelector<HTMLElement>('#game-hud')!.hidden = false;
@@ -88,8 +89,9 @@ export class Game extends Scene {
         document.querySelector<HTMLElement>('#location')!.hidden = false;
         gameElement.setAttribute('aria-label', 'Hermes game room');
         gameElement.focus({ preventScroll: true });
-        document.querySelector<HTMLElement>('#game-hud .controls')!.hidden = false;
-        document.querySelector<HTMLElement>('#how-to-play')!.hidden = false;
+        const help = document.querySelector<HTMLDetailsElement>('#hermes-help')!;
+        help.hidden = false;
+        help.open = false;
         document.querySelector<HTMLElement>('#location')!.textContent = 'Hermes · The Forgotten Outpost';
         this.keyboard = new KeyboardControls(gameElement, (command) => {
             const previous = this.adventure.player;
@@ -187,6 +189,7 @@ export class Game extends Scene {
         if (world !== this.renderedWorld) {
             for (const object of this.children.getChildren().slice()) object.destroy();
             this.renderedWorld = world;
+            this.showWorldBackdrop(world);
             snap = true;
         }
         if (world === 'borealis') {
@@ -201,6 +204,11 @@ export class Game extends Scene {
         this.followCamera.follow(hermes.player.x, delta, snap);
         this.view.render(hermes, delta, snap);
         this.hud.render(hermes, this.microphone.status, this.microphone.level);
+    }
+
+    private showWorldBackdrop(world: WorldId): void {
+        const shell = document.querySelector<HTMLElement>('.game-shell');
+        if (shell) shell.dataset.world = world;
     }
 
     private renderViridia(delta: number, snap: boolean): void {

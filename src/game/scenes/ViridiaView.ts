@@ -1,3 +1,4 @@
+import { PARCHMENT_LABEL } from '../typography';
 import type { GameObjects, Scene } from 'phaser';
 import { CharacterView } from './CharacterView';
 import { RoomProjection } from './RoomProjection';
@@ -37,7 +38,7 @@ export class ViridiaView {
         this.magic = new ViridiaMagic(scene, layout, this.projection);
         this.art = scene.add.graphics().setDepth(-1);
         this.prompt = scene.add.text(0, 0, '', {
-            fontFamily: 'monospace', fontSize: '10px', color: '#fff2dc', backgroundColor: '#132724',
+            ...PARCHMENT_LABEL, fontSize: '10px',
             padding: { x: 5, y: 4 },
         }).setOrigin(0.5, 1).setDepth(365).setVisible(false);
         this.player = new CharacterView(scene, AMBER, 0xffffff, 1);
@@ -60,7 +61,7 @@ export class ViridiaView {
     private label(scene: Scene, rect: Rect, name: string): GameObjects.Text {
         const pos = this.projection.center(rect);
         return scene.add.text(pos.x, pos.y + 29, name, {
-            fontFamily: 'monospace', fontSize: '8px', color: '#fff0cc', backgroundColor: '#182d26',
+            ...PARCHMENT_LABEL, fontSize: '9px',
             padding: { x: 3, y: 2 },
         }).setOrigin(0.5).setDepth(361);
     }

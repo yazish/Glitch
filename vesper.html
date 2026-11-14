@@ -8,52 +8,52 @@
     <title>Glitch · Level 4 — Vesper</title>
 </head>
 <body>
-    <main id="app">
-        <header>
-            <h1>Glitch</h1>
-            <p id="location" class="location" hidden>Vesper · The Breached Streets</p>
-        </header>
+    <main id="app" class="game-shell" aria-label="Glitch" data-world="vesper">
+        <p id="location" class="sr-only" hidden>Vesper · The Breached Streets</p>
         <div id="game-stage">
             <div id="game-container" tabindex="-1" aria-label="Vesper combat arena"></div>
-            <aside id="vesper-transmission" class="vesper-story" aria-labelledby="vesper-signal" hidden>
+            <aside id="vesper-transmission" class="vesper-story parchment" aria-labelledby="vesper-signal" hidden>
                 <h2 id="vesper-signal">Navigation signal restored</h2>
                 <p>Sirocco → Viridia → Borealis → Vesper → Earth</p>
                 <p>Winnipeg, Manitoba · Two dimensional signatures detected</p>
                 <blockquote>“If you’re seeing this, you’ve reached the final connection. But the coordinates aren’t enough. You need to find the right home.”</blockquote>
                 <p>Final Waymark located at the University of Manitoba.</p>
             </aside>
-            <aside id="vesper-arrival" class="vesper-story" aria-label="Earth arrival" hidden>
+            <aside id="vesper-arrival" class="vesper-story parchment" aria-label="Earth arrival" hidden>
                 <h2>Earth · Winnipeg, Manitoba</h2>
                 <p>University of Manitoba</p>
                 <p>Vesper complete · Fourth Waymark recovered</p>
             </aside>
-            <aside id="objective-guide" aria-label="Current objective" aria-live="polite" hidden>
+            <aside id="objective-guide" class="parchment" aria-label="Current objective" aria-live="polite" hidden>
                 <h2>OBJECTIVE</h2>
                 <p id="objective" role="status">Pick up the weapons.</p>
             </aside>
-            <div id="vesper-combat" aria-label="Combat status" hidden>
+            <div id="vesper-combat" class="parchment" aria-label="Combat status" hidden>
                 <div class="vesper-stat"><span>Health <strong id="vesper-integrity"></strong></span><span id="vesper-health" class="vesper-bar health" role="progressbar" aria-label="Health" aria-valuemin="0" aria-valuemax="3"><i></i></span></div>
                 <div class="vesper-stat"><span>Shield</span><span id="vesper-shield" class="vesper-bar shield" role="progressbar" aria-label="Shield" aria-valuemin="0" aria-valuemax="90"><i></i></span></div>
                 <span id="vesper-cannon" hidden></span>
                 <strong id="vesper-encounter" hidden></strong>
                 <progress id="vesper-boss-health" aria-label="Boss health" max="12" value="12" hidden></progress>
             </div>
-            <p id="vesper-tutorial" role="status" hidden></p>
+            <p id="vesper-tutorial" class="parchment" role="status" hidden></p>
         </div>
         <div id="game-hud" hidden>
             <div id="vesper-hud" hidden>
-                <p class="controls"><kbd>WASD</kbd> / <kbd>Arrows</kbd> Move and face · <kbd>K</kbd> Shotgun
-                    · <kbd>L</kbd> Melee · <kbd>F</kbd> / Right-click Shield · <kbd>E</kbd> Interact · <kbd>Esc</kbd> Retry encounter</p>
-                <p id="vesper-feedback" role="status" hidden></p>
+                <details class="controls-help parchment">
+                    <summary>Controls</summary>
+                    <p class="controls"><kbd>WASD</kbd> / <kbd>Arrows</kbd> Move and face · <kbd>K</kbd> Shotgun
+                        · <kbd>L</kbd> Melee · <kbd>F</kbd> / Right-click Shield · <kbd>E</kbd> Interact · <kbd>Esc</kbd> Retry encounter</p>
+                </details>
+                <p id="vesper-feedback" class="parchment" role="status" hidden></p>
             </div>
-            <section id="star-map" aria-labelledby="map-title" hidden>
+            <section id="star-map" class="parchment" aria-labelledby="map-title" hidden>
                 <h2 id="map-title">Star compass</h2>
                 <ol id="waymarks" aria-label="Five Waymark slots">
                     <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>
                 </ol>
                 <p id="route" role="status"></p>
             </section>
-            <section id="microphone" aria-label="Optional voice input">
+            <section id="microphone" class="parchment" aria-label="Optional voice input">
                 <button id="mic-toggle" type="button">Enable microphone</button>
                 <meter id="mic-level" min="0" max="1" value="0" aria-label="Microphone input level"></meter>
                 <p id="mic-status" role="status">Microphone off. Press B to fire the cannon.</p>

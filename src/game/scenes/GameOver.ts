@@ -1,3 +1,4 @@
+import { DISPLAY_FONT } from '../typography';
 import { Scene } from 'phaser';
 
 export class GameOver extends Scene
@@ -20,7 +21,7 @@ export class GameOver extends Scene
         this.background.setAlpha(0.5);
 
         this.gameover_text = this.add.text(512, 384, 'Game Over', {
-            fontFamily: 'Arial Black', fontSize: 64, color: '#ffffff',
+            fontFamily: DISPLAY_FONT, fontSize: 64, color: '#ffffff',
             stroke: '#000000', strokeThickness: 8,
             align: 'center'
         });

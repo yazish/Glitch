@@ -51,6 +51,8 @@ export class Vesper extends Scene {
     create(): void {
         prepareKobeWalkFrames(this);
         this.host = document.querySelector<HTMLElement>('#game-container')!;
+        const shell = this.host.closest<HTMLElement>('.game-shell');
+        if (shell) shell.dataset.world = 'vesper';
         this.host.setAttribute('aria-label', 'Vesper combat arena');
         this.host.focus({ preventScroll: true });
         this.simulation = new VesperSimulation(this.progressStore);

@@ -1,17 +1,21 @@
 import { AUTO, Game, Scale } from 'phaser';
 import { Vesper } from './game/scenes/Vesper';
-import { HEIGHT, WIDTH } from './game/viewport';
+import { GAME_VIEWPORT } from './game/viewport';
 import { VesperPreviewProgress } from './game/worlds/vesper/progress';
+import { loadGameFonts } from './game/typography';
 
-const game = new Game({
-    type: AUTO,
-    width: WIDTH,
-    height: HEIGHT,
-    parent: 'game-container',
-    pixelArt: true,
-    scale: { mode: Scale.FIT, autoCenter: Scale.CENTER_BOTH },
-});
+async function startVesper(): Promise<void> {
+    await loadGameFonts();
+    const game = new Game({
+        type: AUTO,
+        ...GAME_VIEWPORT,
+        parent: 'game-container',
+        scale: { mode: Scale.FIT },
+    });
 
-game.events.once('ready', () => {
-    game.scene.add('Vesper', Vesper, true, { progress: new VesperPreviewProgress() });
-});
+    game.events.once('ready', () => {
+        game.scene.add('Vesper', Vesper, true, { progress: new VesperPreviewProgress() });
+    });
+}
+
+void startVesper();

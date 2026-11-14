@@ -1,3 +1,4 @@
+import { PARCHMENT_LABEL } from '../typography';
 import type { GameObjects, Scene } from 'phaser';
 import type { Point, Rect } from '../worlds/geometry';
 import type { BorealisArea, BorealisLayout, SledTrack } from '../worlds/borealis/layout';
@@ -32,7 +33,7 @@ export class BorealisView {
         this.atmosphere = scene.add.graphics().setDepth(-2);
         this.art = scene.add.graphics().setDepth(-1);
         this.prompt = scene.add.text(0, 0, '', {
-            fontFamily: 'monospace', fontSize: '10px', color: '#fff5dd', backgroundColor: '#17273e',
+            ...PARCHMENT_LABEL, fontSize: '10px',
             padding: { x: 5, y: 4 }, wordWrap: { width: 230 },
         }).setOrigin(0.5, 1).setDepth(365);
         this.player = new CharacterView(scene, 0xffbb75, 0xffffff, 1);

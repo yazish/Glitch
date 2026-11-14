@@ -13,6 +13,7 @@ const micMessages: Record<MicrophoneStatus, string> = {
 function objective(state: HermesState): string {
     if (state.screen === 'complete') return 'Hermes complete. Next destination: Viridia.';
     if (state.screen === 'outpost') {
+        if (state.riftFallProgress !== undefined) return 'Falling into the rift…';
         if (state.fellInRift) return 'You fell into the rift! Cross only on the extended bridge.';
         if (!state.hasMap) return 'Find the star compass on the transit platform.';
         if (state.bridgePermanent) return 'Bridge secured. Head right to the anchor chamber.';

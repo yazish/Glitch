@@ -44,8 +44,7 @@ export class ViridiaHud {
         clue.replaceChildren(...this.compassSteps);
         clue.hidden = false;
         document.querySelector<HTMLElement>('#viridia-compass')!.hidden = false;
-        document.querySelector<HTMLElement>('#game-hud .controls')!.hidden = true;
-        document.querySelector<HTMLElement>('#how-to-play')!.hidden = true;
+        document.querySelector<HTMLElement>('#hermes-help')!.hidden = true;
         document.querySelector<HTMLElement>('#star-map')!.hidden = false;
     }
 
