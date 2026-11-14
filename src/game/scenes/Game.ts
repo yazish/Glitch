@@ -3,7 +3,7 @@ import { hermes, STEP_MS } from '../worlds/hermes/room';
 import { HermesSimulation } from '../worlds/hermes/simulation';
 import { KeyboardControls } from '../input/keyboard';
 import { Microphone } from '../input/microphone';
-import { preloadKobe } from './CharacterView';
+import { preloadKobi } from './CharacterView';
 import { HermesHud } from './HermesHud';
 import { DEPARTURE_GATEWAY_TEXTURE, STAR_COMPASS_TEXTURE, WAYMARK_SCROLL_TEXTURE, HermesView } from './HermesView';
 import { preloadOutpostBackground } from './OutpostBackground';
@@ -23,7 +23,7 @@ export class Game extends Scene {
     }
 
     preload(): void {
-        preloadKobe(this);
+        preloadKobi(this);
         preloadOutpostBackground(this);
         preloadHermesTerrain(this);
         preloadCircularMachine(this);

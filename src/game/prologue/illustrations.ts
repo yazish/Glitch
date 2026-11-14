@@ -24,7 +24,7 @@ function planet(art: Art, x: number, y: number, radius: number): void {
     art.fillStyle(0x716080).fillCircle(x, y - 4, radius * 0.93);
 }
 
-function kobe(art: Art, x: number, y: number, scale: number, seated = false): void {
+function kobi(art: Art, x: number, y: number, scale: number, seated = false): void {
     art.fillStyle(INK, 0.7).fillEllipse(x, y + 2, 34 * scale, 8 * scale);
     if (seated) {
         art.fillStyle(0x514258).fillRect(x - 16 * scale, y - 24 * scale, 23 * scale, 23 * scale);
@@ -55,7 +55,7 @@ function cabin(art: Art, alert: boolean): void {
     art.fillStyle(0x483847).fillRect(0, 235, WIDTH, HEIGHT - 235);
     art.lineStyle(2, 0xa98686, 0.32).lineBetween(0, 304, WIDTH, 304);
     terminal(art, alert);
-    kobe(art, alert ? 231 : 216, 306, 2, !alert);
+    kobi(art, alert ? 231 : 216, 306, 2, !alert);
 }
 
 export function crossing(art: Art): void {
@@ -75,7 +75,7 @@ export function malfunction(art: Art): void {
     art.fillStyle(0x433879).fillCircle(357, 158, 83);
     art.fillStyle(VIOLET, 0.8).fillCircle(357, 158, 59);
     art.fillStyle(0xf1d6ff).fillEllipse(357, 158, 74, 108);
-    kobe(art, 199, 290, 1.9);
+    kobi(art, 199, 290, 1.9);
 }
 
 export function arrival(art: Art): void {
@@ -88,5 +88,5 @@ export function arrival(art: Art): void {
     art.fillStyle(GOLD, 0.3).fillEllipse(506, 226, 100, 28);
     art.fillStyle(GOLD).fillRect(489, 175, 30, 50).fillRect(435, 164, 28, 14);
     art.lineStyle(5, VIOLET, 0.35).strokeEllipse(100, 193, 65, 104);
-    kobe(art, 183, 263, 1.55);
+    kobi(art, 183, 263, 1.55);
 }

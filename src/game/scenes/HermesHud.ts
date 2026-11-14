@@ -2,7 +2,7 @@ import type { HermesState } from '../worlds/hermes/simulation';
 import type { MicrophoneStatus } from '../input/microphone';
 
 const micMessages: Record<MicrophoneStatus, string> = {
-    off: 'Microphone off. Space activates the bridge.',
+    off: 'Mic off · Hum near the bridge receiver or press Space.',
     requesting: 'Waiting for microphone permission.',
     calibrating: 'Calibrating. Stay quiet for a moment.',
     ready: 'Microphone ready. Hum near the bridge.',
@@ -40,6 +40,7 @@ function objective(state: HermesState): string {
 
 export class HermesHud {
     private readonly objective = document.querySelector<HTMLElement>('#objective')!;
+    private readonly completed = document.querySelector<HTMLElement>('#objective-completed')!;
     private readonly map = document.querySelector<HTMLElement>('#star-map')!;
     private readonly route = document.querySelector<HTMLElement>('#route')!;
     private readonly slots = Array.from(document.querySelectorAll<HTMLElement>('#waymarks li'));
@@ -51,6 +52,9 @@ export class HermesHud {
     render(state: HermesState, status: MicrophoneStatus, level: number): void {
         const message = objective(state);
         if (this.objective.textContent !== message) this.objective.textContent = message;
+        const done = state.screen === 'outpost' && state.hasMap || state.screen === 'chamber' && state.waymarks > 0;
+        this.completed.hidden = !done;
+        this.completed.textContent = state.screen === 'outpost' ? '✓ Find the Star Compass' : '✓ Collect the Waymark';
         this.map.hidden = !state.hasMap;
         const route = state.canDepart
             ? '1 of 6 · Constellation route complete · Next destination: Demeter'

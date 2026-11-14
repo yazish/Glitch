@@ -29,8 +29,25 @@ header { margin-bottom: 16px; }
     outline: 1px solid #5b475e;
 }
 
-#objective { margin: 14px 0 8px; color: #ffdbac; }
+#app { position: relative; }
+#objective-guide {
+    position: absolute;
+    z-index: 5;
+    top: 100px;
+    right: 12px;
+    width: min(250px, 40%);
+    padding: 9px 11px;
+    border: 1px solid #8b7893;
+    background: rgb(23 22 36 / 92%);
+    color: #fff1e1;
+    line-height: 1.4;
+    pointer-events: none;
+}
+#objective-guide h2 { color: #87e0d0; font-size: 0.75rem; letter-spacing: .12em; }
+#objective { margin: 5px 0 0; color: #ffdbac; font-size: .88rem; }
+#objective-completed { margin: 3px 0 0; color: #87e0d0; font-size: .75rem; text-decoration: line-through; }
 .controls { line-height: 2; color: #d4c5d5; }
+#how-to-play { max-width: 800px; color: #c9b7cb; font-size: .82rem; line-height: 1.5; }
 kbd, button {
     border: 1px solid #69556c;
     border-radius: 4px;

@@ -1,7 +1,7 @@
 import type { GameObjects, Scene } from 'phaser';
 import type { Facing, Pose } from '../worlds/hermes/room';
 
-const KOBE_POSES = {
+const KOBI_POSES = {
     up: 'up',
     down: 'down',
     left: 'left',
@@ -15,8 +15,8 @@ const FACING_OFFSET = {
     right: { x: 4, y: 0 },
 } satisfies Record<Facing, { x: number; y: number }>;
 
-export function preloadKobe(scene: Scene): void {
-    for (const key of Object.values(KOBE_POSES)) {
+export function preloadKobi(scene: Scene): void {
+    for (const key of Object.values(KOBI_POSES)) {
         scene.load.image(key, `${import.meta.env.BASE_URL}assets/characters/kobe/idle-${key}.png`);
     }
 }
@@ -31,8 +31,8 @@ export class CharacterView {
         tint: number,
         alpha: number,
     ) {
-        if (Object.values(KOBE_POSES).every((key) => scene.textures.exists(key))) {
-            this.image = scene.add.image(0, 0, KOBE_POSES.down)
+        if (Object.values(KOBI_POSES).every((key) => scene.textures.exists(key))) {
+            this.image = scene.add.image(0, 0, KOBI_POSES.down)
                 .setDisplayOrigin(24, 44)
                 .setTint(tint)
                 .setAlpha(alpha)
@@ -46,7 +46,7 @@ export class CharacterView {
         if (this.image) {
             this.image.setVisible(pose !== undefined);
             if (pose) {
-                const texture = KOBE_POSES[pose.facing];
+                const texture = KOBI_POSES[pose.facing];
                 if (this.image.texture.key !== texture) this.image.setTexture(texture);
                 this.image.setPosition(pose.x, pose.y).setDepth(depth);
             }
