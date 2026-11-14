@@ -69,7 +69,7 @@ test('the bridge requires proximity, enlarges the safe crossing box, and drops p
     assert.equal(game.state.hasMap, true);
 
     // Attempting to cross the rift without the bridge drops the player back to spawn.
-    move(game, 25, 1);
+    for (let tick = 0; tick < 25 && !game.state.fellInRift; tick++) move(game, 1, 1);
     assert.equal(game.state.fellInRift, true);
     assert.equal(game.state.fallCount, 1);
     assert.deepEqual(game.state.player, hermes.outpost.spawn);
@@ -78,7 +78,7 @@ test('the bridge requires proximity, enlarges the safe crossing box, and drops p
     move(game, 68, 1);
     game.command('activateBridge');
     move(game, 43, 0, -1);
-    move(game, 25, 1);
+    for (let tick = 0; tick < 25 && !game.state.fellInRift; tick++) move(game, 1, 1);
     assert.equal(game.state.fellInRift, true);
     assert.equal(game.state.fallCount, 2);
     assert.deepEqual(game.state.player, hermes.outpost.spawn);
@@ -92,8 +92,8 @@ test('the bridge requires proximity, enlarges the safe crossing box, and drops p
     assert.equal(game.state.bridgeOpen, false);
 
     game.command('activateBridge');
-    move(game, 10, 1);
-    assert.ok(game.state.player.x > 288);
+    move(game, 24, 1);
+    assert.ok(game.state.player.x > hermes.outpost.bridge.x);
     move(game, 360);
     assert.equal(game.state.bridgeOpen, true);
     move(game, 35, 1);

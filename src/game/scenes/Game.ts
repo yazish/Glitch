@@ -5,8 +5,9 @@ import { KeyboardControls } from '../input/keyboard';
 import { Microphone } from '../input/microphone';
 import { preloadKobe } from './CharacterView';
 import { HermesHud } from './HermesHud';
-import { DEPARTURE_GATEWAY_TEXTURE, HermesView } from './HermesView';
+import { DEPARTURE_GATEWAY_TEXTURE, STAR_COMPASS_TEXTURE, WAYMARK_SCROLL_TEXTURE, HermesView } from './HermesView';
 import { preloadOutpostBackground } from './OutpostBackground';
+import { preloadHermesTerrain } from './HermesTerrainAssets';
 
 export class Game extends Scene {
     private simulation: HermesSimulation;
@@ -23,6 +24,9 @@ export class Game extends Scene {
     preload(): void {
         preloadKobe(this);
         preloadOutpostBackground(this);
+        preloadHermesTerrain(this);
+        this.load.image(WAYMARK_SCROLL_TEXTURE, `${import.meta.env.BASE_URL}assets/hermes/props/waymark-scroll.png`);
+        this.load.image(STAR_COMPASS_TEXTURE, `${import.meta.env.BASE_URL}assets/hermes/props/star-compass.png`);
         this.load.image(
             DEPARTURE_GATEWAY_TEXTURE,
             `${import.meta.env.BASE_URL}assets/hermes/props/departure-gateway.png`,

@@ -12,7 +12,11 @@ export interface RiftHazardConfig {
  * the extended bridge.
  */
 export class RiftHazard {
-    constructor(private readonly config: RiftHazardConfig) {}
+    private readonly config: RiftHazardConfig;
+
+    constructor(config: RiftHazardConfig) {
+        this.config = config;
+    }
 
     isBridgeOccupied(player: Point, bridgeWasOpen: boolean, bodyRadius: number): boolean {
         return bridgeWasOpen && contains(player, this.config.bridge, bodyRadius);

@@ -29,13 +29,15 @@ export interface CircularMachineState {
  * - Illuminating the three symbols in order (0 -> 1 -> 2) projects three constellations.
  */
 export class CircularMachinePuzzle {
+    private readonly config: CircularMachineConfig;
+    private readonly onComplete?: () => void;
     private rotationTicks = 0;
     private alignedCount = 0;
 
-    constructor(
-        private readonly config: CircularMachineConfig,
-        private readonly onComplete?: () => void,
-    ) {}
+    constructor(config: CircularMachineConfig, onComplete?: () => void) {
+        this.config = config;
+        this.onComplete = onComplete;
+    }
 
     get completed(): boolean {
         return this.alignedCount >= SYMBOL_COUNT;

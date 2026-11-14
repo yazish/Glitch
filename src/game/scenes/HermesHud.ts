@@ -5,7 +5,7 @@ const micMessages: Record<MicrophoneStatus, string> = {
     off: 'Microphone off. Space activates the bridge.',
     requesting: 'Waiting for microphone permission.',
     calibrating: 'Calibrating. Stay quiet for a moment.',
-    ready: 'Microphone ready. Hum at the bridge receiver.',
+    ready: 'Microphone ready. Hum near the bridge.',
     denied: 'Microphone access blocked. Use Space.',
     unavailable: 'Microphone unavailable. Use Space.',
 };
@@ -14,11 +14,11 @@ function objective(state: HermesState): string {
     if (state.screen === 'complete') return 'Hermes complete. Next destination: Demeter.';
     if (state.screen === 'outpost') {
         if (state.fellInRift) return 'You fell into the rift! Cross only on the extended bridge.';
-        if (!state.hasMap) return 'Find the star map on the transit platform.';
+        if (!state.hasMap) return 'Find the star compass on the transit platform.';
         if (state.bridgePermanent) return 'Bridge secured. Head right to the anchor chamber.';
         if (state.bridgeOpen) return 'Bridge extended. Stay on the bridge to cross to the anchor chamber.';
         if (state.canActivateBridge) return 'Hum or press Space to extend the bridge.';
-        return 'Home signal detected. Six Waymarks needed. Find the bridge receiver.';
+        return 'Home signal detected. Six Waymarks needed. Find the SING!!! cue near the bridge.';
     }
     if (state.canDepart) return 'Constellation route revealed! Next destination: Demeter. Enter the gateway.';
     if (state.recordingFull) return 'Recording limit reached. Press Esc to restart the chamber.';
