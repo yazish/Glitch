@@ -53,6 +53,7 @@ export class VesperSimulation {
     private shielding = false;
     private invulnerable = 0;
     private shotgunCooldown = 0;
+    private shotgunShots = 0;
     private meleeCooldown = 0;
     private armed = false;
     private cannon = 0;
@@ -81,7 +82,7 @@ export class VesperSimulation {
     get state() {
         const drake = this.mode === 'boss' ? this.drake : undefined;
         return {
-            area: this.area, mode: this.mode, player: this.player, walk: this.walk,
+            area: this.area, mode: this.mode, player: this.player, walk: this.walk, shotgunShots: this.shotgunShots,
             integrity: this.integrity, shield: this.shield, shielding: this.shielding,
             invulnerable: this.invulnerable, cannon: this.cannon, cannonOnline: this.cannonOnline,
             cannonAllowed: this.cannonAllowed, wave: this.wave, enemies: [...this.enemies] as readonly Riftborn[],
@@ -250,6 +251,7 @@ export class VesperSimulation {
     private shoot(): void {
         if (!this.armed || this.shotgunCooldown > 0) return;
         this.shotgunCooldown = TUNING.shotgunInterval;
+        this.shotgunShots += 1;
         const origin = project(this.player, 23);
         const { x, y } = FACING_VECTOR[this.player.facing];
         for (const angle of PELLET_ANGLES) {
