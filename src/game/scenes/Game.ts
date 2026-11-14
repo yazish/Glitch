@@ -8,6 +8,7 @@ import { HermesHud } from './HermesHud';
 import { DEPARTURE_GATEWAY_TEXTURE, STAR_COMPASS_TEXTURE, WAYMARK_SCROLL_TEXTURE, HermesView } from './HermesView';
 import { preloadOutpostBackground } from './OutpostBackground';
 import { preloadHermesTerrain } from './HermesTerrainAssets';
+import { preloadCircularMachine } from './CircularMachineView';
 
 export class Game extends Scene {
     private simulation: HermesSimulation;
@@ -25,6 +26,7 @@ export class Game extends Scene {
         preloadKobi(this);
         preloadOutpostBackground(this);
         preloadHermesTerrain(this);
+        preloadCircularMachine(this);
         this.load.image(WAYMARK_SCROLL_TEXTURE, `${import.meta.env.BASE_URL}assets/hermes/props/waymark-scroll.png`);
         this.load.image(STAR_COMPASS_TEXTURE, `${import.meta.env.BASE_URL}assets/hermes/props/star-compass.png`);
         this.load.image(
