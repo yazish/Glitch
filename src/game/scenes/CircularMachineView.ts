@@ -1,7 +1,7 @@
 import type { GameObjects, Scene } from 'phaser';
 import { Math as PhaserMath } from 'phaser';
 import type { CircularMachineConfig } from '../worlds/hermes/circular-machine';
-import type { Point, Rect } from '../worlds/hermes/room';
+import type { Point } from '../worlds/hermes/room';
 import type { HermesState } from '../worlds/hermes/simulation';
 import type { RoomProjection } from './RoomProjection';
 
@@ -9,9 +9,14 @@ const TEAL = 0x87e0d0;
 const GOLD = 0xffcc82;
 const VIOLET = 0xa7a4ff;
 const SHADOW_INK = 0x120f1d;
-const PILLAR_STONE = { top: 0xb99dae, left: 0x5c4a63, right: 0x7a6580 };
-const CONTROL_INACTIVE = { top: 0x7c637c, left: 0x473953, right: 0x5b4762 };
-const CONTROL_ACTIVE = { top: 0x4d8d89, left: 0x355c61, right: 0x427477 };
+
+const SPRITES = ['sun', 'moon', 'galaxy', 'pillar-control', 'sundial'] as const;
+
+export function preloadCircularMachine(scene: Scene): void {
+    for (const name of SPRITES) {
+        scene.load.image(`machine-${name}`, `${import.meta.env.BASE_URL}assets/hermes/puzzle/${name}.png`);
+    }
+}
 
 const CONSTELLATION_CLUSTERS: readonly (readonly Point[])[] = [
     [
@@ -40,6 +45,10 @@ const CONSTELLATION_CLUSTERS: readonly (readonly Point[])[] = [
  */
 export class CircularMachineView {
     private readonly skyConstellations: GameObjects.Graphics;
+    private readonly controlSprite: GameObjects.Image;
+    private readonly symbolSprites: GameObjects.Image[];
+    private readonly pillarSprite: GameObjects.Image;
+    private readonly pointer: GameObjects.Graphics;
 
     constructor(
         scene: Scene,
@@ -47,14 +56,28 @@ export class CircularMachineView {
         private readonly machine: CircularMachineConfig,
     ) {
         this.skyConstellations = scene.add.graphics().setDepth(-2.1).setScrollFactor(0);
+        const control = projection.center(machine.control);
+        this.controlSprite = scene.add.image(control.x, control.y, 'machine-pillar-control')
+            .setDisplaySize(44, 30).setDepth(-0.8);
+        this.symbolSprites = machine.symbols.map((rect, index) => {
+            const center = projection.center(rect);
+            return scene.add.image(center.x, center.y, `machine-${SPRITES[index]}`)
+                .setDisplaySize(36, 25).setDepth(-0.8);
+        });
+        const pillar = projection.center(machine.pillar);
+        this.pillarSprite = scene.add.image(pillar.x, pillar.y - 15, 'machine-sundial')
+            .setDisplaySize(64, 64).setDepth(pillar.y);
+        this.pointer = scene.add.graphics().setDepth(pillar.y + 0.01);
     }
 
     render(art: GameObjects.Graphics, state: HermesState, skyOpacity: number): void {
         this.drawCircularRing(art, state);
-        this.drawControlPad(art, state);
+        this.controlSprite.setVisible(state.screen !== 'complete').setTint(state.controlHeld ? 0x87e0d0 : 0xffffff);
         this.drawShadowBeam(art, state);
         this.drawSymbols(art, state);
-        this.drawPillar(art, state);
+        this.drawPillar(this.pointer.clear(), state);
+        this.pointer.setVisible(state.screen !== 'complete');
+        this.pillarSprite.setVisible(state.screen !== 'complete');
         this.drawSkyConstellations(state);
         this.skyConstellations.setAlpha(skyOpacity);
     }
@@ -81,14 +104,6 @@ export class CircularMachineView {
         art.fillStyle(0x2a2236, 0.55).fillPoints(outerPoints, true);
         art.lineStyle(2, ringColor, state.machine.completed ? 0.85 : 0.45).strokePoints(outerPoints, true);
         art.lineStyle(1, GOLD, 0.32).strokePoints(innerPoints, true);
-    }
-
-    private drawControlPad(art: GameObjects.Graphics, state: HermesState): void {
-        const { control } = this.machine;
-        const held = state.controlHeld;
-        const height = held ? 1 : 4;
-        this.projection.block(art, control, height, held ? CONTROL_ACTIVE : CONTROL_INACTIVE);
-        this.projection.outline(art, control, held ? TEAL : 0xc29ab6, 0.9, height);
     }
 
     private drawShadowBeam(art: GameObjects.Graphics, state: HermesState): void {
@@ -123,35 +138,16 @@ export class CircularMachineView {
             const color = aligned ? TEAL : shadowed ? GOLD : 0x8d7794;
             const alpha = aligned ? 0.42 : shadowed ? 0.28 : 0.14;
 
+            this.symbolSprites[index].setVisible(state.screen !== 'complete')
+                .setTint(aligned ? TEAL : shadowed ? GOLD : 0xffffff);
             this.projection.surface(art, symbolRect, color, alpha);
             this.projection.outline(art, symbolRect, color, aligned || shadowed ? 0.95 : 0.45);
-            this.drawSymbolGlyph(art, symbolRect, index, color, aligned);
         });
-    }
-
-    private drawSymbolGlyph(
-        art: GameObjects.Graphics,
-        rect: Rect,
-        index: number,
-        color: number,
-        aligned: boolean,
-    ): void {
-        const center = this.projection.center(rect);
-        for (let pip = 0; pip <= index; pip++) {
-            const offset = (pip - index / 2) * 6;
-            art.fillStyle(color, aligned ? 1 : 0.85).fillCircle(center.x + offset, center.y, 2.2);
-        }
-        if (aligned) {
-            art.fillStyle(TEAL, 0.2).fillEllipse(center.x, center.y - 14, 18, 28);
-        }
     }
 
     private drawPillar(art: GameObjects.Graphics, state: HermesState): void {
         const { pillar } = this.machine;
         const active = state.controlHeld || state.machine.completed;
-        this.projection.block(art, pillar, 26, PILLAR_STONE);
-        this.projection.outline(art, pillar, active ? TEAL : GOLD, active ? 0.9 : 0.55, 26);
-
         const topCenter = this.projection.center(pillar, 28);
         const pointerLength = 9;
         const angle = state.machine.pillarAngle;
