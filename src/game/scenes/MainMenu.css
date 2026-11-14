@@ -1,0 +1,86 @@
+#app:has(#main-menu:not([hidden])) > #game-stage {
+    visibility: hidden;
+}
+
+#main-menu:not([hidden]) {
+    position: absolute;
+    z-index: 8;
+    inset: 0;
+    display: grid;
+    overflow: auto;
+    grid-template-rows: 1fr auto;
+    justify-items: center;
+    gap: 1rem;
+    box-sizing: border-box;
+    margin: 0;
+    padding: max(1rem, var(--hud-top)) max(1.25rem, var(--hud-right))
+        max(1rem, var(--hud-bottom)) max(1.25rem, var(--hud-left));
+    border: 0;
+    color: #fff0d8;
+    background:
+        radial-gradient(ellipse at 50% 48%, #130f28 0%, rgb(19 15 40 / 12%) 58%),
+        linear-gradient(180deg, rgb(12 8 28 / 12%), rgb(12 8 28 / 60%)),
+        url('/assets/hermes/background/rocky-mountains.png') center bottom / cover,
+        url('/assets/hermes/background/distant-mountains.png') center bottom / cover,
+        url('/assets/hermes/background/planets.png') center top / cover,
+        url('/assets/hermes/background/sky.png') center / cover #17132a;
+    image-rendering: pixelated;
+}
+
+.menu-content {
+    grid-row: 1 / -1;
+    grid-column: 1;
+    align-self: center;
+    display: grid;
+    justify-items: center;
+    gap: clamp(.75rem, 3vmin, 1.5rem);
+    text-align: center;
+}
+
+.menu-content h1 {
+    font-size: clamp(3.75rem, 14vmin, 9rem);
+    line-height: 1;
+    letter-spacing: -.04em;
+    text-shadow: 0 .045em #622f55, 0 .09em #211527, 0 0 .32em #d392d968;
+}
+
+.menu-content p {
+    max-width: 32ch;
+    font-size: clamp(1.15rem, 2.7vmin, 1.55rem);
+    text-wrap: balance;
+    text-shadow: 0 2px 8px #090717;
+}
+
+#play-game {
+    padding: .8rem 2.4rem;
+    border: 1px solid #ffe2a6;
+    color: #3c201d;
+    background: linear-gradient(#fff1c9, #e6b876);
+    box-shadow: 0 4px #784b50, 0 0 24px #df9db04d;
+    font-size: 1.05rem;
+}
+
+#play-game:hover { background: #fff0c0; }
+#play-game:focus-visible { outline-color: #fff0d8; outline-offset: 5px; }
+#play-game:disabled { cursor: wait; }
+
+.menu-credits {
+    grid-row: 2;
+    grid-column: 1;
+    justify-self: end;
+    text-align: right;
+    text-shadow: 0 2px 5px #090717;
+}
+
+.menu-credits h2 { color: #ffe1a4; }
+.menu-credits ul {
+    list-style: none;
+    padding: 0;
+    margin: .3rem 0 0;
+    font: 400 .9rem/1.5 var(--game-display);
+}
+
+@media (max-width: 720px), (max-height: 420px) {
+    .menu-content { grid-row: 1; }
+    .menu-credits { justify-self: center; text-align: center; }
+}
