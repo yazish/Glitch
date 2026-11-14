@@ -8,6 +8,7 @@ import type { SoundTarget } from './viridia/layout.ts';
 import { ViridiaSimulation } from './viridia/simulation.ts';
 import { borealis } from './borealis/layout.ts';
 import { BorealisSimulation } from './borealis/simulation.ts';
+import type { VesperProgress } from './vesper/progress.ts';
 
 export class Adventure {
     private readonly journey = new Journey();
@@ -18,6 +19,7 @@ export class Adventure {
     private keyboardPulse?: { target: SoundTarget; pulse: 'soft' | 'loud' };
 
     get activeWorld(): WorldId { return this.world; }
+    get vesperProgress(): VesperProgress { return this.journey; }
 
     get player() {
         return this.borealis?.player ?? this.viridia?.state.player ?? this.hermes.state.player;

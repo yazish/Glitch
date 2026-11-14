@@ -18,7 +18,7 @@ function objective(state: HermesState): string {
         if (state.bridgePermanent) return 'Bridge secured. Head right to the anchor chamber.';
         if (state.bridgeOpen) return 'Bridge extended. Stay on the bridge to cross to the anchor chamber.';
         if (state.canActivateBridge) return 'Hum or press Space to extend the bridge.';
-        return 'Home signal detected. Six Waymarks needed. Find the SING!!! cue near the bridge.';
+        return 'Home signal detected. Five Waymarks needed. Find the SING!!! cue near the bridge.';
     }
     if (state.canDepart) return 'Constellation route revealed! Next destination: Viridia. Enter the gateway.';
     if (state.recordingFull) return 'Recording limit reached. Press Esc to restart the chamber.';
@@ -57,8 +57,8 @@ export class HermesHud {
         this.completed.textContent = state.screen === 'outpost' ? '✓ Find the Star Compass' : '✓ Collect the Waymark';
         this.map.hidden = !state.hasMap;
         const route = state.canDepart
-            ? '1 of 6 · Constellation route complete · Next destination: Viridia'
-            : `0 of 6 · Current world: Hermes · Constellations: ${state.constellations}/3`;
+            ? '1 of 5 · Constellation route complete · Next destination: Viridia'
+            : `0 of 5 · Current world: Hermes · Constellations: ${state.constellations}/3`;
         if (this.route.textContent !== route) this.route.textContent = route;
         this.slots.forEach((slot, i) => slot.classList.toggle('filled', i < state.waymarks));
 

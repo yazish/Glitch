@@ -37,7 +37,7 @@ export function vesperGuidance(state: VesperState): { task: string; at?: Point; 
         case 'waymark': return { task: 'Boss defeated. Press E at the glowing pedestal to collect the fourth Waymark.', at: WAYMARK, label: 'Waymark · E' };
         case 'transmitter': return { task: 'Place all four Waymarks in the transmitter. Press E at the lectern.', at: TRANSMITTER, label: 'Waymark transmitter · E' };
         case 'portal': return { task: 'The four Waymarks opened the Earth portal.', at: PORTAL, label: 'Earth portal' };
-        case 'abyss': return { task: 'Kael is falling through the rift.' };
+        case 'abyss': return { task: 'Falling through the rift.' };
         case 'arrival': return { task: 'Vesper complete.' };
     }
 }

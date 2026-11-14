@@ -23,6 +23,7 @@ import { preloadHermesTerrain } from './HermesTerrainAssets';
 import { preloadCircularMachine } from './CircularMachineView';
 import { preloadViridiaProps } from './ViridiaProps';
 import { preloadViridiaMagic } from './ViridiaMagic';
+import type { CutsceneId } from '../cutscenes/sequences';
 
 export class Game extends Scene {
     private adventure: Adventure;
@@ -81,6 +82,9 @@ export class Game extends Scene {
         document.querySelector<HTMLElement>('#objective-guide')!.hidden = false;
         document.querySelector<HTMLElement>('#viridia-compass')!.hidden = true;
         document.querySelector<HTMLElement>('#borealis-compass-direction')!.hidden = true;
+        document.querySelector<HTMLElement>('#star-map')!.hidden = true;
+        document.querySelector<HTMLElement>('#objective-completed')!.hidden = true;
+        document.querySelector<HTMLElement>('#microphone')!.hidden = false;
         document.querySelector<HTMLElement>('#location')!.hidden = false;
         gameElement.setAttribute('aria-label', 'Hermes game room');
         gameElement.focus({ preventScroll: true });
@@ -127,14 +131,39 @@ export class Game extends Scene {
             const world = this.adventure.activeWorld;
             this.adventure.step(horizontal, vertical, this.voice, this.keyboard.soundHeld);
             if (this.adventure.activeWorld !== world) {
-                this.elapsed = 0;
-                this.voice = { sustained: false };
-                break;
+                this.playTransition(world === 'hermes' ? 'to-viridia' : 'to-borealis');
+                return;
+            }
+            if (world === 'borealis' && this.adventure.borealis!.state.finished) {
+                this.playTransition('to-vesper');
+                return;
             }
             this.voice = { sustained: this.voice.sustained };
             this.elapsed -= STEP_MS;
         }
         this.render(delta);
+    }
+
+    private playTransition(id: CutsceneId): void {
+        this.keyboard.setEnabled(false);
+        this.microphone.disable();
+        this.elapsed = 0;
+        this.voice = { sustained: false };
+        this.scene.sleep();
+        this.scene.launch('Cutscene', {
+            id,
+            onComplete: () => {
+                if (id === 'to-vesper') {
+                    this.scene.start('Vesper', { progress: this.adventure.vesperProgress, campaign: true });
+                    return;
+                }
+                this.render(0, true);
+                this.keyboard.setEnabled(true);
+                this.scene.wake();
+                document.querySelector<HTMLElement>('#game-container')!.focus({ preventScroll: true });
+            },
+        });
+        this.scene.bringToTop('Cutscene');
     }
 
     private pollMicrophone(delta: number): void {

@@ -20,7 +20,8 @@ const ASSETS = {
 
 export function preloadBorealisScenery(scene: Scene): void {
     for (const [name, path] of Object.entries(ASSETS)) {
-        scene.load.image(`borealis-${name}`, `${import.meta.env.BASE_URL}assets/borealis/${path}`);
+        const key = `borealis-${name}`;
+        if (!scene.textures.exists(key)) scene.load.image(key, `${import.meta.env.BASE_URL}assets/borealis/${path}`);
     }
 }
 

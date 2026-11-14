@@ -2,7 +2,7 @@ export type WorldId = 'hermes' | 'viridia' | 'borealis';
 
 export class Journey {
     private mapFound = false;
-    private readonly waymarks = new Set<WorldId>();
+    private readonly waymarks = new Set<WorldId | 'vesper'>();
 
     get hasMap(): boolean {
         return this.mapFound;
@@ -22,5 +22,9 @@ export class Journey {
 
     collectWaymark(world: WorldId): void {
         if (this.mapFound) this.waymarks.add(world);
+    }
+
+    collectVesperWaymark(): void {
+        if (this.mapFound) this.waymarks.add('vesper');
     }
 }

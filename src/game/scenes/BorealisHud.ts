@@ -47,10 +47,10 @@ export class BorealisHud {
         this.active = objective;
         this.checkTime = Math.max(0, this.checkTime - delta);
         this.checkmark.hidden = this.checkTime === 0;
-        this.setText(this.objective, state.finished ? 'Borealis complete · 3 / 6 Waymarks collected.'
+        this.setText(this.objective, state.finished ? 'Borealis complete · 3 / 5 Waymarks collected.'
             : this.checkTime > 0 ? '' : objective?.text ?? '');
         this.setText(this.location, 'Borealis · ' + state.areaName);
-        this.setText(this.route, `${state.waymarks} / 6 Waymarks collected · Borealis`);
+        this.setText(this.route, `${state.waymarks} / 5 Waymarks collected · Borealis`);
         this.slots.forEach((slot, index) => slot.classList.toggle('filled', index < state.waymarks));
 
         const target = objective?.target(this.layout, state);

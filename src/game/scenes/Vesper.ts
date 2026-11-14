@@ -14,6 +14,7 @@ import { preloadVesperEnemies } from './VesperEnemyArt';
 
 export class Vesper extends Scene {
     private progressStore: VesperProgress;
+    private campaign = false;
     private simulation: VesperSimulation;
     private view: VesperView;
     private hud: VesperHud;
@@ -35,9 +36,17 @@ export class Vesper extends Scene {
 
     constructor() { super('Vesper'); }
 
-    init({ progress }: { progress: VesperProgress }): void { this.progressStore = progress; }
+    init({ progress, campaign = false }: { progress: VesperProgress; campaign?: boolean }): void {
+        this.progressStore = progress;
+        this.campaign = campaign;
+    }
 
-    preload(): void { preloadKobe(this); preloadVesperCity(this); preloadVesperDragon(this); preloadVesperEnemies(this); }
+    preload(): void {
+        preloadKobe(this);
+        preloadVesperCity(this);
+        preloadVesperDragon(this);
+        preloadVesperEnemies(this);
+    }
 
     create(): void {
         prepareKobeWalkFrames(this);
@@ -108,8 +117,13 @@ export class Vesper extends Scene {
             }
             this.elapsed -= STEP_MS;
         }
-        if (['portal', 'abyss', 'arrival'].includes(this.simulation.state.mode) && this.microphone.status !== 'off') {
+        const { mode } = this.simulation.state;
+        if (['portal', 'abyss', 'arrival'].includes(mode) && this.microphone.status !== 'off') {
             this.stopMicrophone();
+        }
+        if (this.campaign && mode === 'arrival') {
+            this.scene.start('Cutscene', { id: 'ending' });
+            return;
         }
         this.render(delta);
     }
