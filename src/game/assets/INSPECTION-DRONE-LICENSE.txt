@@ -1,0 +1,16 @@
+INSPECTION DRONE ASSET LICENSE
+Publisher / Licensor: arrow ease Game Assets
+Adopted: 2026-10-11
+
+Terms
+The licensor grants the recipient a non-exclusive license to use and modify the included assets in personal and commercial finished projects, including games and rendered media. The same individual or legal entity may use the assets in multiple projects without an additional per-project license. This is permission to use the assets, not a transfer of ownership or an exclusive right.
+
+This license covers finished projects owned by the licensed individual or legal entity. It does not grant a default right to transfer asset ownership or the license to a client. If a client will own a finished project containing these assets, that client must obtain their own license for this pack before delivery. Collaborators may access the assets only for the licensed purchaser's projects under the restrictions below.
+
+You may give necessary asset files to employees or contractors collaborating on your licensed projects only. They may use the files only for those projects, must protect them from further sharing, and must remove their copies when their work on those projects ends. They need their own license for unrelated projects. You remain responsible for compliance by your collaborators.
+
+Credit is appreciated but optional. Modified assets remain subject to these terms.
+
+You may distribute the assets only as part of a finished project in which they are integrated with other meaningful work. Do not sell, sublicense, share, upload or redistribute the original or modified assets as standalone files, an asset pack, a template primarily distributing the assets, or another product that substitutes for this pack. Free redistribution of standalone files is also prohibited. Take reasonable steps to prevent extraction; do not intentionally expose the source assets as a separate download.
+
+The assets, supporting code and documentation are AI-assisted. No exclusivity, uniqueness or copyrightability is guaranteed. To the extent allowed by applicable law, the assets are provided as is, without warranties of fitness, merchantability or non-infringement. You are responsible for checking suitability for your project. Mandatory rights under applicable law are not excluded.

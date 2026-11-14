@@ -11,9 +11,9 @@ npm ci
 npm run dev-nolog
 ```
 
-Open the URL printed by Vite. Move with WASD or the arrow keys. Find the star map and press Space near the receiver to extend the bridge. You can also enable the microphone, stay quiet during calibration, then hum at the receiver. In the anchor chamber, stand on the pressure plate and press R. Let your Shadow Echo hold the plate while you pass through the gate. Touch the anchor to recover the Waymark, then enter the departure gateway.
+Open the URL printed by Vite. Move with WASD or the arrow keys. Find the star compass and press Space near the SING!!! cue to extend the bridge. You can also enable the microphone, stay quiet during calibration, then hum near the cue. In the anchor chamber, stand on the pressure plate and press R. Let your Shadow Echo hold the plate while you pass through the gate. Touch the Waymark to collect it, then enter the departure gateway.
 
-Hermes scrolls horizontally from the outpost to the anchor chamber. The first bridge crossing secures it for the return trip. Walking out of the chamber clears its Echo. Esc restarts the current area and clears its Echo. The star map, secured bridge, and collected Waymark are kept until you reload the page.
+Hermes scrolls horizontally from the outpost to the anchor chamber. The first bridge crossing secures it for the return trip. Walking out of the chamber clears its Echo. Esc restarts the current area and clears its Echo. The star compass, secured bridge, and collected Waymark are kept until you reload the page.
 
 ## Code and art
 
@@ -25,6 +25,8 @@ Hermes scrolls horizontally from the outpost to the anchor chamber. The first br
 - `public/assets/` is for exported game art and sound. The current view draws placeholders. The game view is 640 × 360 with a 32 px grid. Start with 48 × 48 px Kobe frames and a consistent foot position, plus a floor tile and matching open/closed gate sprites.
 
 Hermes outpost background uses [Parallax Terrestrial Planet](https://kayillustrations.itch.io/parallax-terrestrial-planet) by **kayillustrations**, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Glitch uses four layers, scaled 2× and darkened in-game.
+
+Hermes uses ground and decorations from the Free Cursed Land Top Down Pixel Art Tileset; its included license points to [CraftPix's file licenses](https://craftpix.net/file-licenses/). The floor combines its ground tile with crack and spot details. The bridge uses the Wood Texture Pack by Owletrius, marked [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 
 ## Verify and build
 
