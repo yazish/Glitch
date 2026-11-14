@@ -24,6 +24,7 @@ import { preloadCircularMachine } from './CircularMachineView';
 import { preloadViridiaProps } from './ViridiaProps';
 import { preloadViridiaMagic } from './ViridiaMagic';
 import type { CutsceneId } from '../cutscenes/sequences';
+import { AdventureAudio, preloadAdventureAudio } from '../audio/AdventureAudio';
 
 export class Game extends Scene {
     private adventure: Adventure;
@@ -39,12 +40,15 @@ export class Game extends Scene {
     private hud: HermesHud;
     private view: HermesView;
     private elapsed = 0;
+    private audio: AdventureAudio;
+    private lastMovementAt = -Infinity;
 
     constructor() {
         super('Game');
     }
 
     preload(): void {
+        preloadAdventureAudio(this);
         preloadKobe(this);
         preloadBorealisScenery(this);
         preloadBorealisProps(this);
@@ -65,6 +69,8 @@ export class Game extends Scene {
     create(): void {
         prepareKobeWalkFrames(this);
         this.adventure = new Adventure();
+        this.audio = new AdventureAudio(this);
+        this.lastMovementAt = -Infinity;
         this.renderedWorld = 'hermes';
         this.viridiaView = undefined;
         this.viridiaHud = undefined;
@@ -119,6 +125,7 @@ export class Game extends Scene {
         this.hud.micButton.addEventListener('click', toggleMicrophone);
         window.addEventListener('pagehide', stopMicrophone);
         this.events.once('shutdown', () => {
+            this.audio.destroy();
             stopMicrophone();
             this.keyboard.destroy();
             this.hud.micButton.removeEventListener('click', toggleMicrophone);
@@ -134,10 +141,16 @@ export class Game extends Scene {
         this.elapsed += Math.min(delta, 100);
         while (this.elapsed >= STEP_MS) {
             const world = this.adventure.activeWorld;
+            const { x, y } = this.adventure.player;
             this.adventure.step(horizontal, vertical, this.voice);
             if (this.adventure.activeWorld !== world) {
                 this.playTransition(world === 'hermes' ? 'to-viridia' : 'to-borealis');
                 return;
+            }
+            const player = this.adventure.player;
+            if ((horizontal || vertical) && (x !== player.x || y !== player.y)
+                && !(world === 'hermes' && this.adventure.hermes.state.riftFallProgress !== undefined)) {
+                this.lastMovementAt = this.time.now;
             }
             if (world === 'borealis' && this.adventure.borealis!.state.finished) {
                 this.playTransition('to-vesper');
@@ -146,10 +159,26 @@ export class Game extends Scene {
             this.voice = { sustained: this.voice.sustained };
             this.elapsed -= STEP_MS;
         }
+        const world = this.adventure.activeWorld;
+        const viridiaArea = this.adventure.viridia?.state.area;
+        const borealisArea = this.adventure.borealis?.state.area;
+        this.audio.sync({
+            music: world === 'hermes' ? 'hermes' : world === 'viridia' ? 'viridia'
+                : borealisArea === 'pass' ? 'borealis' : 'snowMusic',
+            wind: world === 'borealis',
+            quietMusic: world === 'viridia'
+                || (world === 'hermes' && this.adventure.hermes.state.screen === 'outpost')
+                || (world === 'borealis' && Boolean(this.adventure.borealis?.needsMicrophone)),
+            surface: world === 'borealis' ? 'snow' : world === 'viridia'
+                ? viridiaArea === 'trail' ? 'woods' : 'forest' : 'pavement',
+            moving: world !== 'borealis' && this.time.now - this.lastMovementAt < 100,
+        });
         this.render(delta);
     }
 
     private playTransition(id: CutsceneId): void {
+        this.audio.stop();
+        this.lastMovementAt = -Infinity;
         this.keyboard.setEnabled(false);
         this.microphone.disable();
         this.elapsed = 0;

@@ -418,3 +418,16 @@ button:focus-visible, .game-shell .controls-help summary:focus-visible { outline
     #cutscene.parchment { --paper-padding: 9px 13px 10px 23px; }
     #objective-completed { font-size: .8rem; }
 }
+.adventure-audio-toggle {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 8;
+    padding: 4px 8px;
+    border: 1px solid #7c8bb7;
+    border-radius: 4px;
+    background: rgb(16 20 39 / 90%);
+    color: #ecf1ff;
+    font: 12px system-ui, sans-serif;
+    cursor: pointer;
+}

@@ -11,6 +11,7 @@ import { VesperView } from './VesperView';
 import { preloadVesperCity } from './VesperCityArt';
 import { preloadVesperDragon } from './VesperDragonArt';
 import { preloadVesperEnemies } from './VesperEnemyArt';
+import { AdventureAudio, preloadAdventureAudio, preloadVesperShot } from '../audio/AdventureAudio';
 
 export class Vesper extends Scene {
     private progressStore: VesperProgress;
@@ -31,6 +32,8 @@ export class Vesper extends Scene {
     private restart = false;
     private elapsed = 0;
     private shaking = false;
+    private audio: AdventureAudio;
+    private lastMovementAt = -Infinity;
 
     constructor() { super('Vesper'); }
 
@@ -44,6 +47,8 @@ export class Vesper extends Scene {
         preloadVesperCity(this);
         preloadVesperDragon(this);
         preloadVesperEnemies(this);
+        preloadAdventureAudio(this);
+        preloadVesperShot(this);
     }
 
     create(): void {
@@ -54,6 +59,8 @@ export class Vesper extends Scene {
         this.host.setAttribute('aria-label', 'Vesper combat arena');
         this.host.focus({ preventScroll: true });
         this.simulation = new VesperSimulation(this.progressStore);
+        this.audio = new AdventureAudio(this);
+        this.lastMovementAt = -Infinity;
         this.view = new VesperView(this);
         this.hud = new VesperHud();
         this.microphone = new VesperMicrophone();
@@ -76,6 +83,7 @@ export class Vesper extends Scene {
         this.hud.micButton.addEventListener('click', this.toggleMicrophone);
 
         this.events.once('shutdown', () => {
+            this.audio.destroy();
             this.keyboard.destroy();
             this.stopMicrophone();
             this.hud.destroy();
@@ -99,11 +107,16 @@ export class Vesper extends Scene {
         let relocation = before.resetCount;
         this.elapsed += Math.min(delta, 100);
         while (this.elapsed >= STEP_MS) {
+            const shotsBefore = this.simulation.state.shotgunShots;
             this.simulation.step({
                 ...this.keyboard.movement, shoot: this.shootKey || this.shootPressed,
                 melee: this.meleeKey, shield: this.shieldKey || this.shieldPointer,
                 cannon: this.loud, interact: this.interact, restart: this.restart,
             });
+            const after = this.simulation.state;
+            if (after.shotgunShots !== shotsBefore) this.audio.playShot();
+            if (after.resetCount === before.resetCount && (after.player.x !== before.player.x || after.player.y !== before.player.y)
+                && !['portal', 'abyss', 'arrival'].includes(after.mode)) this.lastMovementAt = this.time.now;
             this.meleeKey = this.loud = this.interact = this.restart = false;
             this.shootPressed = false;
             const current = this.simulation.inputEpoch;
@@ -116,6 +129,9 @@ export class Vesper extends Scene {
             this.elapsed -= STEP_MS;
         }
         const { mode } = this.simulation.state;
+        this.audio.sync({ music: mode === 'boss' ? 'boss' : undefined, wind: false, surface: 'pavement',
+            quietMusic: mode === 'boss' && this.simulation.state.cannonOnline,
+            moving: !['portal', 'abyss', 'arrival'].includes(mode) && this.time.now - this.lastMovementAt < 100 });
         if (['portal', 'abyss', 'arrival'].includes(mode) && this.microphone.status !== 'off') {
             this.stopMicrophone();
         }

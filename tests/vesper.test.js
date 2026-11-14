@@ -113,6 +113,7 @@ test('K emits one forward pellet and two diagonal pellets only after pickup', ()
     tick(game, { shoot: true, melee: true });
     assert.equal(game.state.armed, false);
     assert.equal(game.state.shots.length, 0);
+    assert.equal(game.state.shotgunShots, 0);
     assert.equal(game.state.effects.length, 0);
 
     street(game);
@@ -121,6 +122,9 @@ test('K emits one forward pellet and two diagonal pellets only after pickup', ()
     assert.equal(game.state.enemies[0].hp, 3);
     assert.equal(game.state.shots.length, 0);
     tick(game, { horizontal: 1, shoot: true });
+    assert.equal(game.state.shotgunShots, 1);
+    tick(game, { shoot: true });
+    assert.equal(game.state.shotgunShots, 1);
     const [forward, up, down] = game.state.shots;
     assert.equal(game.state.shots.length, 3);
     assert.deepEqual(forward.vector, { x: 1, y: 0 });
