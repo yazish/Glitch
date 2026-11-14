@@ -17,12 +17,12 @@ Hermes scrolls horizontally from the outpost to the anchor chamber. The first br
 
 ## Code and art
 
-- `src/game/prologue/panels.ts` defines the intro order, captions, and illustrations. Press Next through the four panels, then Play to start Hermes, or use Skip intro. To replace a placeholder, put the still in `public/assets/prologue/` and set that panel's `image` to the filename. Use 16:9 stills with captions kept in the panel data.
+- `src/game/prologue/panels.ts` defines the intro order, captions, and illustrations. Press Next through the four panels, then Play to start Hermes, or use Skip intro. The opening four panels use 640 × 360 pixel-art SVG stills in `public/assets/prologue/`; they reuse Kobi's game sprite frames from `public/assets/characters/kobe/` to keep the character consistent. Keep captions in the panel data so they remain readable at every display size. The SVG files can be opened and edited in Krita.
 - `src/game/worlds/` groups code by destination. Each world can contain multiple rooms. Add `demeter/` alongside Hermes when Demeter development starts.
 - `src/game/worlds/hermes/` holds the room layouts, puzzle simulation, replay, and journey progress. The simulation runs on fixed 60 Hz steps and has no Phaser or browser dependency.
 - `src/game/input/` translates keyboard and microphone input into game commands. Microphone audio is sampled locally for its volume and is neither saved nor transmitted.
 - `src/game/scenes/` connects inputs and the simulation to the Phaser room view and the HTML interface.
-- `public/assets/` is for exported game art and sound. The current view draws placeholders. The game view is 640 × 360 with a 32 px grid. Start with 48 × 48 px Kobe frames and a consistent foot position, plus a floor tile and matching open/closed gate sprites.
+- `public/assets/` is for exported game art and sound. The current view draws placeholders. The game view is 640 × 360 with a 32 px grid. Start with 48 × 48 px Kobi frames and a consistent foot position, plus a floor tile and matching open/closed gate sprites.
 
 Hermes outpost background uses [Parallax Terrestrial Planet](https://kayillustrations.itch.io/parallax-terrestrial-planet) by **kayillustrations**, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Glitch uses four layers, scaled 2× and darkened in-game.
 
