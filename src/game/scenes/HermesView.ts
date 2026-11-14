@@ -24,7 +24,6 @@ const WALL_STONE = { top: 0xa68b99, left: 0x59485f, right: 0x726075 };
 const GATE_METAL = { top: 0xbe7c72, left: 0x64414e, right: 0x955966 };
 const WALL = 0x4b3645;
 const GOLD = 0xffcc82;
-const TEAL = 0x87e0d0;
 const VIOLET = 0xa7a4ff;
 const GATE_RISE_MS = 450;
 
@@ -257,13 +256,10 @@ export class HermesView {
     }
 
     private outpost(state: HermesState): void {
-        const { map, receiver, bridge } = this.layout.outpost;
+        const { map, bridge } = this.layout.outpost;
         if (state.bridgeOpen && !this.bridgeTexture) {
             this.projection.block(this.art, bridge, 6, { top: 0x70513e, left: 0x3d2b26, right: 0x574034 }, -6);
         }
-        this.projection.outline(this.art, bridge, TEAL, state.bridgeOpen ? 0.92 : 0.37);
-        this.projection.surface(this.art, receiver, TEAL, state.canActivateBridge ? 0.23 : 0.08);
-        this.projection.outline(this.art, receiver, TEAL, state.canActivateBridge ? 1 : 0.4);
         if (!state.hasMap && !this.starCompass) this.marker(map, GOLD);
     }
 

@@ -4,7 +4,6 @@ import type { WorldId } from './journey.ts';
 import { hermes } from './hermes/room.ts';
 import { HermesSimulation } from './hermes/simulation.ts';
 import { viridia } from './viridia/layout.ts';
-import type { SoundTarget } from './viridia/layout.ts';
 import { ViridiaSimulation } from './viridia/simulation.ts';
 import { borealis } from './borealis/layout.ts';
 import { BorealisSimulation } from './borealis/simulation.ts';
@@ -16,7 +15,6 @@ export class Adventure {
     viridia?: ViridiaSimulation;
     borealis?: BorealisSimulation;
     private world: WorldId = 'hermes';
-    private keyboardPulse?: { target: SoundTarget; pulse: 'soft' | 'loud' };
 
     get activeWorld(): WorldId { return this.world; }
     get vesperProgress(): VesperProgress { return this.journey; }
@@ -36,13 +34,12 @@ export class Adventure {
                     case 'interact': level.interact(); break;
                     case 'rewind': level.rewind(); break;
                     case 'restart': level.restart(); break;
-                    case 'activateBridge': level.sound('soft'); break;
                 }
             }
         }
     }
 
-    step(horizontal: number, vertical: number, mic: SoundInput, spaceHeld: boolean): void {
+    step(horizontal: number, vertical: number, mic: SoundInput): void {
         switch (this.world) {
             case 'hermes': {
                 this.hermes.step(horizontal, vertical);
@@ -56,15 +53,11 @@ export class Adventure {
             case 'viridia': {
                 const level = this.viridia!;
                 if (level.state.finished) {
-                    this.keyboardPulse = undefined;
                     this.borealis = new BorealisSimulation(borealis, this.journey);
                     this.world = 'borealis';
                     return;
                 }
-                const target = level.target;
-                const pulse = this.keyboardPulse?.target === target?.id ? this.keyboardPulse?.pulse : undefined;
-                this.keyboardPulse = undefined;
-                level.step(horizontal, vertical, { pulse: pulse ?? mic.pulse, sustained: spaceHeld || mic.sustained });
+                level.step(horizontal, vertical, mic);
                 break;
             }
             case 'borealis':
@@ -77,15 +70,8 @@ export class Adventure {
     private commandViridia(level: ViridiaSimulation, command: GameCommand): void {
         switch (command) {
             case 'interact': level.interact(); break;
-            case 'rewind': this.keyboardPulse = undefined; level.rewind(); break;
-            case 'restart': this.keyboardPulse = undefined; level.restart(); break;
-            case 'activateBridge': {
-                const target = level.target;
-                if (target && target.sound !== 'sustained') {
-                    this.keyboardPulse = { target: target.id, pulse: target.sound };
-                }
-                break;
-            }
+            case 'rewind': level.rewind(); break;
+            case 'restart': level.restart(); break;
         }
     }
 }

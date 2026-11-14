@@ -1,23 +1,23 @@
+import { WaymarkHud } from './WaymarkHud';
 import type { MicrophoneStatus } from '../input/microphone';
 import { STONE_SEQUENCE } from '../worlds/viridia/layout';
 import { viridiaObjectives } from '../worlds/viridia/objectives';
 import type { ViridiaState } from '../worlds/viridia/simulation';
 
 const micMessages: Record<MicrophoneStatus, string> = {
-    off: 'Enable the microphone or use Space.',
+    off: 'Enable the microphone to activate the sound puzzles.',
     requesting: 'Waiting for microphone permission.',
     calibrating: 'Stay quiet while the microphone calibrates.',
     ready: 'Microphone ready. Follow the sound prompt.',
-    denied: 'Microphone access blocked. Use Space.',
-    unavailable: 'Microphone unavailable. Use Space.',
+    denied: 'Allow microphone access in your browser and try again.',
+    unavailable: 'Connect a microphone and try again.',
 };
 
 export class ViridiaHud {
     private readonly objective = document.querySelector<HTMLElement>('#objective')!;
     private readonly checkmark = document.querySelector<HTMLElement>('#objective-completed')!;
     private readonly location = document.querySelector<HTMLElement>('#location')!;
-    private readonly route = document.querySelector<HTMLElement>('#route')!;
-    private readonly slots = Array.from(document.querySelectorAll('#waymarks li'));
+    private readonly waymarks = new WaymarkHud();
     private readonly micPanel = document.querySelector<HTMLElement>('#microphone')!;
     private readonly micText = document.querySelector<HTMLElement>('#mic-status')!;
     private readonly meter = document.querySelector<HTMLMeterElement>('#mic-level')!;
@@ -65,7 +65,6 @@ export class ViridiaHud {
             : next?.text ?? 'Viridia complete. Two Waymarks recovered.';
         this.setText(this.objective, this.checkTime > 0 && !state.finished ? '' : prompt);
         this.setText(this.location, 'Viridia · ' + state.areaName);
-        this.setText(this.route, `${state.waymarks} of 5 · Current world: Viridia`);
         if (this.stoneIndex !== state.stoneIndex) {
             this.stoneIndex = state.stoneIndex;
             this.compassSteps.forEach((step, index) => {
@@ -74,7 +73,7 @@ export class ViridiaHud {
                 step.setAttribute('aria-label', `${index + 1} ${STONE_SEQUENCE[index]}${solved ? ', complete' : ''}`);
             });
         }
-        this.slots.forEach((slot, index) => slot.classList.toggle('filled', index < state.waymarks));
+        this.waymarks.render(state.waymarks, 'Viridia');
         this.micPanel.hidden = state.treeAwake || state.finished;
         this.setText(this.micText, micMessages[status]);
         const active = ['ready', 'calibrating', 'requesting'].includes(status);

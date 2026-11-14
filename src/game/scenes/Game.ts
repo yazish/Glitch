@@ -104,15 +104,18 @@ export class Game extends Scene {
             }
         });
 
+        const stopMicrophone = () => {
+            this.microphone.disable();
+            this.voice = { sustained: false };
+        };
         const toggleMicrophone = (event: MouseEvent) => {
             if (event.detail > 0) gameElement.focus({ preventScroll: true });
             if (['ready', 'calibrating', 'requesting'].includes(this.microphone.status)) {
-                this.microphone.disable();
+                stopMicrophone();
             } else {
                 void this.microphone.enable();
             }
         };
-        const stopMicrophone = () => this.microphone.disable();
         this.hud.micButton.addEventListener('click', toggleMicrophone);
         window.addEventListener('pagehide', stopMicrophone);
         this.events.once('shutdown', () => {
@@ -131,7 +134,7 @@ export class Game extends Scene {
         this.elapsed += Math.min(delta, 100);
         while (this.elapsed >= STEP_MS) {
             const world = this.adventure.activeWorld;
-            this.adventure.step(horizontal, vertical, this.voice, this.keyboard.soundHeld);
+            this.adventure.step(horizontal, vertical, this.voice);
             if (this.adventure.activeWorld !== world) {
                 this.playTransition(world === 'hermes' ? 'to-viridia' : 'to-borealis');
                 return;
@@ -171,12 +174,12 @@ export class Game extends Scene {
     private pollMicrophone(delta: number): void {
         const { activeWorld, hermes, viridia, borealis } = this.adventure;
         if (activeWorld === 'hermes' && hermes.state.screen === 'outpost' && !hermes.state.bridgePermanent) {
-            if (this.microphone.poll(delta, hermes.state.canActivateBridge)) this.adventure.command('activateBridge');
+            if (this.microphone.pollHum(delta, hermes.canActivateBridge)) hermes.receiveHum();
             return;
         }
         const available = activeWorld === 'viridia' ? viridia?.needsMicrophone : borealis?.needsMicrophone;
         if (available) {
-            const sample = this.microphone.pollViridia(delta);
+            const sample = this.microphone.pollSound(delta);
             this.voice = { pulse: this.voice.pulse ?? sample.pulse, sustained: sample.sustained };
         } else {
             if (this.microphone.status !== 'off') this.microphone.disable();

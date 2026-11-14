@@ -157,7 +157,7 @@ export class ViridiaSimulation {
         if (target) {
             if (target.id === 'reflector' && !this.aligned) return 'E · Rotate the reflector toward the roots';
             const rotate = target.id === 'reflector' ? 'E · Rotate · ' : '';
-            const prompt = { soft: 'Soft sound · Tap Space', loud: 'Loud burst · Tap Space', sustained: 'Steady hum · Hold Space' };
+            const prompt = { soft: 'Short, soft sound', loud: 'Loud burst', sustained: 'Steady hum' };
             return rotate + prompt[target.sound];
         }
         if (this.treeAwake && !this.journey.hasWaymark('viridia')) {

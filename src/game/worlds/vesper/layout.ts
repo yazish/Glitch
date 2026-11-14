@@ -12,7 +12,6 @@ export const FIRING_POSITION: Point = { x: 365, y: 243 };
 export const WAYMARK: Point = { x: 252, y: 197 };
 export const TRANSMITTER: Point = { x: 389, y: 302 };
 export const PORTAL: Point = { x: 590, y: 303 };
-export const REQUIRED_WAYMARKS = 4;
 export const PORTAL_OPEN_TICKS = 180;
 export const PORTAL_PULL_TICKS = 150;
 export const ABYSS_TICKS = 210;

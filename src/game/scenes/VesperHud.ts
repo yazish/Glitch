@@ -1,7 +1,7 @@
+import { WaymarkHud } from './WaymarkHud';
 import type { VesperMicrophone } from '../worlds/vesper/microphone';
 import { ARENAS, TUNING } from '../worlds/vesper/layout';
 import type { VesperState } from '../worlds/vesper/simulation';
-import { VESPER_WAYMARK_TOTAL } from '../worlds/vesper/progress';
 
 import { vesperGuidance } from '../worlds/vesper/guidance';
 import { vesperTutorial } from './VesperTutorial';
@@ -11,7 +11,6 @@ export class VesperHud {
     private readonly location = document.querySelector<HTMLElement>('#location')!;
     private readonly objectiveGuide = document.querySelector<HTMLElement>('#objective-guide')!;
     private readonly objective = document.querySelector<HTMLElement>('#objective')!;
-    private readonly route = document.querySelector<HTMLElement>('#route')!;
     private readonly combat = document.querySelector<HTMLElement>('#vesper-combat')!;
     private readonly integrity = this.combat.querySelector<HTMLElement>('#vesper-integrity')!;
     private readonly health = this.combat.querySelector<HTMLElement>('#vesper-health')!;
@@ -28,7 +27,7 @@ export class VesperHud {
     private readonly micPanel = document.querySelector<HTMLElement>('#microphone')!;
     private readonly micText = document.querySelector<HTMLElement>('#mic-status')!;
     private readonly micLevel = document.querySelector<HTMLMeterElement>('#mic-level')!;
-    private readonly slots = Array.from(document.querySelectorAll('#waymarks li'));
+    private readonly waymarks = new WaymarkHud();
     readonly micButton = document.querySelector<HTMLButtonElement>('#mic-toggle')!;
     constructor() {
         for (const selector of ['#location', '#objective-guide', '#game-hud', '#star-map', '#vesper-hud']) {
@@ -46,8 +45,7 @@ export class VesperHud {
         this.objectiveGuide.hidden = cinematic;
         this.text(this.location, 'Vesper · ' + ARENAS[state.area].name);
         this.text(this.objective, (state.mode === 'arrival' ? '✓ ' : '☐ ') + vesperGuidance(state).task);
-        this.text(this.route, state.waymarks + ' of ' + VESPER_WAYMARK_TOTAL + ' Waymarks recovered');
-        this.slots.forEach((slot, index) => slot.classList.toggle('filled', index < state.waymarks));
+        this.waymarks.render(state.waymarks);
         this.text(this.integrity, state.integrity + ' / ' + TUNING.integrity);
         this.bar(this.health, state.integrity, TUNING.integrity);
         this.bar(this.charge, state.shield, TUNING.shieldCapacity);
@@ -60,7 +58,7 @@ export class VesperHud {
         this.tutorial.hidden = cinematic || state.mode === 'arrival' || performance.now() >= this.tutorialUntil;
         this.combat.hidden = cinematic || ['arrival', 'waymark', 'transmitter'].includes(state.mode);
         this.cannon.hidden = !state.cannonOnline;
-        this.text(this.cannon, state.cannon ? 'Cannon ' + Math.ceil(state.cannon / 60) + 's' : 'Cannon ready · B / sound');
+        this.text(this.cannon, state.cannon ? 'Cannon ' + Math.ceil(state.cannon / 60) + 's' : 'Cannon ready · Snap or clap');
         this.encounter.hidden = state.mode !== 'wave' && state.mode !== 'boss';
         const boss = state.drake;
         this.bossHealth.hidden = !boss;
@@ -77,12 +75,12 @@ export class VesperHud {
         const active = ['ready', 'requesting', 'calibrating'].includes(microphone.status);
         this.text(this.micButton, active ? 'Disable microphone' : 'Enable microphone');
         const status = {
-            off: 'Microphone off. Press B to fire the cannon.',
+            off: 'Enable the microphone to fire the resonance cannon.',
             requesting: 'Waiting for microphone permission.',
             calibrating: 'Stay quiet while the microphone calibrates.',
             ready: 'Microphone ready. Snap or clap to fire the cannon.',
-            denied: 'Microphone access denied. Press B to fire.',
-            unavailable: 'Microphone unavailable. Press B to fire.',
+            denied: 'Allow microphone access in your browser and try again.',
+            unavailable: 'Connect a microphone and try again.',
         };
         this.text(this.micText, status[microphone.status]);
         this.micLevel.value = Math.min(1, microphone.level * 8);

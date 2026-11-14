@@ -235,7 +235,7 @@ export class BorealisSimulation {
             const next = this.wind[this.area] === 1 ? 'left' : 'right';
             return 'F · Turn the wind ' + next;
         }
-        if (this.needsMicrophone) return 'Soft sound or Space · Resonate with the ice';
+        if (this.needsMicrophone) return 'Short, soft sound · Resonate with the ice';
         if (this.etching && contains(this.player, formation, 28)) return 'An etched constellation glows in the ice.';
         if (this.area === 'basin' && !this.blockMoving && contains(this.player, iceBlock.reach)) {
             return 'E · Slide the ice block into its recess';

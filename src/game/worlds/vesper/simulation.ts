@@ -1,3 +1,4 @@
+import { WAYMARK_TOTAL } from '../journey.ts';
 import { contains } from '../geometry.ts';
 import type { Point, Pose, Rect } from '../geometry.ts';
 import type { VesperProgress } from './progress.ts';
@@ -6,7 +7,7 @@ import { Drake, groundAttackHits } from './drake.ts';
 import type { DrakeAttack } from './drake.ts';
 import {
     ABYSS_TICKS, AMPLIFIER, ARENAS, BARRIER, BARRIER_CORE, BARRIER_FACE, BOSS_FEET, GEAR, PORTAL,
-    PORTAL_OPEN_TICKS, PORTAL_PULL_TICKS, REINFORCEMENTS, REQUIRED_WAYMARKS, TRANSMITTER, TUNING, WAYMARK, ZONES,
+    PORTAL_OPEN_TICKS, PORTAL_PULL_TICKS, REINFORCEMENTS, TRANSMITTER, TUNING, WAYMARK, ZONES,
 } from './layout.ts';
 import type { AreaId, Wave } from './layout.ts';
 import { riftbornBody, updateRiftborn } from './riftborn.ts';
@@ -31,7 +32,6 @@ export type VesperInput = Readonly<{
     shield?: boolean;
     cannon?: boolean;
     interact?: boolean;
-    synchronize?: boolean;
     restart?: boolean;
 }>;
 
@@ -122,7 +122,7 @@ export class VesperSimulation {
             return;
         }
         if (this.mode === 'calibration') {
-            if (input.interact || input.synchronize) this.synchronize();
+            if (input.interact) this.synchronize();
             else this.calibrationTick += 1;
             return;
         }
@@ -197,7 +197,7 @@ export class VesperSimulation {
                 break;
             case 'transmitter':
                 if (interact && distance(this.player, TRANSMITTER) < INTERACT_REACH
-                    && this.progressStore.waymarkCount >= REQUIRED_WAYMARKS) {
+                    && this.progressStore.waymarkCount >= WAYMARK_TOTAL) {
                     this.mode = 'portal';
                     this.sequenceTick = 0;
                     this.pullStart = this.player;
@@ -243,7 +243,7 @@ export class VesperSimulation {
         this.feedback = '';
         if (this.cannonOnline) {
             this.mode = 'barrier';
-            this.message('Cannon online. Face the violet gate and press B or snap.');
+            this.message('Cannon online. Face the violet gate and snap or clap.');
         }
     }
 
@@ -388,7 +388,7 @@ export class VesperSimulation {
         if (this.drake.phase === 2) this.schedule(REINFORCEMENTS);
         if (this.drake.defeated) {
             this.mode = 'waymark';
-            this.message('The rift is closing. The fourth Waymark is free.');
+            this.message('The rift is closing. The final Waymark is free.');
             this.effect(this.drake.muzzle, 'drakeDefeat', 105);
         }
     }
@@ -485,7 +485,7 @@ export class VesperSimulation {
         const armorBroken = this.drake.open;
         this.drake = new Drake();
         this.drake.open = armorBroken;
-        this.message(armorBroken ? 'Face the boss and hold K to shoot.' : 'Face the boss. Press B or snap once to break its armor.');
+        this.message(armorBroken ? 'Face the boss and hold K to shoot.' : 'Face the boss. Snap or clap once to break its armor.');
     }
 
     private retry(): void {

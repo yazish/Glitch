@@ -1,13 +1,15 @@
+import { WAYMARK_TOTAL } from '../worlds/journey';
+import { WaymarkHud } from './WaymarkHud';
 import type { HermesState } from '../worlds/hermes/simulation';
 import type { MicrophoneStatus } from '../input/microphone';
 
 const micMessages: Record<MicrophoneStatus, string> = {
-    off: 'Mic off · Hum near the bridge receiver or press Space.',
+    off: 'Enable the microphone to hum at the bridge receiver.',
     requesting: 'Waiting for microphone permission.',
     calibrating: 'Calibrating. Stay quiet for a moment.',
     ready: 'Microphone ready. Hum near the bridge.',
-    denied: 'Microphone access blocked. Use Space.',
-    unavailable: 'Microphone unavailable. Use Space.',
+    denied: 'Allow microphone access in your browser and try again.',
+    unavailable: 'Connect a microphone and try again.',
 };
 
 function objective(state: HermesState): string {
@@ -18,8 +20,8 @@ function objective(state: HermesState): string {
         if (!state.hasMap) return 'Find the star compass on the transit platform.';
         if (state.bridgePermanent) return 'Bridge secured. Head right to the anchor chamber.';
         if (state.bridgeOpen) return 'Bridge extended. Stay on the bridge to cross to the anchor chamber.';
-        if (state.canActivateBridge) return 'Hum or press Space to extend the bridge.';
-        return 'Home signal detected. Five Waymarks needed. Find the SING!!! cue near the bridge.';
+        if (state.canActivateBridge) return 'Hum steadily near the receiver to extend the bridge.';
+        return `Home signal detected. Collect ${WAYMARK_TOTAL} Waymarks. Find the SING!!! cue near the bridge.`;
     }
     if (state.canDepart) return 'Constellation route revealed! Next destination: Viridia. Enter the gateway.';
     if (state.recordingFull) return 'Recording limit reached. Press Esc to restart the chamber.';
@@ -43,8 +45,7 @@ export class HermesHud {
     private readonly objective = document.querySelector<HTMLElement>('#objective')!;
     private readonly completed = document.querySelector<HTMLElement>('#objective-completed')!;
     private readonly map = document.querySelector<HTMLElement>('#star-map')!;
-    private readonly route = document.querySelector<HTMLElement>('#route')!;
-    private readonly slots = Array.from(document.querySelectorAll<HTMLElement>('#waymarks li'));
+    private readonly waymarks = new WaymarkHud();
     private readonly micPanel = document.querySelector<HTMLElement>('#microphone')!;
     private readonly micText = document.querySelector<HTMLElement>('#mic-status')!;
     private readonly meter = document.querySelector<HTMLMeterElement>('#mic-level')!;
@@ -57,11 +58,10 @@ export class HermesHud {
         this.completed.hidden = !done;
         this.completed.textContent = state.screen === 'outpost' ? '✓ Find the Star Compass' : '✓ Collect the Waymark';
         this.map.hidden = !state.hasMap;
-        const route = state.canDepart
-            ? '1 of 5 · Constellation route complete · Next destination: Viridia'
-            : `0 of 5 · Current world: Hermes · Constellations: ${state.constellations}/3`;
-        if (this.route.textContent !== route) this.route.textContent = route;
-        this.slots.forEach((slot, i) => slot.classList.toggle('filled', i < state.waymarks));
+        const detail = state.canDepart
+            ? 'Constellation route complete · Next destination: Viridia'
+            : `Constellations: ${state.constellations}/3`;
+        this.waymarks.render(state.waymarks, detail);
 
         this.micPanel.hidden = state.screen !== 'outpost' || state.bridgePermanent;
         const micMessage = micMessages[status];

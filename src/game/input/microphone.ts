@@ -67,14 +67,14 @@ export class Microphone {
         }
     }
 
-    poll(delta: number, nearReceiver: boolean): boolean {
+    pollHum(delta: number, nearReceiver: boolean): boolean {
         if (!this.sample()) return false;
         const activated = this.detector.update(this.level, Math.min(delta, 50), nearReceiver);
         this.status = this.detector.calibrating ? 'calibrating' : 'ready';
         return activated;
     }
 
-    pollViridia(delta: number): SoundInput {
+    pollSound(delta: number): SoundInput {
         if (!this.sample()) return { sustained: false };
         const sampleMs = Math.min(delta, 50);
         if (this.detector.calibrating) {

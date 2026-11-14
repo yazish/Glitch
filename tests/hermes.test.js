@@ -16,7 +16,7 @@ function atReceiver() {
 
 function inChamber() {
     const game = atReceiver();
-    game.command('activateBridge');
+    game.receiveHum();
     while (game.state.player.x < hermes.chamber.startX) {
         const before = game.state.player;
         move(game, 1, 1);
@@ -102,7 +102,7 @@ test('the Echo replays walk phases and pauses, then idles at its last pose', () 
 
 test('the bridge requires proximity, enlarges the safe crossing box, and drops players who cross outside it', () => {
     const game = new HermesSimulation(hermes);
-    game.command('activateBridge');
+    game.receiveHum();
     assert.equal(game.state.bridgeOpen, false);
     move(game, 68, 1);
     assert.equal(game.state.hasMap, true);
@@ -126,7 +126,7 @@ test('the bridge requires proximity, enlarges the safe crossing box, and drops p
 
     // Attempting to cross outside the enlarged bridge bounds (y: 168..280) also drops the player.
     move(game, 68, 1);
-    game.command('activateBridge');
+    game.receiveHum();
     move(game, 43, 0, -1);
     for (let tick = 0; tick < 25 && game.state.riftFallProgress === undefined; tick++) move(game, 1, 1);
     assert.equal(game.state.riftFallProgress, 0);
@@ -137,13 +137,13 @@ test('the bridge requires proximity, enlarges the safe crossing box, and drops p
 
     // Crossing inside the enlarged bridge box holds while occupied and secures the bridge.
     move(game, 68, 1);
-    game.command('activateBridge');
+    game.receiveHum();
     move(game, 359);
     assert.equal(game.state.bridgeOpen, true);
     move(game, 1);
     assert.equal(game.state.bridgeOpen, false);
 
-    game.command('activateBridge');
+    game.receiveHum();
     move(game, 24, 1);
     assert.ok(game.state.player.x > hermes.outpost.bridge.x);
     move(game, 360);

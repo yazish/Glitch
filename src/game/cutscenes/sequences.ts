@@ -73,7 +73,7 @@ export const cutscenes: Record<CutsceneId, Sequence> = {
             },
             {
                 id: 'campus-arrival', draw: campus,
-                caption: 'Kobi landed in front of the University of Manitoba. The final Waymark was close.',
+                caption: 'With all four Waymarks recovered, Kobi made it home. He landed in front of the University of Manitoba.',
                 description: 'Kobi steps out of the portal onto the path in front of the University of Manitoba.',
             },
         ],

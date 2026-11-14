@@ -1,25 +1,25 @@
+import { WaymarkHud } from './WaymarkHud';
 import type { MicrophoneStatus } from '../input/microphone';
 import type { BorealisLayout } from '../worlds/borealis/layout';
 import { currentBorealisObjective } from '../worlds/borealis/objectives';
 import type { BorealisState } from '../worlds/borealis/simulation';
 
 const micMessages: Record<MicrophoneStatus, string> = {
-    off: 'Enable the microphone or tap Space at the resonant ice.',
+    off: 'Enable the microphone to reveal the ice etching.',
     requesting: 'Waiting for microphone permission.',
     calibrating: 'Stay quiet while the microphone calibrates.',
     ready: 'Make a short, soft sound near the resonant ice.',
-    denied: 'Microphone access blocked. Tap Space at the resonant ice.',
-    unavailable: 'Microphone unavailable. Tap Space at the resonant ice.',
+    denied: 'Allow microphone access in your browser and try again.',
+    unavailable: 'Connect a microphone and try again.',
 };
 
 export class BorealisHud {
     private readonly location = document.querySelector<HTMLElement>('#location')!;
-    private readonly route = document.querySelector<HTMLElement>('#route')!;
     private readonly objective = document.querySelector<HTMLElement>('#objective')!;
     private readonly checkmark = document.querySelector<HTMLElement>('#objective-completed')!;
     private readonly compass = document.querySelector<HTMLElement>('#borealis-compass-direction')!;
     private readonly compassPanel = document.querySelector<HTMLElement>('#viridia-compass')!;
-    private readonly slots = Array.from(document.querySelectorAll('#waymarks li'));
+    private readonly waymarks = new WaymarkHud();
     private readonly micPanel = document.querySelector<HTMLElement>('#microphone')!;
     private readonly micText = document.querySelector<HTMLElement>('#mic-status')!;
     private readonly meter = document.querySelector<HTMLMeterElement>('#mic-level')!;
@@ -46,11 +46,10 @@ export class BorealisHud {
         this.active = objective;
         this.checkTime = Math.max(0, this.checkTime - delta);
         this.checkmark.hidden = this.checkTime === 0;
-        this.setText(this.objective, state.finished ? 'Borealis complete · 3 / 5 Waymarks collected.'
+        this.setText(this.objective, state.finished ? 'Borealis complete. The portal leads to Vesper.'
             : this.checkTime > 0 ? '' : objective?.text ?? '');
         this.setText(this.location, 'Borealis · ' + state.areaName);
-        this.setText(this.route, `${state.waymarks} / 5 Waymarks collected · Borealis`);
-        this.slots.forEach((slot, index) => slot.classList.toggle('filled', index < state.waymarks));
+        this.waymarks.render(state.waymarks, 'Borealis');
 
         const target = objective?.target(this.layout, state);
         this.compass.hidden = !target;

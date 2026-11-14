@@ -92,16 +92,16 @@ export class HermesSimulation {
         } as const;
     }
 
+    receiveHum(): void {
+        if (!this.canActivateBridge) return;
+        this.bridgeTicks = BRIDGE_TICKS;
+        this.fellInRift = false;
+    }
+
     command(command: GameCommand): void {
         if (this.currentScreen === 'complete') return;
 
         switch (command) {
-            case 'activateBridge':
-                if (this.canActivateBridge) {
-                    this.bridgeTicks = BRIDGE_TICKS;
-                    this.fellInRift = false;
-                }
-                break;
             case 'rewind':
                 if (this.currentScreen === 'chamber' && !this.journey.hasWaymark('hermes') && this.replay.rewind()) {
                     this.machine.reset(true);

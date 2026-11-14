@@ -28,11 +28,11 @@ function walkthrough(game) {
 test('Adventure teleports forward through the Hermes and Viridia portals and keeps Waymarks', () => {
     const adventure = new Adventure();
     const move = (count, x = 0, y = 0) => {
-        for (let i = 0; i < count; i++) adventure.step(x, y, silent, false);
+        for (let i = 0; i < count; i++) adventure.step(x, y, silent);
     };
     const hermes = adventure.hermes;
     move(68, 1);
-    adventure.command('activateBridge');
+    hermes.receiveHum();
     while (hermes.state.player.x < 608) move(1, 1);
     move(43, 1);
     move(41, 0, -1);
@@ -69,8 +69,8 @@ test('Adventure teleports forward through the Hermes and Viridia portals and kee
     assert.deepEqual(adventure.player, viridia.entry);
 
     const controls = {
-        get state() { return adventure.viridia.state; },
-        step(x = 0, y = 0, sound = silent) { adventure.step(x, y, sound, sound.sustained); },
+        get state() { return { player: adventure.player }; },
+        step(x = 0, y = 0, sound = silent) { adventure.step(x, y, sound); },
     };
     const { go, hold, pulse } = walkthrough(controls);
 
@@ -80,20 +80,22 @@ test('Adventure teleports forward through the Hermes and Viridia portals and kee
     move(37, 0, 1);
     go('y', 224);
     go('x', 1760);
-    adventure.command('activateBridge');
-    adventure.step(0, 0, { pulse: 'soft', sustained: false }, false);
+    move(20);
+    assert.equal(adventure.viridia.state.flowersOpen, false);
+    pulse('soft');
     assert.equal(adventure.viridia.state.flowersOpen, true);
     go('x', 2125);
     adventure.command('interact');
     assert.equal(adventure.viridia.state.aligned, true);
-    adventure.command('activateBridge');
-    adventure.step(0, 0, { pulse: 'loud', sustained: false }, false);
+    pulse('loud');
     assert.equal(adventure.viridia.state.rootHits, 1);
-    for (let i = 0; i < 20; i++) adventure.step(0, 0, silent, true);
+    move(20);
     assert.equal(adventure.viridia.state.rootHits, 1);
 
     pulse('loud');
     go('x', 2355);
+    move(180);
+    assert.equal(adventure.viridia.state.vinesOpen, false);
     hold(180);
     go('y', 155);
     go('x', 2720);
@@ -122,6 +124,18 @@ test('Adventure teleports forward through the Hermes and Viridia portals and kee
     assert.equal(adventure.activeWorld, 'borealis');
     assert.equal(adventure.borealis.state.waymarks, 2);
     assert.deepEqual(adventure.player, borealis.areas.pass.entry);
+
+    // The optional etching also receives audio through the campaign coordinator.
+    const ice = borealis.formation;
+    go('x', ice.x + ice.width / 2);
+    go('y', ice.y);
+    assert.equal(adventure.borealis.state.needsMicrophone, true);
+    move(20);
+    assert.equal(adventure.borealis.state.etching, false);
+    pulse('soft');
+    assert.equal(adventure.borealis.state.etching, true);
+    assert.equal(adventure.borealis.state.waymarks, 2);
+    adventure.command('restart');
 
     // The active world receives wind and movement commands after Viridia remains in memory.
     move(170, 1);

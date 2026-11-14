@@ -10,8 +10,8 @@ import { CLAW_RANGE } from '../src/game/worlds/vesper/riftborn.ts';
 import { VesperSimulation } from '../src/game/worlds/vesper/simulation.ts';
 import { direction, distance, projectedCover, routeAroundCover, segmentHit } from '../src/game/worlds/vesper/space.ts';
 
-function start() {
-    return new VesperSimulation(new VesperPreviewProgress());
+function start(progress = new VesperPreviewProgress()) {
+    return new VesperSimulation(progress);
 }
 
 function tick(game, input = {}) {
@@ -71,7 +71,7 @@ function avenue(game) {
 function calibrate(game) {
     for (const [round, width] of ZONES.entries()) {
         until(game, ({ needle }) => Math.abs(needle - 0.5) < width / 4);
-        tick(game, round % 2 ? { synchronize: true } : { interact: true });
+        tick(game, { interact: true });
         assert.equal(game.state.round, round + 1);
     }
     assert.equal(game.state.mode, 'barrier');
@@ -212,11 +212,11 @@ test('calibration keeps successful rounds and the barrier ignores shotgun pellet
     assert.match(game.state.feedback, /Missed/);
     until(game, ({ needle }) => needle >= 0.48);
     tick(game, { interact: true });
-    tick(game, { synchronize: true });
+    tick(game, { interact: true });
     assert.equal(game.state.round, 1);
     for (const expected of [2, 3]) {
         until(game, ({ needle }) => needle >= 0.48);
-        tick(game, { synchronize: true });
+        tick(game, { interact: true });
         assert.equal(game.state.round, expected);
     }
     walk(game, FIRING_POSITION);
@@ -272,7 +272,11 @@ test('Drake armor stays open and attack warnings lock their footprints', () => {
 });
 
 test('a full run breaks the armor once and uses four Waymarks to open the portal and play the cutscene', () => {
-    const game = start();
+    let waymarkCount = 3;
+    const game = start({
+        get waymarkCount() { return waymarkCount; },
+        collectVesperWaymark() { waymarkCount = 4; },
+    });
     crown(game);
     assert.equal(game.state.waymarks, 3);
     assert.equal(game.state.player.facing, 'right');
@@ -306,6 +310,10 @@ test('a full run breaks the armor once and uses four Waymarks to open the portal
     tick(game, { interact: true });
     assert.equal(game.state.mode, 'transmitter');
     walk(game, TRANSMITTER);
+    waymarkCount = 3;
+    tick(game, { interact: true });
+    assert.equal(game.state.mode, 'transmitter');
+    waymarkCount = 4;
     tick(game, { interact: true });
     assert.equal(game.state.mode, 'portal');
     const beforePull = game.state.player;

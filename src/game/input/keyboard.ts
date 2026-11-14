@@ -1,7 +1,6 @@
 import type { GameCommand } from './commands';
 
 const commands: Partial<Record<string, GameCommand>> = {
-    Space: 'activateBridge',
     KeyR: 'rewind',
     KeyE: 'interact',
     KeyF: 'reverseWind',
@@ -19,10 +18,6 @@ export class KeyboardControls {
         window.addEventListener('keydown', this.keyDown);
         window.addEventListener('keyup', this.keyUp);
         window.addEventListener('blur', this.clear);
-    }
-
-    get soundHeld(): boolean {
-        return this.held.has('Space');
     }
 
     get movement() {
@@ -54,9 +49,8 @@ export class KeyboardControls {
             this.held.add(event.code);
         }
         const command = commands[event.code];
-        if (!command || (event.code === 'Space' && onControl)) return;
+        if (!command) return;
         event.preventDefault();
-        if (event.code === 'Space') this.held.add(event.code);
         if (!event.repeat) this.issue(command);
     };
 

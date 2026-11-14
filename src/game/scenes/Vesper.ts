@@ -23,13 +23,11 @@ export class Vesper extends Scene {
     private host: HTMLElement;
     private shieldKey = false;
     private shieldPointer = false;
-    private cannonKey = false;
     private shootKey = false;
     private shootPressed = false;
     private meleeKey = false;
     private loud = false;
     private interact = false;
-    private synchronize = false;
     private restart = false;
     private elapsed = 0;
     private shaking = false;
@@ -64,7 +62,6 @@ export class Vesper extends Scene {
         this.clearInput();
         this.keyboard = new KeyboardControls(this.host, (command) => {
             if (command === 'interact') this.interact = true;
-            if (command === 'activateBridge') this.synchronize = true;
             if (command === 'restart') this.restart = true;
         });
 
@@ -105,10 +102,9 @@ export class Vesper extends Scene {
             this.simulation.step({
                 ...this.keyboard.movement, shoot: this.shootKey || this.shootPressed,
                 melee: this.meleeKey, shield: this.shieldKey || this.shieldPointer,
-                cannon: this.cannonKey || this.loud, interact: this.interact,
-                synchronize: this.synchronize, restart: this.restart,
+                cannon: this.loud, interact: this.interact, restart: this.restart,
             });
-            this.cannonKey = this.meleeKey = this.loud = this.interact = this.synchronize = this.restart = false;
+            this.meleeKey = this.loud = this.interact = this.restart = false;
             this.shootPressed = false;
             const current = this.simulation.inputEpoch;
             if (current !== relocation) {
@@ -150,7 +146,6 @@ export class Vesper extends Scene {
     private readonly keyDown = (event: KeyboardEvent): void => {
         if (event.altKey || event.metaKey || event.ctrlKey || event.repeat) return;
         if (event.code === 'KeyF') this.shieldKey = true;
-        if (event.code === 'KeyB') this.cannonKey = true;
         if (event.code === 'KeyK') this.shootKey = this.shootPressed = true;
         if (event.code === 'KeyL') this.meleeKey = true;
     };
@@ -173,7 +168,7 @@ export class Vesper extends Scene {
     private readonly clearInput = (): void => {
         this.shieldPointer = false;
         this.shootKey = this.shootPressed = false;
-        this.shieldKey = this.cannonKey = this.meleeKey = this.loud = this.interact = this.synchronize = this.restart = false;
+        this.shieldKey = this.meleeKey = this.loud = this.interact = this.restart = false;
     };
 
     private readonly stopMicrophone = (): void => { this.loud = false; this.microphone.disable(); };

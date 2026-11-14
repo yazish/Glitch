@@ -19,14 +19,13 @@
             <aside id="vesper-transmission" class="vesper-story parchment" aria-labelledby="vesper-signal" hidden>
                 <h2 id="vesper-signal">Navigation signal restored</h2>
                 <p>Hermes → Viridia → Borealis → Vesper → Earth</p>
-                <p>Winnipeg, Manitoba · Two dimensional signatures detected</p>
-                <blockquote>“If you’re seeing this, you’ve reached the final connection. But the coordinates aren’t enough. You need to find the right home.”</blockquote>
-                <p>Final Waymark located at the University of Manitoba.</p>
+                <p>Destination confirmed · Winnipeg, Manitoba</p>
+                <p>All four Waymarks recovered. Portal locked onto the University of Manitoba.</p>
             </aside>
             <aside id="vesper-arrival" class="vesper-story parchment" aria-label="Earth arrival" hidden>
                 <h2>Earth · Winnipeg, Manitoba</h2>
                 <p>University of Manitoba</p>
-                <p>Vesper complete · Fourth Waymark recovered</p>
+                <p>Journey complete · All four Waymarks recovered</p>
             </aside>
             <aside id="objective-guide" class="parchment" aria-label="Current objective" aria-live="polite" hidden>
                 <h2>OBJECTIVE</h2>
@@ -56,8 +55,8 @@
         <div id="game-hud" hidden>
             <details id="hermes-help" class="controls-help parchment" hidden>
                 <summary>Controls</summary>
-                <p class="controls"><kbd>WASD</kbd> / <kbd>Arrows</kbd> Move <kbd>Space</kbd> Bridge <kbd>R</kbd> Record / rewind <kbd>Esc</kbd> Restart room</p>
-                <p id="how-to-play">In the chamber, your movement is recorded automatically. Press R once to rewind and leave an Echo that repeats your route; press R again to rewind again. Hum softly near the broken bridge receiver to reveal the bridge. Microphone is optional: Space also activates it.</p>
+                <p class="controls"><kbd>WASD</kbd> / <kbd>Arrows</kbd> Move <kbd>R</kbd> Record / rewind <kbd>Esc</kbd> Restart room</p>
+                <p id="how-to-play">In the chamber, your movement is recorded automatically. Press R once to rewind and leave an Echo that repeats your route; press R again to rewind again. Enable the microphone and hum steadily near the receiver to extend the bridge.</p>
             </details>
             <div id="vesper-hud" hidden>
                 <details class="controls-help parchment">
@@ -69,15 +68,13 @@
             </div>
             <section id="star-map" class="parchment" aria-labelledby="map-title" hidden>
                 <h2 id="map-title">Star compass</h2>
-                <ol id="waymarks" aria-label="Five Waymark slots">
-                    <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>
-                </ol>
+                <ol id="waymarks" aria-label="Waymark slots"></ol>
                 <p id="route" role="status"></p>
             </section>
-            <section id="microphone" class="parchment" aria-label="Optional voice input">
+            <section id="microphone" class="parchment" aria-label="Microphone controls">
                 <button id="mic-toggle" type="button">Enable microphone</button>
                 <meter id="mic-level" min="0" max="1" value="0" aria-label="Microphone input level"></meter>
-                <p id="mic-status" role="status">Microphone off. Space activates the bridge.</p>
+                <p id="mic-status" role="status">Enable the microphone to hum at the bridge receiver.</p>
             </section>
         </div>
     </main>

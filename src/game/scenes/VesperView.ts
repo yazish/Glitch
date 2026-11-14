@@ -1,8 +1,9 @@
+import { WAYMARK_TOTAL } from '../worlds/journey';
 import { DISPLAY_FONT, PARCHMENT_LABEL, READING_FONT } from '../typography';
 import type { GameObjects, Scene } from 'phaser';
 import type { Point } from '../worlds/geometry';
 import { AMPLIFIER, ARENAS, BARRIER, BARRIER_CORE, BARRIER_FACE, BOSS_FEET, FLOOR, GEAR,
-    PORTAL_OPEN_TICKS, REQUIRED_WAYMARKS, TRANSMITTER, WAYMARK, ZONES } from '../worlds/vesper/layout';
+    PORTAL_OPEN_TICKS, TRANSMITTER, WAYMARK, ZONES } from '../worlds/vesper/layout';
 import { vesperGuidance } from '../worlds/vesper/guidance';
 import { SHOCK_RADIUS } from '../worlds/vesper/drake';
 import type { DrakeAttack } from '../worlds/vesper/drake';
@@ -144,7 +145,7 @@ export class VesperView {
             .lineStyle(1, 0xafeed0).strokeRect(left, 253, green, 16);
         for (let x = left + 4; x < left + green; x += 6) art.lineBetween(x, 256, x, 266);
         art.fillStyle(0xffead0).fillRect(needle - 2, 248, 4, 26);
-        this.calibration.setText('Amplifier calibration · ' + (state.round + 1) + ' / 3\nE or Space in the striped zone');
+        this.calibration.setText('Amplifier calibration · ' + (state.round + 1) + ' / 3\nPress E in the striped zone');
         this.calibrationFeedback.setText(state.feedback);
     }
 
@@ -204,7 +205,7 @@ export class VesperView {
                 .fillStyle(STONE.right).fillRect(x - 15, y - 36, 30, 39)
                 .fillStyle(STONE.top).fillRoundedRect(x - 35, y - 49, 70, 23, 5)
                 .lineStyle(2, 0xb6a1cf).strokeRoundedRect(x - 35, y - 49, 70, 23, 5);
-            for (let slot = 0; slot < REQUIRED_WAYMARKS; slot++) {
+            for (let slot = 0; slot < WAYMARK_TOTAL; slot++) {
                 const at = x - 24 + slot * 16;
                 const inserted = state.mode === 'portal' && state.sequenceTick >= slot * 8;
                 art.fillStyle(inserted ? CYAN : 0x241c36)

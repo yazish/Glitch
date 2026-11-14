@@ -1,8 +1,11 @@
-export type WorldId = 'hermes' | 'viridia' | 'borealis';
+const WAYMARK_WORLDS = ['hermes', 'viridia', 'borealis', 'vesper'] as const;
+type WaymarkWorld = (typeof WAYMARK_WORLDS)[number];
+export type WorldId = Exclude<WaymarkWorld, 'vesper'>;
+export const WAYMARK_TOTAL = WAYMARK_WORLDS.length;
 
 export class Journey {
     private mapFound = false;
-    private readonly waymarks = new Set<WorldId | 'vesper'>();
+    private readonly waymarks = new Set<WaymarkWorld>();
 
     get hasMap(): boolean {
         return this.mapFound;
@@ -20,11 +23,11 @@ export class Journey {
         this.mapFound = true;
     }
 
-    collectWaymark(world: WorldId): void {
+    collectWaymark(world: WaymarkWorld): void {
         if (this.mapFound) this.waymarks.add(world);
     }
 
     collectVesperWaymark(): void {
-        if (this.mapFound) this.waymarks.add('vesper');
+        this.collectWaymark('vesper');
     }
 }
