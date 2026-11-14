@@ -24,11 +24,8 @@ import { preloadCircularMachine } from './CircularMachineView';
 import { preloadViridiaProps } from './ViridiaProps';
 import { preloadViridiaMagic } from './ViridiaMagic';
 import type { CutsceneId } from '../cutscenes/sequences';
-<<<<<<< HEAD
 import { AdventureAudio, preloadAdventureAudio } from '../audio/AdventureAudio';
-=======
 import { showControls } from './ControlsHud';
->>>>>>> origin/main
 
 export class Game extends Scene {
     private adventure: Adventure;
