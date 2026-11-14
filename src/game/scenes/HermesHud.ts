@@ -5,11 +5,7 @@ const micMessages: Record<MicrophoneStatus, string> = {
     off: 'Mic off · Hum near the bridge receiver or press Space.',
     requesting: 'Waiting for microphone permission.',
     calibrating: 'Calibrating. Stay quiet for a moment.',
-<<<<<<< HEAD
-    ready: 'Mic ready · Hum near the bridge receiver.',
-=======
     ready: 'Microphone ready. Hum near the bridge.',
->>>>>>> origin/main
     denied: 'Microphone access blocked. Use Space.',
     unavailable: 'Microphone unavailable. Use Space.',
 };
@@ -17,22 +13,6 @@ const micMessages: Record<MicrophoneStatus, string> = {
 function objective(state: HermesState): string {
     if (state.screen === 'complete') return 'Hermes complete. Next destination: Demeter.';
     if (state.screen === 'outpost') {
-<<<<<<< HEAD
-        if (!state.hasMap) return ['Find the Star Compass.', 'Move with WASD or the arrow keys.'][0];
-        if (state.bridgePermanent) return 'Go to the broken bridge.';
-        if (state.bridgeOpen) return 'Cross the bridge.';
-        if (state.canActivateBridge) return 'Hum near the gap to reveal the bridge, or press Space.';
-        return 'Go to the broken bridge. At the gap, hum softly to reveal it (or press Space).';
-    }
-    if (state.canDepart) return 'Hermes restored. Next destination: Demeter. Enter the gateway.';
-    if (state.canDepart) return 'Return to the gate and activate the portal.';
-    if (state.waymarks) return 'Return to the gate.';
-    if (state.echo && state.plateHeld) return 'Your Echo holds the plate. Go through the gate and find the Waymark.';
-    if (state.echo) return 'Your Echo is replaying your movement. Let it reach the glowing plate.';
-    if (state.recordingFull) return 'Recording full. Press R to rewind, or Esc to restart the room.';
-    if (state.plateHeld) return 'Press R to rewind and create an Echo on the plate.';
-    return 'Stand on the glowing pressure plate, then press R to rewind.';
-=======
         if (state.fellInRift) return 'You fell into the rift! Cross only on the extended bridge.';
         if (!state.hasMap) return 'Find the star compass on the transit platform.';
         if (state.bridgePermanent) return 'Bridge secured. Head right to the anchor chamber.';
@@ -56,7 +36,6 @@ function objective(state: HermesState): string {
     if (state.echo && state.plateHeld) return 'Cross the gate while your Echo holds the plate.';
     if (state.echo) return 'Watch your Echo reach its target. Esc clears the Echo.';
     return 'Stand on the pressure plate, then press R to rewind.';
->>>>>>> origin/main
 }
 
 export class HermesHud {
