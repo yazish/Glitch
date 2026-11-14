@@ -12,6 +12,7 @@ export function drawOutpostTerrain(
     floor: Rect,
     riftStart: number,
     riftEnd: number,
+    textured = false,
 ): void {
     const rift = { ...floor, x: riftStart, width: riftEnd - riftStart };
     const west = { ...floor, width: riftStart - floor.x };
@@ -20,8 +21,10 @@ export function drawOutpostTerrain(
     projection.surface(art, rift, RIFT);
     drawRiftBank(art, projection, rift, 'left');
     drawRiftBank(art, projection, rift, 'right');
-    projection.ground(art, west, DUST);
-    projection.ground(art, east, DUST);
+    if (!textured) {
+        projection.ground(art, west, DUST);
+        projection.ground(art, east, DUST);
+    }
 }
 
 function drawRiftBank(
